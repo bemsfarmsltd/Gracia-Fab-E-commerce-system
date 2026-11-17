@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | P1: sitemap reachable + real domain in robots/index.html; unsubscribe link in marketing emails; generic 500 errors | server/routes/sitemapRoutes.js, client/vercel.json, client/public/robots.txt, client/index.html (domain refs only), server/controllers/marketingController.js, server/services/emailService.js, new server/routes/emailRoutes.js, server/app.js, new server/utils/httpErrors.js, 500-responses in server/controllers/* | 17 Nov |
+| Claude Code | P1: sitemap reachable + real domain in robots/index.html; unsubscribe link in marketing emails; generic 500 errors | server/routes/sitemapRoutes.js, client/vercel.json, client/public/robots.txt, client/index.html + client/src/components/SEO.jsx (domain refs only), server/controllers/marketingController.js, server/services/emailService.js, new server/routes/emailRoutes.js, server/app.js, new server/utils/httpErrors.js, 500-responses in server/controllers/* | 17 Nov |
 
 ## Open questions
 
