@@ -95,6 +95,16 @@ function MyOrders() {
                     {order.status.toUpperCase()}
                   </span>
                 </div>
+                {order.refund?.status === "pending" && (
+                  <p className="order-refund-note">
+                    Refund of ₦{order.refund.amount?.toLocaleString("en-NG")} on its way to your original payment method.
+                  </p>
+                )}
+                {order.refund?.status === "refunded" && (
+                  <p className="order-refund-note">
+                    Refunded ₦{order.refund.amount?.toLocaleString("en-NG")}. It can take a few working days to show.
+                  </p>
+                )}
 
                 <div className="order-items-preview">
                   {order.orderItems.map((item, i) => (

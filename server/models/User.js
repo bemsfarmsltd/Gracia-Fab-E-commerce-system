@@ -126,7 +126,8 @@ const userSchema = new mongoose.Schema(
 
         type: {
           type: String,
-          enum: ["earn", "redeem"],
+          // "reversal": points taken back when a paid order is cancelled.
+          enum: ["earn", "redeem", "reversal"],
         },
 
         createdAt: {

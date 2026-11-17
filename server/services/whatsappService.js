@@ -57,6 +57,24 @@ export const messages = {
   orderShipped: (name, orderId) =>
     `🚚 *Your Order is on its Way!*\n\nHi ${name}! Order #${orderId} has been shipped and is heading to you.\n\nExpected delivery: 2–5 business days 📦\n\nTrack your order on the app.\n\n_Gracia Fab Beauty_`,
 
+  orderCancelled: (name, orderId, refundAmount) =>
+    `❌ *Order Cancelled*
+
+Hi ${name}, your Gracia Fab order #${orderId} has been cancelled.${refundAmount ? `
+
+💳 A refund of ₦${refundAmount.toLocaleString()} will be sent to your original payment method. We'll message you when it's on its way.` : ""}
+
+Questions? Just reply to this message.
+
+_Gracia Fab Beauty_`,
+
+  refundSent: (name, orderId, amount) =>
+    `💳 *Refund Sent*
+
+Hi ${name}, your refund of ₦${amount.toLocaleString()} for order #${orderId} has been sent. Depending on your bank it can take a few working days to show.
+
+_Gracia Fab Beauty_`,
+
   orderDelivered: (name) =>
     `🎉 *Order Delivered!*\n\nHi ${name}! Your Gracia Fab order has been delivered. We hope you love your new beauty products!\n\n✨ Don't forget to leave a review — it helps other beauty lovers.\n\n_Gracia Fab Beauty_`,
 

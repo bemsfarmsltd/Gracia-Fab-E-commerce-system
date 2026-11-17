@@ -10,7 +10,7 @@ import {
   uploadImage,
   bulkUpdateStock
 } from '../controllers/adminController.js'
-import { updateOrderStatus } from '../controllers/orderController.js'
+import { updateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
 import {
   listVouchers,
   createVoucher,
@@ -27,7 +27,7 @@ import {
   uploadImageSchema,
   bulkStockSchema,
 } from '../validators/adminValidators.js'
-import { updateOrderStatusSchema } from '../validators/orderValidators.js'
+import { updateOrderStatusSchema, cancelOrderSchema, markRefundedSchema } from '../validators/orderValidators.js'
 
 const router = express.Router()
 
@@ -36,6 +36,8 @@ router.use(protect, admin)
 
 router.get('/stats', getDashboardStats)
 router.get('/orders', getAllOrders)
+router.put('/orders/:id/cancel', validate(cancelOrderSchema), cancelOrderHandler)
+router.put('/orders/:id/refund', validate(markRefundedSchema), markRefundedHandler)
 router.put('/orders/:id', validate(updateOrderStatusSchema), updateOrderStatus)
 router.get('/products', getAllProducts)
 router.post('/products', validate(createProductSchema), createProduct)

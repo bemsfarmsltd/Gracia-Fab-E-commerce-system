@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 import logger from "../utils/logger.js";
 
+// Customer-supplied text (e.g. names) going into HTML emails.
+const escapeHtml = (s) =>
+  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
 // Sends over HTTPS via Resend's API rather than raw SMTP — Render (and most
 // PaaS hosts) block outbound SMTP ports (25/465/587) to prevent spam relay
 // abuse, so a direct nodemailer/Gmail connection can never succeed there.
@@ -107,6 +111,55 @@ export const emailTemplates = {
             <a href="https://gracia-fab.vercel.app/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               Track Order
+            </a>
+          </div>
+        </div>
+      </div>
+    `,
+  }),
+
+  orderCancelled: (name, orderId, refundAmount) => ({
+    subject: `Order #${orderId} cancelled | Gracia Fab`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #14213D, #1C2E52); padding: 32px; text-align: center;">
+          <h1 style="color: #FCA311; font-style: italic;">Gracia Fab</h1>
+          <div style="font-size: 48px;">❌</div>
+          <h2 style="color: #fff;">Your order has been cancelled</h2>
+        </div>
+        <div style="padding: 32px; color: rgba(255,255,255,0.8);">
+          <p>Hi <strong style="color: #FCA311;">${escapeHtml(name)}</strong>,</p>
+          <p>Your Gracia Fab order <strong>#${orderId}</strong> has been cancelled.</p>
+          ${refundAmount ? `<p>A refund of <strong style="color: #FCA311;">₦${refundAmount.toLocaleString()}</strong> will be sent to your original payment method. We'll email you when it's on its way.</p>` : ""}
+          <p>If you have any questions, just reply to this email or message us on WhatsApp.</p>
+          <div style="text-align: center; margin-top: 24px;">
+            <a href="https://gracia-fab.vercel.app/my-orders"
+               style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
+              View My Orders
+            </a>
+          </div>
+        </div>
+      </div>
+    `,
+  }),
+
+  refundSent: (name, orderId, amount) => ({
+    subject: `Refund sent for order #${orderId} | Gracia Fab`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #14213D, #1C2E52); padding: 32px; text-align: center;">
+          <h1 style="color: #FCA311; font-style: italic;">Gracia Fab</h1>
+          <div style="font-size: 48px;">💳</div>
+          <h2 style="color: #fff;">Your refund is on its way</h2>
+        </div>
+        <div style="padding: 32px; color: rgba(255,255,255,0.8);">
+          <p>Hi <strong style="color: #FCA311;">${escapeHtml(name)}</strong>,</p>
+          <p>We've sent your refund of <strong style="color: #FCA311;">₦${amount.toLocaleString()}</strong> for order <strong>#${orderId}</strong>.</p>
+          <p>Depending on your bank, it can take a few working days to show in your account.</p>
+          <div style="text-align: center; margin-top: 24px;">
+            <a href="https://gracia-fab.vercel.app/my-orders"
+               style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
+              View My Orders
             </a>
           </div>
         </div>

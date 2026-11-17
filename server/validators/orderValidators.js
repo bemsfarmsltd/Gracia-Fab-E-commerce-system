@@ -30,6 +30,15 @@ export const verifyPaymentSchema = z.object({
   reference: z.string().min(1).optional(),
 });
 
+export const cancelOrderSchema = z.object({
+  reason: z.string().trim().min(3, "Give a short reason for the cancellation").max(300),
+});
+
+export const markRefundedSchema = z.object({
+  reference: z.string().trim().min(3, "Enter the Monnify refund reference").max(100),
+  note: z.string().trim().max(300).optional(),
+});
+
 export const updateOrderStatusSchema = z.object({
   status: z.enum([
     "pending",
@@ -39,4 +48,7 @@ export const updateOrderStatusSchema = z.object({
     "delivered",
     "cancelled",
   ]),
+  // Was missing, so zod stripped it and admin notes were silently dropped
+  // (including the reason when cancelling from the status menu).
+  note: z.string().trim().max(300).optional(),
 });

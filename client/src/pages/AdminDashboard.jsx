@@ -64,6 +64,7 @@ function AdminDashboard() {
   }), []);
 
   const [adminError, setAdminError] = useState("");
+  const [adminNotice, setAdminNotice] = useState("");
 
   // GETs an admin endpoint. On failure the API returns { message } instead of
   // the expected list; storing that and then calling .map() on it crashed the
@@ -339,17 +340,50 @@ function AdminDashboard() {
     }
   };
 
-  const handleUpdateStatus = async (orderId, status) => {
+  // Sends an admin order action and reports the outcome (these used to fail
+  // silently, e.g. when the status rules rejected a change).
+  const sendOrderAction = async (url, body, successMessage) => {
+    setAdminError("");
+    setAdminNotice("");
     try {
-      await fetch(`${API_URL}/api/admin/orders/${orderId}`, {
-        method: "PUT",
-        headers: getHeaders(),
-        body: JSON.stringify({ status }),
-      });
-      fetchOrders();
+      const res = await fetch(url, { method: "PUT", headers: getHeaders(), body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "That didn't work. Please try again.");
+      setAdminNotice(successMessage);
     } catch (err) {
-      console.error(err);
+      setAdminError(err.message);
     }
+    fetchOrders();
+  };
+
+  const handleUpdateStatus = async (order, status) => {
+    if (status === "cancelled") {
+      const paid = order.isPaid;
+      const reason = window.prompt(
+        paid
+          ? `Cancel this paid order? Stock goes back, and a refund of ${formatPrice(order.totalPrice)} will be recorded as due (send it from the Monnify dashboard). The customer is told by email/WhatsApp.\n\nReason for cancelling:`
+          : "Cancel this unpaid order? The customer is told by email/WhatsApp.\n\nReason for cancelling:",
+      );
+      if (reason === null) return fetchOrders(); // put the menu back
+      return sendOrderAction(
+        `${API_URL}/api/admin/orders/${order._id}/cancel`,
+        { reason: reason.trim() },
+        paid ? "Order cancelled. Refund recorded as due." : "Order cancelled.",
+      );
+    }
+    return sendOrderAction(`${API_URL}/api/admin/orders/${order._id}`, { status }, `Order marked ${status}.`);
+  };
+
+  const handleMarkRefunded = (order) => {
+    const reference = window.prompt(
+      `Have you sent the ${formatPrice(order.refund.amount)} refund from the Monnify dashboard?\n\nEnter Monnify's refund reference:`,
+    );
+    if (!reference || !reference.trim()) return;
+    sendOrderAction(
+      `${API_URL}/api/admin/orders/${order._id}/refund`,
+      { reference: reference.trim() },
+      "Refund recorded. The customer has been told.",
+    );
   };
 
   const handleEditProduct = (product) => {
@@ -427,6 +461,11 @@ function AdminDashboard() {
         {adminError && (
           <div className="admin-error" role="alert" style={{ margin: "16px 0" }}>
             ⚠️ {adminError}
+          </div>
+        )}
+        {adminNotice && (
+          <div className="admin-success" role="status" style={{ margin: "16px 0" }}>
+            ✅ {adminNotice}
           </div>
         )}
 
@@ -880,6 +919,19 @@ function AdminDashboard() {
                         >
                           {order.status}
                         </span>
+                        {order.refund?.status === "pending" && (
+                          <div className="order-refund-due">
+                            Refund due {formatPrice(order.refund.amount)}
+                            <button type="button" className="btn-edit" onClick={() => handleMarkRefunded(order)}>
+                              Mark refunded
+                            </button>
+                          </div>
+                        )}
+                        {order.refund?.status === "refunded" && (
+                          <div className="order-refund-done" title={order.refund.reference}>
+                            Refunded ✓
+                          </div>
+                        )}
                       </td>
                       <td>
                         {new Date(order.createdAt).toLocaleDateString("en-NG")}
@@ -889,8 +941,9 @@ function AdminDashboard() {
                           className="status-select"
                           value={order.status}
                           aria-label={`Update status for order ${order._id}`}
+                          disabled={order.status === "cancelled"}
                           onChange={(e) =>
-                            handleUpdateStatus(order._id, e.target.value)
+                            handleUpdateStatus(order, e.target.value)
                           }
                         >
                           <option value="pending">Pending</option>

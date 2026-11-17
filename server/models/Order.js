@@ -85,6 +85,29 @@ const orderSchema = new mongoose.Schema(
 
     isDelivered: { type: Boolean, default: false },
     deliveredAt: Date,
+
+    // Exactly what markOrderPaid took out of stock (items that were short
+    // at payment time aren't listed), so a cancellation returns the right
+    // amounts. Older orders don't have it; see services/orderCancel.js.
+    stockCommitted: [
+      {
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        quantity: Number,
+      },
+    ],
+
+    cancelledAt: Date,
+    cancelReason: String,
+
+    // Refunds are sent in the Monnify dashboard; this records that one is
+    // owed and, once sent, its reference. "none" = nothing to refund.
+    refund: {
+      status: { type: String, enum: ["none", "pending", "refunded"], default: "none" },
+      amount: Number,
+      reference: String,
+      note: String,
+      refundedAt: Date,
+    },
   },
   { timestamps: true },
 );

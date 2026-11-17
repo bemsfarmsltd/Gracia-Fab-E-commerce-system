@@ -102,6 +102,7 @@ export async function markOrderPaid(filter, paymentResult) {
   if (!order) return null;
 
   const shortfalls = [];
+  const committed = []; // what was actually taken, for cancellations
 
   for (const item of order.orderItems) {
     // Conditional decrement: never takes stock below zero.
@@ -118,6 +119,7 @@ export async function markOrderPaid(filter, paymentResult) {
       shortfalls.push(`${item.name} (×${item.quantity})`);
       continue;
     }
+    committed.push({ product: item.product, quantity: item.quantity });
 
     if (product.stock <= 0 && product.isInStock) {
       product.isInStock = false;
@@ -125,12 +127,15 @@ export async function markOrderPaid(filter, paymentResult) {
     }
   }
 
+  order.stockCommitted = committed;
   if (shortfalls.length > 0) {
     order.statusHistory.push({
       status: order.status,
       note: `Paid but out of stock at payment time: ${shortfalls.join(", ")}. Restock or refund.`,
     });
-    await order.save();
+  }
+  await order.save();
+  if (shortfalls.length > 0) {
     logger.warn(
       { orderId: order._id, shortfalls },
       "Order paid but stock was insufficient for some items",

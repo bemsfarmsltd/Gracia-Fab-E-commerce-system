@@ -13,6 +13,7 @@ import { DELIVERY_FEE } from "../config/shipping.js";
 import { checkVoucher, VoucherError } from "../services/vouchers.js";
 import { confirmOrderPayment } from "../services/orderPayment.js";
 import { getMonnifyConfig } from "../services/monnify.js";
+import { cancelOrder, markRefunded, OrderCancelError } from "../services/orderCancel.js";
 
 // @desc   Create new order
 // @route  POST /api/orders
@@ -323,10 +324,47 @@ export const getOrderById = async (req, res) => {
   }
 };
 
+// @desc   Cancel an order that hasn't shipped (admin). If it was paid: stock
+//         back, voucher use freed, points reversed, refund recorded as due.
+// @route  PUT /api/admin/orders/:id/cancel
+export const cancelOrderHandler = async (req, res) => {
+  try {
+    const order = await cancelOrder(req.params.id, { reason: req.body.reason });
+    res.json(order);
+  } catch (error) {
+    if (error instanceof OrderCancelError) {
+      return res.status(400).json({ message: error.message });
+    }
+    logger.error({ err: error }, "cancelOrder error");
+    res.status(500).json({ message: "Couldn't cancel the order. Please try again." });
+  }
+};
+
+// @desc   Record that the refund for a cancelled order was sent (admin)
+// @route  PUT /api/admin/orders/:id/refund
+export const markRefundedHandler = async (req, res) => {
+  try {
+    const order = await markRefunded(req.params.id, req.body);
+    res.json(order);
+  } catch (error) {
+    if (error instanceof OrderCancelError) {
+      return res.status(400).json({ message: error.message });
+    }
+    logger.error({ err: error }, "markRefunded error");
+    res.status(500).json({ message: "Couldn't record the refund. Please try again." });
+  }
+};
+
 // @desc   Update order status (admin only)
 // @route  PUT /api/orders/:id/status
 export const updateOrderStatus = async (req, res) => {
   const { status, note } = req.body;
+
+  // Cancelling has side effects (stock, voucher, points, refund, customer
+  // messages), so it always goes through the cancellation service.
+  if (status === "cancelled") {
+    return cancelOrderHandler({ ...req, body: { reason: note || "Cancelled by admin" } }, res);
+  }
 
   try {
     const order = await Order.findById(req.params.id);

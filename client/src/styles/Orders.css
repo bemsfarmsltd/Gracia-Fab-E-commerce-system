@@ -293,3 +293,5 @@
 
 [data-theme="light"] .btn-view-order:hover { color: #ffffff; }
 [data-theme="dark"] .btn-view-order:hover { color: #000000; }
+/* Refund status on cancelled orders */
+.order-refund-note { margin: 8px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--success-bg); color: var(--success); font-size: 0.85rem; }
