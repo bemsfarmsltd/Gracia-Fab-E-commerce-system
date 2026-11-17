@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Claude Code | Store location Lagos → Umuahia, Abia (text only); admin tools: low-stock alerts, sales report, order CSV export | Lagos wording in client/src (About, Home, BeautyLanding, CartDrawer, Compare, Dashboard, ProductDetail, Products, ProductsLayout, Recommend, ShippingReturns, AiConciergeChat) + client/index.html; client/src/pages/AdminDashboard.jsx (+ its CSS), server/controllers/adminController.js, server/routes/adminRoutes.js, new server/tests for reports | 17 Nov |
 
 ## Open questions
 
