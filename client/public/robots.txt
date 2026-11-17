@@ -6,4 +6,4 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /my-orders
 
-Sitemap: https://graciafab.com/sitemap.xml
+Sitemap: https://gracia-fab.vercel.app/sitemap.xml

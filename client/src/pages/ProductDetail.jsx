@@ -304,7 +304,7 @@ export default function ProductDetail({ onCartOpen }) {
       "category": product.category || "Beauty",
       "offers": {
         "@type": "Offer",
-        "url": `https://graciafab.com/products/${product._id}`,
+        "url": `https://gracia-fab.vercel.app/products/${product._id}`,
         "priceCurrency": "NGN",
         "price": product.price,
         "availability": inStock

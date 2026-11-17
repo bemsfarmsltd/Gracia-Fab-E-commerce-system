@@ -4,9 +4,14 @@ function SEO({ title, description, keywords, image, url, type = "website", schem
   const siteName = "Gracia Fab";
   const defaultDesc =
     "Gracia Fab is your AI-powered beauty advisor. Get personalized skincare routines, haircare tips, wig styles and bridal beauty recommendations made just for you.";
+  // Brand still from the home page hero video (1200×630, the social-preview
+  // size), not a stock photo.
   const defaultImage =
-    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=630&fit=crop";
-  const baseUrl = "https://graciafab.com";
+    "https://res.cloudinary.com/dyzkjerez/video/upload/so_0,w_1200,h_630,c_fill,q_auto/v1789284554/Generate_a_high_end_glossy_c_1_arwzb5.jpg";
+  // The live site's address (graciafab.com isn't registered). If the store
+  // moves to its own domain, change it here, in client/index.html,
+  // client/public/robots.txt and FRONTEND_URL on Render (used by the sitemap).
+  const baseUrl = "https://gracia-fab.vercel.app";
 
   const fullTitle = title
     ? `${title} | ${siteName}`
