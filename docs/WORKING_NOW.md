@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Antigravity | P1: remaining contrast (.craft-eyebrow, .craft-cta-strip, .pdp-brand-eyebrow, hero dark fallback bg) | client/src/styles/About.css, client/src/styles/ProductDetail.css, client/src/styles/YslHome.css, docs/AUDIT.md | 17 Nov |
 
 ## Open questions
 
