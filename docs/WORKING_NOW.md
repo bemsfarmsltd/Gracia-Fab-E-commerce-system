@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | P2: auto-cancel unpaid orders after 48h; CORS localhost only outside production; admin route tests | server/app.js (CORS only), server/services/orderCancel.js, new server/jobs or scheduler entry for the cleanup, server/models/Order.js (if needed), new server/tests/admin*.test.js | 17 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 

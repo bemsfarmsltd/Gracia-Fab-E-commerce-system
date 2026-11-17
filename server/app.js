@@ -57,15 +57,21 @@ app.use(
   }),
 );
 
-// ── CORS configuration — must be early to affect all routes
+// ── CORS configuration — must be early to affect all routes.
+// The local dev servers are only allowed outside production, so a page
+// served from someone's localhost can't make logged-in calls to the live API.
+export const allowedOrigins = () =>
+  [
+    process.env.FRONTEND_URL, // Vercel URL
+    "https://gracia-fab.vercel.app",
+    ...(process.env.NODE_ENV === "production"
+      ? []
+      : ["http://localhost:5173", "http://localhost:5174"]),
+  ].filter(Boolean);
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      process.env.FRONTEND_URL, // Vercel URL
-      "https://gracia-fab.vercel.app", // your actual Vercel URL
-    ].filter(Boolean),
+    origin: allowedOrigins(),
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

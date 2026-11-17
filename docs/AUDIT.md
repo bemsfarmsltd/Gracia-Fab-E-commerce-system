@@ -48,7 +48,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - [ ] **Switch the CSP to enforce** (`CC`, after about a week). Check Render logs for `CSP violation (report-only)`, add any legitimate sources, then rename the header to `Content-Security-Policy` in `client/vercel.json`.
 - [ ] **The API takes about 34 seconds to wake up** (`YOU`). Render's free plan sleeps when idle, so the first visitor after a quiet spell waits. Upgrade the instance, or add an uptime ping (which also gives downtime alerts).
 - [ ] **No error monitoring** (`CX`). Add Sentry (or similar) to the client and server, so crashes caught by the ErrorBoundary and 500s are visible.
-- [ ] **Admin routes have no tests apart from stock and upload** (`CX`). Cover stats, product create, update and delete, order status changes and user listing.
+- [x] **Admin routes have no tests apart from stock and upload** (`CX`). Cover stats, product create, update and delete, order status changes and user listing. Done 17 Nov (CC), see P2 below.
 - [ ] **Staging isn't set up** (`YOU`, `docs/DEPLOYMENT.md`). Everything ships straight to production. A staging service would catch problems like the 11 November build break before customers do.
 
 ## P2: performance
@@ -103,11 +103,11 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P2: hardening and housekeeping
 
-- [ ] **Unpaid orders pile up** (`CC`). Pending orders are never cleaned up. Auto-cancel unpaid orders after 48 hours (stock isn't held, so it's just tidying admin and reports).
+- [x] **Unpaid orders pile up** (`CC`). Pending orders are never cleaned up. Auto-cancel unpaid orders after 48 hours (stock isn't held, so it's just tidying admin and reports). Done 17 Nov (CC): `services/orderCleanup.js` runs hourly from `server.js`. If a payment was started, it asks Monnify first and marks the order paid if the customer did pay; it sends no message to the customer.
 - [ ] **30-day logins kept in browser storage** (`CC`). Shorten to around 7 days with silent renewal, ideally after the CSP is enforced.
-- [ ] **CORS allows `localhost` in production** (`CC`). Only add the localhost origins when `NODE_ENV !== "production"`.
+- [x] **CORS allows `localhost` in production** (`CC`). Only add the localhost origins when `NODE_ENV !== "production"`. Done 17 Nov (CC): needs `NODE_ENV=production` on Render, which also turns on the generic 500 messages.
 - [ ] **Render free plan** (`YOU`). The server sleeps when idle: the first visitor waits about 30 s, and the 10:00 marketing job can't run while it's asleep. A paid instance or an uptime ping fixes both.
-- [ ] **Admin route tests** (`CC`). Stats, product CRUD, order status and the user list are still untested (stock, vouchers and uploads are covered).
+- [x] **Admin route tests** (`CC`). Stats, product CRUD, order status and the user list are still untested (stock, vouchers and uploads are covered). Done 17 Nov (CC): `tests/admin.test.js`. This also found that the user list sent login-code hashes to the browser; now fixed.
 - [x] **37 stock-photo links remain** (`AG`/`YOU`) — fixed image-error fallbacks in ProductCard, CartDrawer, Checkout, Products, RoutineStepCard, SkinToneDetector, and SkinAnalysis to `/product-placeholder.svg`. Remaining editorial stock photos (Home, About, Recommend, Hero) to be replaced when original brand imagery is provided (`YOU`).
 
 ## Upgrade ideas (product)

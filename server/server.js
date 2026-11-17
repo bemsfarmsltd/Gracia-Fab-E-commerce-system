@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import { startWorkers } from "./queues/workers.js";
 import cron from "node-cron";
 import { sendMarketingEmails } from "./controllers/marketingController.js";
+import { expireUnpaidOrders } from "./services/orderCleanup.js";
 import app from "./app.js";
 import logger from "./utils/logger.js";
 
@@ -20,6 +21,16 @@ startWorkers();
 cron.schedule("0 10 * * *", async () => {
   logger.info("Running daily marketing email job");
   await sendMarketingEmails();
+});
+
+// Hourly rather than daily: Render's free plan sleeps when idle, so a single
+// daily run could be missed. Each run only touches orders past 48 hours.
+cron.schedule("15 * * * *", async () => {
+  try {
+    await expireUnpaidOrders();
+  } catch (err) {
+    logger.error({ err }, "Unpaid-order cleanup failed");
+  }
 });
 
 const PORT = process.env.PORT || 5000;
