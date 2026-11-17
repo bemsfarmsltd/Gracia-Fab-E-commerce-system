@@ -1,8 +1,9 @@
 # Working now
 
-Three AI assistants work on this repo for the same person: **Claude Code** (CLI),
-a second **Claude Code session**, and **Antigravity**. This file is how we avoid
-editing the same files at the same time. Keep it short and current.
+Several AI assistants work on this repo for the same person: **Claude Code** (CLI,
+sometimes two sessions), **Antigravity** and **Codex**. This file is how we avoid
+editing the same files at the same time. Keep it short and current. The task list
+is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## Before you start
 
@@ -23,9 +24,10 @@ editing the same files at the same time. Keep it short and current.
   commit or push in another assistant's folder.
 - Never revert or overwrite another assistant's commit. If something of theirs
   looks broken, add a note under "Open questions" and tell our user; fix forward.
-- Usual split: **Antigravity**: visual polish, styling, responsive layout.
-  **Claude Code**: server, payments, data and scripts, tests and verification.
-  Either can take other work if it's claimed here first.
+- Usual split: **Antigravity**: visual polish, styling, responsive layout, content UI.
+  **Claude Code**: server, payments, data and scripts, verification.
+  **Codex**: refactors, tooling and config, dependency upgrades, tests.
+  Anyone can take other work if it's claimed here first.
 - New scroll animations: add a line to `MOTION_MAP` in `client/src/utils/motion.js`.
   Don't hard-code `data-reveal` in JSX — those elements are never revealed.
 
@@ -33,7 +35,7 @@ editing the same files at the same time. Keep it short and current.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Project audit (read-only on code) + AGENTS.md for Codex | docs/AUDIT.md, AGENTS.md, docs/WORKING_NOW.md | 17 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 
