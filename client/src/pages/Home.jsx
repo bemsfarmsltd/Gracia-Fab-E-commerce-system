@@ -7,6 +7,7 @@ import LiveCameraToneDetector from "../components/LiveCameraToneDetector";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import { AFRICAN_UNDERTONES } from "../utils/africanUndertones";
+import HeroVideo from "../components/HeroVideo";
 import "../styles/YslHome.css";
 
 
@@ -166,19 +167,8 @@ function Home({ onCartOpen }) {
       <section className="ysl-hero-section">
         <div className="ysl-hero-bg">
           <div className="ysl-hero-glow" />
-          <video
-            className="ysl-hero-video"
-            autoPlay
-            loop
-            muted
-            playsInline
-            aria-hidden="true"
-          >
-            <source
-              src="https://res.cloudinary.com/dyzkjerez/video/upload/v1789284554/Generate_a_high_end_glossy_c_1_arwzb5.mp4"
-              type="video/mp4"
-            />
-          </video>
+          {/* Still image first, video after the page loads (see HeroVideo). */}
+          <HeroVideo className="ysl-hero-video" />
           <div className="ysl-hero-overlay" />
           <div className="ysl-hero-watermark-mask" />
         </div>

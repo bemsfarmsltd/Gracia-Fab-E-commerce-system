@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | P2: hero video (home page speed) + product photo compression | client/src/pages/Home.jsx (hero video only), client/src/styles/YslHome.css (hero only), client/public/images/products/** | 17 Nov |
 | Antigravity | P1: product page rating fallback (No reviews yet) & admin header store name | client/src/pages/ProductDetail.jsx, client/src/pages/AdminDashboard.jsx, docs/AUDIT.md | 17 Nov |
 
 ## Open questions

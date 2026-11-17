@@ -53,9 +53,9 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P2: performance
 
-- [ ] **The home page loads slowly** (`AG`). It takes 4.2 s to show its main content on desktop and 4.8 s on mobile (under 2.5 s counts as good), and transfers 3.9 MB on a first visit, mostly the hero video. Use a poster image, lazy-load and compress the video (for example with Cloudinary's `q_auto`/`f_auto` options), and serve smaller versions on mobile.
+- [x] **Home page loads slowly** (`CC`, 17 Nov). The hero showed a 3.3 MB MP4 straight away. Now `HeroVideo` shows a 32 KB still of the first frame at once and starts the video only after page load (with a 1.5 s deadline): a Cloudinary-resized 1.25 MB at 1280 px on wider screens and 0.54 MB at 720 px on phones. Data saver or reduced motion get just the still. Measured on the production build over a throttled ~1.6 Mbps connection: largest-paint 0.66 s on desktop and 1.5 s on mobile (live site before: 4.2 s and 4.8 s), page weight before the video about 610 KB.
 - [x] **One large JavaScript file** (`CC`, 17 Nov). 15 pages now load on demand via `lazyWithReload`; only home, shop, product, cart, login and 404 ship up front. Main JS went from 540 to 335 KB (161 to 106 KB compressed) and main CSS from 312 to 181 KB. Monnify's SDK left `index.html` and loads only on checkout. The unused Facebook SDK (placeholder app ID, never initialised, tracked every visitor) was removed. The PWA no longer pre-downloads product photos and the logo on install (4.5 MB down to 1.2 MB); product and Cloudinary images are cached when viewed instead. The products-API cache rule's wrong host is fixed.
-- [ ] **The product photos are heavy** (`AG`). They total 8.3 MB, with several PNGs at 0.4 to 1 MB. Convert them to WebP at about 800 px, aiming for under 100 KB each, or serve them through Cloudinary's resizing.
+- [x] **Product photos heavy** (`CC`, 17 Nov). Re-encoded all 59 at max 800 px, keeping the same filenames and extensions (no catalog or database change): 8.3 MB down to 2.8 MB (−66%). Four were really AVIF saved as `.jpg` (they don't display on older iPhones and Android browsers) and are now real JPEGs. Visually checked against the originals; every file decodes and matches its extension.
 
 ## P2: accessibility
 
