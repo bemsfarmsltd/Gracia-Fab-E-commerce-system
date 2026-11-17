@@ -38,6 +38,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 | Claude Code | P0: products with no stock value (treat missing as 0) | server/controllers/orderController.js, server/services/orderPayment.js, server/data/zeroUncountedStock.js, outOfStock checks in client ProductCard.jsx / Products.jsx / ProductDetail.jsx | 17 Nov |
 | Claude Code | P0: real voucher codes (BEAUTY20 / GLOW05 / LUXE5K) | server: new Voucher model, validators, routes, orderController; client: Checkout.jsx, ProductDetail.jsx voucher section, AdminDashboard Vouchers tab | 17 Nov |
 | Codex | P1: dependency vulnerabilities (npm audit fix) | client/package.json, client/package-lock.json, server/package.json, server/package-lock.json, docs/AUDIT.md | 17 Nov |
+| Antigravity | P0: replace invented products & reviews in dashboard with real catalog items; add 404 page & missing logo.png | client/src/pages/Dashboard.jsx, client/src/pages/NotFound.jsx, client/src/App.jsx, client/public/logo.png | 17 Nov |
 
 ## Open questions
 
