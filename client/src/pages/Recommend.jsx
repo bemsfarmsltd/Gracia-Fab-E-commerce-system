@@ -81,7 +81,7 @@ const HAIR_TYPES = [
 
 const CLIMATE_CONCERNS = [
   { id: "hyper", label: "Hyperpigmentation & Dark Spots", icon: "☀️" },
-  { id: "oil", label: "Midday Shine & Lagos Humidity", icon: "💧" },
+  { id: "oil", label: "Midday Shine & Humidity", icon: "💧" },
   { id: "dry", label: "Harmattan Dryness & Flaking", icon: "🍂" },
   { id: "sun", label: "Sun Protection (Zero White Cast)", icon: "🛡️" },
   { id: "edges", label: "Edge Protection & Lace Tension", icon: "🌸" },
@@ -289,7 +289,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
       <SEO
         title="AI Beauty Advisor &amp; Consultation — Gracia Fab"
         description="Experience luxury step-by-step skincare, glueless raw wigs, and bridal beauty consultation calibrated for African complexions."
-        keywords="AI beauty advisor, Nigerian skincare, melanin undertone detector, raw wigs Lagos"
+        keywords="AI beauty advisor, Nigerian skincare, melanin undertone detector, raw wigs Nigeria"
         url="/recommend"
       />
 

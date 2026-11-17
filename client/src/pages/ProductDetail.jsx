@@ -675,8 +675,8 @@ export default function ProductDetail({ onCartOpen }) {
               <div className="pdp-perk-item">
                 <span className="pdp-perk-icon">🚚</span>
                 <div className="pdp-perk-text">
-                  <strong>Free Express Delivery</strong>
-                  <span>Complimentary for orders over ₦35,000 (Lagos 24h, Abuja 48h)</span>
+                  <strong>Nationwide Delivery</strong>
+                  <span>Flat ₦2,500, shipped from Umuahia, Abia State</span>
                 </div>
               </div>
               <div className="pdp-perk-item">

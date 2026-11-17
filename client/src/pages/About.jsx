@@ -9,8 +9,8 @@ function About({ onCartOpen }) {
     <>
       <SEO
         title="About Gracia Fab"
-        description="Gracia Fab is Nigeria's AI-powered beauty advisor — matching you to skincare, haircare, wigs and bridal beauty from one quick profile. Based in Lagos, shipping nationwide."
-        keywords="AI beauty advisor Nigeria, skincare Lagos, haircare Nigeria, raw hair wigs, bridal beauty Nigeria"
+        description="Gracia Fab is Nigeria's AI-powered beauty advisor — matching you to skincare, haircare, wigs and bridal beauty from one quick profile. Based in Umuahia, Abia State, shipping nationwide."
+        keywords="AI beauty advisor Nigeria, skincare Umuahia, beauty store Abia State, haircare Nigeria, raw hair wigs, bridal beauty Nigeria"
         url="/about"
       />
       <FloatingBackHeader backLabel="Back to Home" onCartOpen={onCartOpen} />
@@ -43,7 +43,7 @@ function About({ onCartOpen }) {
                   <span>Matched Recommendations</span>
                 </div>
                 <div className="craft-metric-item">
-                  <strong>Lagos</strong>
+                  <strong>Umuahia</strong>
                   <span>Based &amp; Inspected</span>
                 </div>
                 <div className="craft-metric-item">
@@ -98,7 +98,7 @@ function About({ onCartOpen }) {
                 Tell it about your skin, hair, and goals once, and that profile
                 carries across our Skin Analysis, Routine Generator and Skin Tone
                 Detector — powering real product matches across skincare, haircare,
-                wigs and bridal beauty, all from our Lagos-based store.
+                wigs and bridal beauty, all from our store in Umuahia, Abia State.
               </p>
               <Link to="/recommend" className="craft-text-link">
                 Try the AI Beauty Advisor →
@@ -154,7 +154,7 @@ function About({ onCartOpen }) {
                 <span className="craft-pillar-num">03</span>
                 <div className="craft-pillar-content">
                   <h3>Wigs</h3>
-                  <p>Single-donor raw hair, HD lace and glueless caps — inspected in Lagos, with an AI skin-tone match for lace and density.</p>
+                  <p>Single-donor raw hair, HD lace and glueless caps — inspected in Umuahia, with an AI skin-tone match for lace and density.</p>
                 </div>
               </div>
 
@@ -455,9 +455,9 @@ function About({ onCartOpen }) {
         {/* ── 11. Dark Trust Guarantee Banner (Sample 2) ── */}
         <section className="craft-guarantee-banner">
           <div className="craft-guarantee-inner">
-            <span className="craft-guarantee-badge">LAGOS CERTIFIED</span>
+            <span className="craft-guarantee-badge">UMUAHIA INSPECTED</span>
             <p className="craft-guarantee-text">
-              100% money-back raw hair purity guarantee. Inspected, tested, and certified in Lagos, Nigeria.
+              100% money-back raw hair purity guarantee. Inspected, tested, and certified in Umuahia, Abia State.
             </p>
           </div>
         </section>

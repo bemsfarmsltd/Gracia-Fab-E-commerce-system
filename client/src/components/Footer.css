@@ -78,6 +78,13 @@
   color: #3D0C10;
 }
 
+/* Plain text (the store's town), styled like the links but not one. */
+.ysl-footer-contact-text,
+.ysl-footer-contact-text:hover {
+  text-decoration: none;
+  color: var(--text);
+}
+
 .ysl-footer-contact-icon {
   font-size: 0.9rem;
 }

@@ -126,8 +126,8 @@ describe("Home Page Flagship Editorial", () => {
     renderHome();
 
     expect(screen.getByText(/save 20% on your/i)).toBeInTheDocument();
-    expect(screen.getByText("MAISON20")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /free delivery over ₦50,000/i })).toBeInTheDocument();
+    expect(screen.getByText("BEAUTY20")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /flat ₦2,500 delivery nationwide/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /exclusive vip member discounts/i })).toBeInTheDocument();
     expect(screen.getByText("14-Day Purity Guarantee")).toBeInTheDocument();
     expect(screen.getByText("Melanin-First Formulations")).toBeInTheDocument();

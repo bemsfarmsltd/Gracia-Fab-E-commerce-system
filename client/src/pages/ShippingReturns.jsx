@@ -51,14 +51,14 @@ function ShippingReturns({ onCartOpen }) {
             <section className="legal-section">
               <h2>2. Processing &amp; Estimated Delivery Times</h2>
               <p>
-                Orders are processed and packaged at our Lagos facility Monday through Saturday (excluding public holidays):
+                Orders are processed and packaged at our store in Umuahia, Abia State, Monday through Saturday (excluding public holidays):
               </p>
               <ul>
                 <li>
-                  <strong>Lagos Deliveries:</strong> 2 to 3 business days following payment confirmation.
+                  <strong>Within Abia State (Umuahia, Aba and nearby):</strong> 2 to 3 business days following payment confirmation.
                 </li>
                 <li>
-                  <strong>Major Cities (Abuja, Port Harcourt, Ibadan, Benin, Enugu):</strong> 3 to 5 business days.
+                  <strong>Major Cities (Lagos, Abuja, Port Harcourt, Enugu, Owerri):</strong> 3 to 5 business days.
                 </li>
                 <li>
                   <strong>Other States &amp; Regional Hubs:</strong> 4 to 7 business days depending on courier transit schedules.

@@ -8,7 +8,7 @@ import "./AiConciergeChat.css";
 const QUICK_PROMPTS = [
   "✨ Recommend skincare for hyperpigmentation",
   "👑 Best glueless raw wig for beginner",
-  "🌸 How long does delivery to Lagos take?",
+  "🌸 How long does delivery take?",
   "🎨 How do I find my foundation undertone?",
   "👰🏽 Help me prepare a bridal beauty routine",
 ];
@@ -25,8 +25,8 @@ const KNOWLEDGE_BASE = [
     link: { text: "Shop Raw Wigs →", url: "/products?category=wig" },
   },
   {
-    keywords: ["delivery", "shipping", "lagos", "abuja", "nationwide", "timeline", "dispatch", "monnify", "payment"],
-    reply: "Orders within **Lagos** are fulfilled via VIP dispatch within **24 hours**. For Abuja, Port Harcourt, and nationwide delivery across Nigeria, parcels arrive in **2–3 business days**. All orders above ₦35,000 receive complimentary Maison packaging & gift.",
+    keywords: ["delivery", "shipping", "lagos", "abuja", "umuahia", "abia", "nationwide", "timeline", "dispatch", "monnify", "payment"],
+    reply: "We're based in **Umuahia, Abia State**, and deliver to all 36 states and the FCT for a flat **₦2,500**. Delivery usually takes **2–7 business days** depending on where you are; see our Shipping & Returns page for details.",
   },
   {
     keywords: ["undertone", "shade", "skin tone", "detector", "foundation", "complexion"],

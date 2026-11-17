@@ -1083,7 +1083,7 @@ function Products({ onCartOpen }) {
                       </div>
 
                       <span className={`list-stock-status ${outOfStock ? "out" : "in"}`}>
-                        {outOfStock ? "• Out of Stock" : "• In Stock · Lagos Dispatch"}
+                        {outOfStock ? "• Out of Stock" : "• In Stock · Ships from Umuahia"}
                       </span>
 
                       <button

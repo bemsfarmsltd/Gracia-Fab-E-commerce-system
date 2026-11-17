@@ -34,7 +34,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Where do you deliver, and how much does it cost?",
-    a: "We deliver nationwide across Nigeria for a flat ₦2,500 delivery fee, with same-day dispatch available in Lagos.",
+    a: "We deliver nationwide across Nigeria for a flat ₦2,500 delivery fee, dispatched from our store in Umuahia, Abia State.",
   },
   {
     q: "How can I pay?",
@@ -42,7 +42,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Are your wigs genuine human hair?",
-    a: "Yes — every wig is 100% single-donor raw hair, inspected through a 14-point check in Lagos and backed by our money-back purity guarantee.",
+    a: "Yes — every wig is 100% single-donor raw hair, inspected through a 14-point check in Umuahia and backed by our money-back purity guarantee.",
   },
   {
     q: "Is my selfie safe when I use Skin Analysis?",
@@ -156,7 +156,7 @@ function Home({ onCartOpen }) {
       <SEO
         title="Gracia Fab — AI-Powered Beauty, Skincare, Haircare, Wigs & Bridal"
         description="Shop Gracia Fab's AI-matched skincare, haircare, wigs and bridal beauty essentials, curated for Nigerian skin, hair and climate."
-        keywords="beauty Nigeria, skincare Lagos, haircare products, wigs Nigeria, bridal beauty, AI beauty advisor"
+        keywords="beauty Nigeria, skincare Umuahia, beauty store Abia, haircare products, wigs Nigeria, bridal beauty, AI beauty advisor"
         url="/"
       />
 
@@ -227,7 +227,7 @@ function Home({ onCartOpen }) {
           <div className="ysl-ribbon-group">
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> 100% SINGLE-DONOR RAW HAIR</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> ZERO WHITE CAST MELANIN SPF</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> FORMULATED FOR LAGOS CLIMATE</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MADE FOR THE NIGERIAN CLIMATE</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MONNIFY SECURED CHECKOUT</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> FLAT ₦2,500 NATIONWIDE DELIVERY</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> AI UNDERTONE ACCURACY GUARANTEE</span>
@@ -235,7 +235,7 @@ function Home({ onCartOpen }) {
           <div className="ysl-ribbon-group" aria-hidden="true">
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> 100% SINGLE-DONOR RAW HAIR</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> ZERO WHITE CAST MELANIN SPF</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> FORMULATED FOR LAGOS CLIMATE</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MADE FOR THE NIGERIAN CLIMATE</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MONNIFY SECURED CHECKOUT</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> FLAT ₦2,500 NATIONWIDE DELIVERY</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> AI UNDERTONE ACCURACY GUARANTEE</span>
@@ -268,7 +268,7 @@ function Home({ onCartOpen }) {
             <div className="triad-card-content">
               <h3 className="triad-card-title">Get Radiant, Balanced Skin</h3>
               <p className="triad-card-desc">
-                Barrier-restoring hydration infused with niacinamide and ceramides to resist Lagos midday humidity and shine.
+                Barrier-restoring hydration infused with niacinamide and ceramides to resist midday humidity and shine.
               </p>
               <Link to="/products" className="triad-card-link">
                 <span>Explore Skincare</span>
@@ -334,7 +334,7 @@ function Home({ onCartOpen }) {
             <h2 className="ysl-new-store-title">
               New in Store <span className="ysl-new-store-star">✦</span>
             </h2>
-            <p className="ysl-new-store-sub">Just dropped from our Lagos beauty laboratory</p>
+            <p className="ysl-new-store-sub">Just landed at our Umuahia store</p>
           </div>
           <Link to="/products" className="ysl-new-store-view-all">
             <span>View All Arrivals</span>
@@ -445,7 +445,7 @@ function Home({ onCartOpen }) {
           {/* Card 1: Large Featured First-Order Offer */}
           <article className="ysl-promo-card ysl-promo-card-featured">
             <div className="promo-featured-text">
-              <span className="promo-eyebrow">✦ FIRST ORDER PRIVILEGE</span>
+              <span className="promo-eyebrow">✦ ORDERS OVER ₦25,000</span>
               <h3 className="promo-title">
                 Save 20% on Your <br />Bespoke Glow
               </h3>
@@ -454,7 +454,7 @@ function Home({ onCartOpen }) {
               </p>
               <div className="promo-coupon-badge">
                 <span className="coupon-label">USE CODE:</span>
-                <span className="coupon-code">MAISON20</span>
+                <span className="coupon-code">BEAUTY20</span>
               </div>
               <Link to="/products" className="promo-cta-btn promo-cta-btn-primary">
                 <span>Claim 20% Off</span>
@@ -477,9 +477,9 @@ function Home({ onCartOpen }) {
             <article className="ysl-promo-card ysl-promo-card-delivery">
               <div className="promo-card-content">
                 <span className="promo-eyebrow">✦ FAST NATIONWIDE DISPATCH</span>
-                <h3 className="promo-card-heading">Free Delivery Over ₦50,000</h3>
+                <h3 className="promo-card-heading">Flat ₦2,500 Delivery Nationwide</h3>
                 <p className="promo-card-desc">
-                  Enjoy complimentary same-day dispatch across Lagos and rapid door-to-door delivery across all 36 states.
+                  Shipped from our store in Umuahia, Abia State, door-to-door to all 36 states and the FCT.
                 </p>
                 <Link to="/#faq" className="promo-card-link">
                   <span>View Delivery Coverage</span>
@@ -488,7 +488,7 @@ function Home({ onCartOpen }) {
               </div>
               <div className="promo-card-visual" aria-hidden="true">
                 <span className="promo-visual-icon">🚚</span>
-                <span className="promo-visual-pill">Lagos Same-Day</span>
+                <span className="promo-visual-pill">Ships from Umuahia</span>
               </div>
             </article>
 
@@ -518,8 +518,8 @@ function Home({ onCartOpen }) {
           <div className="promo-perk-item">
             <span className="promo-perk-icon" aria-hidden="true">🚚</span>
             <div className="promo-perk-text">
-              <strong>Free Delivery over ₦50k</strong>
-              <span>Fast Lagos same-day &amp; nationwide express</span>
+              <strong>Flat ₦2,500 delivery</strong>
+              <span>Nationwide, shipped from Umuahia</span>
             </div>
           </div>
 
@@ -557,7 +557,7 @@ function Home({ onCartOpen }) {
             Formulated for African Complexions <em>✦</em>
           </h2>
           <p className="ysl-undertone-desc">
-            Every formula and shade in Gracia Fab is calibrated for melanin-rich skin in the Nigerian climate — from hot humid Lagos afternoons to dry Harmattan seasons.
+            Every formula and shade in Gracia Fab is calibrated for melanin-rich skin in the Nigerian climate — from hot, humid afternoons to dry Harmattan seasons.
           </p>
         </div>
 

@@ -156,9 +156,17 @@ function Contact({ onCartOpen }) {
             {/* Info cards */}
             <div className="contact-info">
               {/* No email card until there's a working address (graciafab.com
-                  doesn't exist, so hello@graciafab.com bounced), and no store
-                  card: there's no physical store address to show yet. The
-                  form above saves messages to the admin Messages tab. */}
+                  doesn't exist, so hello@graciafab.com bounced). The store
+                  card shows the town only until a street address is confirmed.
+                  The form above saves messages to the admin Messages tab. */}
+
+              <div className="contact-info-card">
+                <span className="contact-info-icon" aria-hidden="true">📍</span>
+                <div>
+                  <h3>Our Store</h3>
+                  <p>Umuahia, Abia State, Nigeria · Delivering to all 36 states and the FCT.</p>
+                </div>
+              </div>
 
               {/* Phone — opens phone dialer */}
               <a

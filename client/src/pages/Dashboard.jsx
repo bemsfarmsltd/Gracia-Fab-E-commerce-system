@@ -1432,7 +1432,7 @@ function Dashboard({ onCartOpen }) {
                     <span className="empties-tag">1-CLICK REPLENISHMENT</span>
                     <h3 className="empties-title">🧴 Replenish Your Routine Empties</h3>
                     <p className="empties-sub">
-                      Running low? Quick 1-click reorder for your daily staples with same-day Lagos dispatch.
+                      Running low? Quick 1-click reorder for your daily staples, delivered nationwide.
                     </p>
                   </div>
                 </div>
@@ -1457,7 +1457,7 @@ function Dashboard({ onCartOpen }) {
                           <strong className="empty-price">{formatPrice(item.price || 18000)}</strong>
                           <span className="empty-stock-badge">In Stock</span>
                         </div>
-                        <span className="empty-delivery-badge">⚡ Express Lagos Delivery</span>
+                        <span className="empty-delivery-badge">🚚 Nationwide Delivery</span>
                       </div>
                       <button
                         type="button"

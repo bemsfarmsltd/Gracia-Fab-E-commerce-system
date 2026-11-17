@@ -60,7 +60,7 @@ describe("Checkout", () => {
     fireEvent.change(screen.getByPlaceholderText(/house number/i), {
       target: { value: "1 Main St" },
     });
-    fireEvent.change(screen.getByPlaceholderText(/e.g. lagos/i), {
+    fireEvent.change(screen.getByPlaceholderText(/e.g. umuahia/i), {
       target: { value: "Lagos" },
     });
     fireEvent.change(screen.getByRole("combobox"), {
@@ -115,7 +115,7 @@ describe("Checkout", () => {
     fireEvent.change(screen.getByPlaceholderText(/house number/i), {
       target: { value: "1 Main St" },
     });
-    fireEvent.change(screen.getByPlaceholderText(/e.g. lagos/i), {
+    fireEvent.change(screen.getByPlaceholderText(/e.g. umuahia/i), {
       target: { value: "Lagos" },
     });
     fireEvent.change(screen.getByRole("combobox"), {
@@ -179,7 +179,7 @@ describe("Checkout", () => {
 
     fireEvent.change(screen.getByPlaceholderText(/08012345678/i), { target: { value: "08012345678" } });
     fireEvent.change(screen.getByPlaceholderText(/house number/i), { target: { value: "1 Main St" } });
-    fireEvent.change(screen.getByPlaceholderText(/e.g. lagos/i), { target: { value: "Lagos" } });
+    fireEvent.change(screen.getByPlaceholderText(/e.g. umuahia/i), { target: { value: "Lagos" } });
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "Lagos" } });
     fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
 

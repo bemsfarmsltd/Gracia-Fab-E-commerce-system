@@ -58,6 +58,10 @@ function Footer() {
                 <span className="ysl-footer-contact-icon" aria-hidden="true">☎</span>
                 Message us on WhatsApp
               </a>
+              <span className="ysl-footer-contact-link ysl-footer-contact-text">
+                <span className="ysl-footer-contact-icon" aria-hidden="true">📍</span>
+                Umuahia, Abia State, Nigeria
+              </span>
             </div>
 
             <div className="ysl-footer-social-row">

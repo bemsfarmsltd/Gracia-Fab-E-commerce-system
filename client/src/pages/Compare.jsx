@@ -547,7 +547,7 @@ function Compare({ onCartOpen }) {
                           ₦{Number(prod.price).toLocaleString()}
                         </strong>
                         <div className="cell-stock-status">
-                          <span className="stock-dot" /> In Stock & Ready to Dispatch (Lagos 24h)
+                          <span className="stock-dot" /> In Stock · Ships from Umuahia
                         </div>
                       </div>
                     ))}

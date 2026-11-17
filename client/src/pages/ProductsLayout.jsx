@@ -9,7 +9,7 @@ function ProductsLayout({ onCartOpen }) {
       <SEO
         title="Beauty Products"
         description="Shop our curated collection of skincare, haircare, wigs and bridal beauty products. AI-powered recommendations for every skin and hair type."
-        keywords="beauty products Nigeria, skincare Lagos, haircare products, wigs Nigeria, bridal beauty"
+        keywords="beauty products Nigeria, skincare Umuahia, haircare products, wigs Nigeria, bridal beauty"
         url="/products"
       />
       <FloatingBackHeader backLabel="Back to Home" onCartOpen={onCartOpen} />

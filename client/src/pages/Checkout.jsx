@@ -340,7 +340,7 @@ function Checkout({ onCartOpen }) {
                         name="city"
                         value={formData.city}
                         onChange={handleChange}
-                        placeholder="e.g. Lagos"
+                        placeholder="e.g. Umuahia"
                       />
                     </div>
                     <div className="form-group">

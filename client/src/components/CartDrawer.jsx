@@ -88,7 +88,7 @@ function CartDrawer({ isOpen, onClose }) {
         {/* Free Shipping / Delivery Trust Bar */}
         <div className="drawer-delivery-strip">
           <span className="delivery-icon">🚚</span>
-          <span>Flat ₦2,500 Nationwide Delivery · Lagos Same-Day Dispatch</span>
+          <span>Flat ₦2,500 Nationwide Delivery · Ships from Umuahia</span>
         </div>
 
         {/* Drawer Body */}

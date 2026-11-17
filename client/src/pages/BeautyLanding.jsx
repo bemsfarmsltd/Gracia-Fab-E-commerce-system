@@ -14,12 +14,12 @@ const LANDING_PAGES = {
     title: "Best Moisturiser for Oily Skin in Nigeria (2026)",
     h1: "Best Moisturiser for Oily Skin in Nigeria",
     description:
-      "Discover the top oil-free moisturisers and skincare products for oily skin in Nigeria. Expert picks from Gracia Fab — delivered across Lagos, Abuja & more.",
+      "Discover the top oil-free moisturisers and skincare products for oily skin in Nigeria. Expert picks from Gracia Fab — delivered nationwide from Umuahia, Abia State.",
     keywords:
-      "best moisturiser oily skin Nigeria, oil-free moisturiser Lagos, skincare oily skin Nigeria",
+      "best moisturiser oily skin Nigeria, oil-free moisturiser Umuahia, skincare oily skin Nigeria",
     category: "skincare",
     skinType: "oily",
-    intro: `Living in Nigeria with oily skin is a unique challenge. The hot, humid climate of Lagos and other cities can trigger excess sebum production, leaving skin looking shiny and prone to breakouts. The right moisturiser can transform your skin routine.`,
+    intro: `Living in Nigeria with oily skin is a unique challenge. Nigeria's hot, humid climate can trigger excess sebum production, leaving skin looking shiny and prone to breakouts. The right moisturiser can transform your skin routine.`,
     tips: [
       'Look for "non-comedogenic" or "oil-free" on the label',
       "Use a toner with niacinamide to control sebum first",
@@ -48,7 +48,7 @@ const LANDING_PAGES = {
     description:
       "Find the perfect wig style for your oval face in Nigeria. Lace fronts, bobs, body waves and more — curated by Gracia Fab beauty experts.",
     keywords:
-      "best wig oval face Nigeria, wig styles Lagos, lace front wigs Nigeria, oval face wig",
+      "best wig oval face Nigeria, wig styles Nigeria, lace front wigs Nigeria, oval face wig",
     category: "wig",
     intro: `If you have an oval face shape, you're in luck — it's considered the most versatile face shape for wigs. Almost any style works, but certain cuts enhance your natural beauty even more.`,
     tips: [
@@ -79,7 +79,7 @@ const LANDING_PAGES = {
     description:
       "Start your bridal glow journey 4–8 weeks before your wedding. Gracia Fab's expert bridal skincare routine for Nigerian skin tones.",
     keywords:
-      "bridal skincare Nigeria, wedding skincare routine Lagos, Nigerian bride glow routine",
+      "bridal skincare Nigeria, wedding skincare routine Nigeria, Nigerian bride glow routine",
     category: "bridal",
     intro: `Your wedding day is one of the most photographed days of your life. A consistent skincare routine starting 4–8 weeks before the ceremony gives your skin enough time to transform and glow naturally.`,
     tips: [
@@ -110,7 +110,7 @@ const LANDING_PAGES = {
     description:
       "Top-rated haircare products for type 4 natural hair in Nigeria. Moisturisers, curl creams, growth oils and more from Gracia Fab.",
     keywords:
-      "natural hair products Nigeria, type 4 hair Lagos, coily hair products Nigeria, natural hair care",
+      "natural hair products Nigeria, type 4 hair Nigeria, coily hair products Nigeria, natural hair care",
     category: "haircare",
     hairType: "coily",
     intro: `Natural hair in Nigeria deserves products formulated for our unique hair textures. From 4A to 4C coils, the right products lock in moisture, define curls, and promote healthy growth in Nigeria's climate.`,
@@ -131,7 +131,7 @@ const LANDING_PAGES = {
         a: "Castor oil, peppermint oil, and rosemary oil are the top three proven growth-stimulating oils.",
       },
       {
-        q: "How do I keep natural hair moisturised in Lagos heat?",
+        q: "How do I keep natural hair moisturised in Nigerian heat?",
         a: "Seal moisture with heavy butters like shea after applying water-based products. Protective styles help retain moisture longer.",
       },
     ],
@@ -142,7 +142,7 @@ const LANDING_PAGES = {
     description:
       "A dermatologist-approved skincare routine formulated for melanin-rich skin in Nigeria. Address hyperpigmentation, uneven tone, and dryness.",
     keywords:
-      "skincare dark skin Nigeria, melanin skincare Lagos, hyperpigmentation treatment Nigeria",
+      "skincare dark skin Nigeria, melanin skincare Nigeria, hyperpigmentation treatment Nigeria",
     category: "skincare",
     intro: `Dark skin is beautiful but has unique needs. Melanin-rich skin is more prone to hyperpigmentation, post-inflammatory marks, and requires specific ingredients that enhance rather than disrupt your natural tone.`,
     tips: [
