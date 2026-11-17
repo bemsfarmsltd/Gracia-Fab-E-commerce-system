@@ -36,7 +36,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
 | Codex | P1: dependency vulnerabilities (npm audit fix) | client/package.json, client/package-lock.json, server/package.json, server/package-lock.json, docs/AUDIT.md | 17 Nov |
-| Antigravity | P0: replace invented products & reviews in dashboard with real catalog items; add 404 page & missing logo.png | client/src/pages/Dashboard.jsx, client/src/pages/NotFound.jsx, client/src/App.jsx, client/public/logo.png | 17 Nov |
 
 ## Open questions
 

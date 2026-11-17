@@ -38,6 +38,7 @@ import Footer from "./components/Footer";
 import SkinAnalysis from "./pages/SkinAnalysis";
 import RoutineGenerator from "./pages/RoutineGenerator";
 import Compare from "./pages/Compare";
+import NotFound from "./pages/NotFound";
 import AiConciergeChat from "./components/AiConciergeChat";
 import { startMotion } from "./utils/motion";
 import "./styles/motion.css";
@@ -229,8 +230,8 @@ function App() {
           path="/routine-generator"
           element={<RoutineGenerator onCartOpen={openCart} />}
         />
-        {/* ── Catch all ── */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* ── Catch all (branded 404 page) ── */}
+        <Route path="*" element={<NotFound onCartOpen={openCart} />} />
       </Routes>
       </ErrorBoundary>
       <BackToTop />
