@@ -9,13 +9,15 @@ let app;
 let mongod;
 const originalEnv = process.env.NODE_ENV;
 
+// Starting a database and loading a fresh copy of the whole app is slow when
+// every test file runs in parallel, so allow more than the 10 s default.
 beforeAll(async () => {
   mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri());
   process.env.NODE_ENV = "production";
   vi.resetModules();
   app = (await import("../app.js")).default;
-});
+}, 60_000);
 
 afterAll(async () => {
   process.env.NODE_ENV = originalEnv;

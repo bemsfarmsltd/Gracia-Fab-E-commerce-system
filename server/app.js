@@ -204,6 +204,37 @@ app.post(
   },
 );
 
+// ── Content-Security-Policy violation reports from the website (client/vercel.json
+// sends them here while the CSP is in Report-Only mode). Logged so we can see
+// what an enforced policy would block before turning it on. Browsers send
+// these as application/csp-report (or reports+json), which the global JSON
+// parser below ignores, so this route parses them itself.
+app.post(
+  "/api/csp-report",
+  express.json({
+    type: ["application/csp-report", "application/reports+json", "application/json"],
+    limit: "16kb",
+  }),
+  (req, res) => {
+    const body = req.body || {};
+    const reports = Array.isArray(body) ? body.map((r) => r.body || r) : [body["csp-report"] || body];
+    for (const r of reports.slice(0, 10)) {
+      logger.warn(
+        {
+          csp: {
+            directive: r["violated-directive"] || r.effectiveDirective || r["effective-directive"],
+            blocked: r["blocked-uri"] || r.blockedURL,
+            page: r["document-uri"] || r.documentURL,
+            source: r["source-file"] || r.sourceFile,
+          },
+        },
+        "CSP violation (report-only)",
+      );
+    }
+    res.status(204).end();
+  },
+);
+
 // ── Global Body Parsers (after the Monnify webhook, before routes that require JSON body)
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));

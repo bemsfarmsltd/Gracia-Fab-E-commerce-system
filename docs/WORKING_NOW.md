@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | P2 performance (lazy-load heavy pages, Monnify script on demand, Cloudinary image caching) + P1 site security headers | client/src/App.jsx, client/index.html, client/vite.config.js, client/vercel.json, client/src/pages/Checkout.jsx (script loader only), client/src/utils/, server/app.js (CSP report endpoint) | 17 Nov |
 | Antigravity | P2: WCAG AA text contrast (darken muted text tokens in index.css) | client/src/index.css, docs/AUDIT.md | 17 Nov |
 
 ## Open questions

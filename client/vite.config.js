@@ -49,7 +49,31 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Don't pre-download product photos or the large logo on install:
+        // that was ~4.5 MB in the background for every first-time visitor.
+        // They're cached when actually viewed (runtimeCaching below).
+        globIgnores: ["**/images/products/**", "**/logo.png"],
         runtimeCaching: [
+          {
+            // Product photos shipped with the site (client/public/images/products).
+            urlPattern: ({ url, sameOrigin }) =>
+              sameOrigin && url.pathname.startsWith("/images/products/"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "product-images",
+              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            // Product and upload images hosted on Cloudinary.
+            urlPattern: /^https:\/\/res\.cloudinary\.com\/.*\/image\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "cloudinary-images",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
             handler: "CacheFirst",
@@ -59,8 +83,10 @@ export default defineConfig({
             },
           },
           {
+            // Was gracia-fab-api.onrender.com, which isn't the real API host,
+            // so this rule never matched.
             urlPattern:
-              /^https:\/\/gracia-fab-api\.onrender\.com\/api\/products.*/i,
+              /^https:\/\/gracia-fab(-api)?\.onrender\.com\/api\/products.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-products",

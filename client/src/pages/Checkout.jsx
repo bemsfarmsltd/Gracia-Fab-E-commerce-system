@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -7,11 +7,18 @@ import { useAuth } from "../hooks/useAuth";
 import SEO from "../components/SEO";
 import "../styles/Checkout.css";
 import API_URL from "../config";
+import { loadMonnify } from "../utils/loadScript";
 
 function Checkout({ onCartOpen }) {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Start loading Monnify's SDK as soon as checkout opens (it's no longer in
+  // index.html, so other pages don't pay for it). handlePayment waits for it.
+  useEffect(() => {
+    loadMonnify().catch(() => {});
+  }, []);
 
   // Once the order is saved, the server's totals are authoritative: it prices
   // items from the database and sets the delivery fee, and Monnify must be
@@ -155,9 +162,11 @@ function Checkout({ onCartOpen }) {
   // public Monnify API key and contract code — no payment keys live in the
   // client build.
   const handlePayment = async () => {
-    if (!window.MonnifySDK) {
+    try {
+      await loadMonnify();
+    } catch {
       setError(
-        "The payment window couldn't load. Check your connection and refresh the page.",
+        "The payment window couldn't load. Check your connection and try again.",
       );
       return;
     }

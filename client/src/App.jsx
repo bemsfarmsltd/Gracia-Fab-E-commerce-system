@@ -9,39 +9,48 @@ import { useAuth } from "./hooks/useAuth";
 import CartDrawer from "./components/CartDrawer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import VerifyCode from "./pages/VerifyCode";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
 import ProductsLayout from "./pages/ProductsLayout";
 import ProductDetail from "./pages/ProductDetail";
-import Recommend from "./pages/Recommend";
 import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import OrderConfirmation from "./pages/OrderConfirmation";
-import MyOrders from "./pages/MyOrders";
-import Dashboard from "./pages/Dashboard";
-import Wishlist from "./pages/Wishlist";
-// Lazy-loaded: only admins ever visit this route, so its ~1,100-line
-// bundle shouldn't ship in every visitor's initial page load.
-// lazyWithReload: recovers when a stale cached app asks for a code file that
-// a newer deploy has replaced (that left /admin blank).
-const AdminDashboard = lazyWithReload(() => import("./pages/AdminDashboard"));
 import lazyWithReload from "./utils/lazyWithReload";
 import ErrorBoundary from "./components/ErrorBoundary";
 import BackToTop from "./components/BackToTop";
 import InstallPrompt from "./components/InstallPrompt";
-import BeautyLanding from "./pages/BeautyLanding";
-import SkinToneDetector from "./components/SkinToneDetector";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import SkinAnalysis from "./pages/SkinAnalysis";
-import RoutineGenerator from "./pages/RoutineGenerator";
-import Compare from "./pages/Compare";
 import NotFound from "./pages/NotFound";
 import AiConciergeChat from "./components/AiConciergeChat";
 import { startMotion } from "./utils/motion";
 import "./styles/motion.css";
+
+// Code-split pages. Only the core shopping path (home, shop, product page,
+// cart, login, 404) ships in the first download; everything else loads when
+// visited. lazyWithReload recovers when a stale cached app asks for a code
+// file a newer deploy replaced (that once left /admin blank).
+const AdminDashboard = lazyWithReload(() => import("./pages/AdminDashboard"));
+const Register = lazyWithReload(() => import("./pages/Register"));
+const VerifyCode = lazyWithReload(() => import("./pages/VerifyCode"));
+const About = lazyWithReload(() => import("./pages/About"));
+const Contact = lazyWithReload(() => import("./pages/Contact"));
+const Recommend = lazyWithReload(() => import("./pages/Recommend"));
+const Checkout = lazyWithReload(() => import("./pages/Checkout"));
+const OrderConfirmation = lazyWithReload(() => import("./pages/OrderConfirmation"));
+const MyOrders = lazyWithReload(() => import("./pages/MyOrders"));
+const Dashboard = lazyWithReload(() => import("./pages/Dashboard"));
+const Wishlist = lazyWithReload(() => import("./pages/Wishlist"));
+const BeautyLanding = lazyWithReload(() => import("./pages/BeautyLanding"));
+const SkinToneDetector = lazyWithReload(() => import("./components/SkinToneDetector"));
+const SkinAnalysis = lazyWithReload(() => import("./pages/SkinAnalysis"));
+const RoutineGenerator = lazyWithReload(() => import("./pages/RoutineGenerator"));
+const Compare = lazyWithReload(() => import("./pages/Compare"));
+
+function PageLoading() {
+  return (
+    <p className="admin-loading" role="status" style={{ padding: "48px 16px", textAlign: "center", minHeight: "60vh" }}>
+      Loading…
+    </p>
+  );
+}
 
 // Wrapper pages
 function SkinToneDetectorPage({ onCartOpen }) {
@@ -107,6 +116,7 @@ function App() {
     <Router>
       <CartDrawer isOpen={cartOpen} onClose={closeCart} />
       <ErrorBoundary>
+      <Suspense fallback={<PageLoading />}>
       <Routes>
         {/* ── Public only (redirect to home if logged in) ── */}
         <Route
@@ -233,6 +243,7 @@ function App() {
         {/* ── Catch all (branded 404 page) ── */}
         <Route path="*" element={<NotFound onCartOpen={openCart} />} />
       </Routes>
+      </Suspense>
       </ErrorBoundary>
       <BackToTop />
       <InstallPrompt />
