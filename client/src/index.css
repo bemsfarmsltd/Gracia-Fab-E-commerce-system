@@ -51,6 +51,8 @@
   --success-bg:     rgba(74,139,94,0.1);
   --error:          #C0185A;
   --error-bg:       rgba(192,24,90,0.08);
+  --warning:        #8F4413;
+  --warning-bg:     rgba(193,101,47,0.14);
 
   --shadow-sm:      0 2px 12px rgba(122,36,50,0.14);
   --shadow-md:      0 6px 28px rgba(122,36,50,0.2);
@@ -99,6 +101,8 @@
   --success-bg:     rgba(93,190,133,0.12);
   --error:          #FF8FA3;
   --error-bg:       rgba(255,143,163,0.08);
+  --warning:        #FCA311;
+  --warning-bg:     rgba(252,163,17,0.14);
 
   --shadow-sm:      0 2px 12px rgba(0,0,0,0.5);
   --shadow-md:      0 8px 32px rgba(0,0,0,0.65);

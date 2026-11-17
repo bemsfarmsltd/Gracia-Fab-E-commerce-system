@@ -1,0 +1,70 @@
+.sales-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sales-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+  max-width: 75ch;
+}
+
+.sales-table td {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sales-bar-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.sales-bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  overflow: hidden;
+}
+
+.sales-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.sales-export-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.sales-export-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.sales-export-row input[type="date"] {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  color-scheme: inherit;
+}
+
+@media (max-width: 640px) {
+  .sales-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

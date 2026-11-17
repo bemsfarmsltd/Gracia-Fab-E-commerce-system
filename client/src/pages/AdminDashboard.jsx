@@ -5,11 +5,14 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import InventoryPanel from "../components/InventoryPanel";
 import VoucherPanel from "../components/VoucherPanel";
+import SalesPanel from "../components/SalesPanel";
+import { downloadOrdersCsv } from "../utils/adminDownload";
 import "../styles/Admin.css";
 import API_URL from "../config";
 
 const tabs = [
   { id: "overview", label: "📊 Overview" },
+  { id: "sales", label: "📈 Sales" },
   { id: "products", label: "🛍️ Products" },
   { id: "inventory", label: "📋 Inventory" },
   { id: "vouchers", label: "🎟️ Vouchers" },
@@ -472,6 +475,9 @@ function AdminDashboard() {
         {/* ── INVENTORY ── */}
         {activeTab === "inventory" && <InventoryPanel />}
 
+        {/* ── SALES ── */}
+        {activeTab === "sales" && <SalesPanel />}
+
         {/* ── VOUCHERS ── */}
         {activeTab === "vouchers" && <VoucherPanel />}
 
@@ -515,6 +521,34 @@ function AdminDashboard() {
                     </div>
                   </div>
                 </div>
+
+                {/* Stock alerts */}
+                {(stats?.lowStock?.length > 0 || stats?.outOfStockCount > 0) && (
+                  <div className="admin-section admin-stock-alert">
+                    <div className="admin-section-header">
+                      <h2>⚠️ Stock alerts</h2>
+                      <button
+                        type="button"
+                        className="btn-admin-cancel"
+                        onClick={() => setActiveTab("inventory")}
+                      >
+                        Open Inventory →
+                      </button>
+                    </div>
+                    <p>
+                      {stats.outOfStockCount > 0 && (
+                        <><strong>{stats.outOfStockCount} out of stock</strong> (customers can't buy these). </>
+                      )}
+                      {stats.lowStock.length > 0 && (
+                        <>
+                          <strong>{stats.lowStock.length} running low</strong> ({stats.lowStockThreshold} or fewer left):{" "}
+                          {stats.lowStock.slice(0, 8).map((p) => `${p.name} (${p.stock})`).join(", ")}
+                          {stats.lowStock.length > 8 && `, and ${stats.lowStock.length - 8} more`}.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                )}
 
                 {/* Recent Orders */}
                 <div className="admin-section">
@@ -874,6 +908,19 @@ function AdminDashboard() {
           <div className="admin-content">
             <div className="admin-section-header">
               <h2>All Orders ({orders.length})</h2>
+              <button
+                type="button"
+                className="btn-admin-cancel"
+                onClick={async () => {
+                  try {
+                    await downloadOrdersCsv();
+                  } catch (err) {
+                    setAdminError(err.message);
+                  }
+                }}
+              >
+                ⬇ Export CSV
+              </button>
             </div>
 
             {loading ? (

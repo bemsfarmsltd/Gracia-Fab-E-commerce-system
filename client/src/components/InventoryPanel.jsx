@@ -1,13 +1,23 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import API_URL from "../config";
 import { buildInventoryCsv, readInventoryCsv } from "../utils/inventoryCsv";
+import { LOW_STOCK } from "../utils/stock";
 import "./InventoryPanel.css";
 
 const FILTERS = [
   { id: "all", label: "All" },
+  { id: "low", label: "Low stock" },
   { id: "out", label: "Out of stock" },
   { id: "in", label: "In stock" },
 ];
+
+// Low stock: some left, but LOW_STOCK or fewer.
+const isLow = (p) => p.stock > 0 && p.stock <= LOW_STOCK;
+const matchesFilter = (p, filter) =>
+  filter === "out" ? !(p.stock > 0)
+    : filter === "in" ? p.stock > 0
+      : filter === "low" ? isLow(p)
+        : true;
 
 function authHeaders(extra = {}) {
   return {
@@ -56,20 +66,21 @@ function InventoryPanel() {
   }, [loadProducts]);
 
   const outOfStockCount = products.filter((p) => !(p.stock > 0)).length;
+  const lowStock = products.filter(isLow).sort((a, b) => a.stock - b.stock || a.name.localeCompare(b.name));
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products
-      .filter((p) =>
-        filter === "out" ? !(p.stock > 0) : filter === "in" ? p.stock > 0 : true,
-      )
+      .filter((p) => matchesFilter(p, filter))
       .filter(
         (p) =>
           !q ||
           p.name.toLowerCase().includes(q) ||
           (p.brand || "").toLowerCase().includes(q),
       )
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) =>
+        filter === "low" ? a.stock - b.stock || a.name.localeCompare(b.name) : a.name.localeCompare(b.name),
+      );
   }, [products, filter, query]);
 
   // Rows whose typed value is a valid whole number different from the saved one.
@@ -148,7 +159,13 @@ function InventoryPanel() {
           <h2>Inventory</h2>
           <p>
             {products.length} products ·{" "}
-            <strong>{outOfStockCount} out of stock</strong>. Products with no
+            <strong>{outOfStockCount} out of stock</strong>
+            {lowStock.length > 0 && (
+              <>
+                {" "}· <strong>{lowStock.length} running low</strong>
+              </>
+            )}
+            . Products with no
             count are out of stock and can't be bought until one is entered.
           </p>
         </div>
@@ -167,6 +184,22 @@ function InventoryPanel() {
           </label>
         </div>
       </div>
+
+      {lowStock.length > 0 && filter !== "low" && (
+        <div className="inventory-low-alert" role="status">
+          <p>
+            <strong>
+              ⚠️ {lowStock.length} product{lowStock.length === 1 ? " is" : "s are"} running low
+            </strong>{" "}
+            ({LOW_STOCK} or fewer left):{" "}
+            {lowStock.slice(0, 5).map((p) => `${p.name} (${p.stock})`).join(", ")}
+            {lowStock.length > 5 && `, and ${lowStock.length - 5} more`}.
+          </p>
+          <button type="button" className="btn-admin-cancel" onClick={() => setFilter("low")}>
+            Show low stock
+          </button>
+        </div>
+      )}
 
       {error && <div className="admin-error">⚠️ {error}</div>}
       {notice && <div className="admin-success">✅ {notice}</div>}
@@ -294,7 +327,9 @@ function InventoryPanel() {
                   />
                 </td>
                 <td>
-                  {product.stock > 0 ? (
+                  {isLow(product) ? (
+                    <span className="inventory-status low">Low · {product.stock} left</span>
+                  ) : product.stock > 0 ? (
                     <span className="inventory-status in">In stock</span>
                   ) : (
                     <span className="inventory-status out">Out of stock</span>

@@ -7,6 +7,7 @@ import {
   ImageStorageNotConfiguredError,
 } from '../services/imageStorage.js'
 import { sendServerError } from '../utils/httpErrors.js'
+import { LOW_STOCK_THRESHOLD } from '../config/inventory.js'
 import { ALLOWED_UPLOAD_MIME_TYPES } from '../validators/adminValidators.js'
 
 const MIME_TO_EXTENSION = {
@@ -24,8 +25,9 @@ export const getDashboardStats = async (req, res) => {
     const totalOrders = await Order.countDocuments()
     const totalUsers = await User.countDocuments()
 
+    // Cancelled paid orders are refunded, so they aren't revenue.
     const revenueData = await Order.aggregate([
-      { $match: { isPaid: true } },
+      { $match: { isPaid: true, status: { $ne: 'cancelled' } } },
       { $group: { _id: null, total: { $sum: '$totalPrice' } } }
     ])
 
@@ -36,12 +38,24 @@ export const getDashboardStats = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5)
 
+    // Low stock: 1..LOW_STOCK_THRESHOLD units. Out of stock: 0 or no count.
+    const [lowStock, outOfStockCount] = await Promise.all([
+      Product.find({ stock: { $gt: 0, $lte: LOW_STOCK_THRESHOLD } })
+        .select('name stock category')
+        .sort({ stock: 1, name: 1 })
+        .lean(),
+      Product.countDocuments({ $or: [{ stock: { $lte: 0 } }, { stock: null }] }),
+    ])
+
     res.json({
       totalProducts,
       totalOrders,
       totalUsers,
       totalRevenue,
-      recentOrders
+      recentOrders,
+      lowStockThreshold: LOW_STOCK_THRESHOLD,
+      lowStock,
+      outOfStockCount,
     })
   } catch (error) {
     return sendServerError(res, error, "adminController error");

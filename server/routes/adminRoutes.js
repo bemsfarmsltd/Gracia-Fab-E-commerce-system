@@ -10,6 +10,7 @@ import {
   uploadImage,
   bulkUpdateStock
 } from '../controllers/adminController.js'
+import { getSalesReport, exportOrdersCsv } from '../controllers/reportController.js'
 import { updateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
 import {
   listVouchers,
@@ -36,6 +37,8 @@ router.use(protect, admin)
 
 router.get('/stats', getDashboardStats)
 router.get('/orders', getAllOrders)
+router.get('/orders/export', exportOrdersCsv)
+router.get('/reports/sales', getSalesReport)
 router.put('/orders/:id/cancel', validate(cancelOrderSchema), cancelOrderHandler)
 router.put('/orders/:id/refund', validate(markRefundedSchema), markRefundedHandler)
 router.put('/orders/:id', validate(updateOrderStatusSchema), updateOrderStatus)

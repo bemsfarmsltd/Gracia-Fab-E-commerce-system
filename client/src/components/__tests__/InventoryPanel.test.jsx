@@ -51,4 +51,21 @@ describe("InventoryPanel", () => {
     expect(screen.getByText(/must be a whole number/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /no changes/i })).toBeDisabled();
   });
+
+  it("flags products running low and filters to them", async () => {
+    render(<InventoryPanel />);
+
+    // Body Wave Wig has 4 left (5 or fewer is low); Argan Oil is out, not low.
+    const alert = await screen.findByRole("status");
+    expect(alert).toHaveTextContent(/1 product is running low/i);
+    expect(alert).toHaveTextContent("Body Wave Wig (4)");
+    expect(screen.getByText("Low · 4 left")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /show low stock/i }));
+
+    expect(screen.getByRole("button", { name: "Low stock" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText(/stock for body wave wig/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/stock for argan oil/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /show low stock/i })).not.toBeInTheDocument();
+  });
 });

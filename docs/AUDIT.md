@@ -93,6 +93,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: fix soon
 
+- [x] **Store location said Lagos everywhere** (`CC`, fixed 17 Nov). The store is in **Umuahia, Abia State** (owner-confirmed). The wording is fixed site-wide, and the Contact page and footer show the town (no street address yet). Lagos same-day/24h promises and "free delivery over ₦50,000/₦35,000" were removed (the server always charges a flat ₦2,500), and the home page's non-existent MAISON20 code was replaced by BEAUTY20. Don't reintroduce Lagos as the store's location.
+
 - [x] **Paid orders can now be cancelled and refunded** (`CC`, 17 Nov). Choosing "Cancelled" in Admin → Orders (or `PUT /api/admin/orders/:id/cancel`) asks for a reason and cancels any order that hasn't shipped. For a paid order it returns exactly the stock payment took (`stockCommitted`, recorded by `markOrderPaid`; older orders get all items back), frees the voucher use, reverses the loyalty points and records a refund of the order total as **due**. The customer gets an email and WhatsApp. After sending the refund in the Monnify dashboard, the admin clicks **Mark refunded** with Monnify's reference (`PUT /api/admin/orders/:id/refund`) and the customer is told. Cancelling is atomic, so a double click can't return stock twice. Shipped orders are refused ("handle it as a return"). My Orders shows the refund status. Also fixed: admin status notes were silently stripped by the validator, and status-menu failures were silent.
 - [x] **Google can't find a sitemap** (`CC`). `robots.txt` and the sitemap use `graciafab.com`, which doesn't exist, and the sitemap lives on the API server while `/sitemap.xml` on the website returns the app. Build URLs from `FRONTEND_URL` and serve `/sitemap.xml` on the website (Vercel rewrite to the API). Done 17 Nov (CC): `/sitemap.xml` on the website is rewritten to the API, which builds URLs from `FRONTEND_URL`.
 - [x] **Shop and product pages have no SEO data** (`AG`) — fixed. Added category-aware `<SEO>` to `Products.jsx`, and per-product `<SEO>` with Product structured data (Schema.org JSON-LD with NGN pricing, stock availability, and aggregate reviews) to `ProductDetail.jsx`, covered by unit test.
@@ -117,10 +119,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - **Pay on delivery for Lagos.**
 - **Abandoned-cart and back-in-stock emails** (once email delivery is fixed).
 - **Review requests** after delivery, with a "Verified buyer" badge.
-- **Admin:**
-  - Low-stock alerts in Inventory.
-  - Sales by product and by month.
-  - Order CSV export.
+- ~~**Admin:** low-stock alerts, sales by product and month, order CSV export.~~ Done 17 Nov (CC): Sales tab, Inventory low-stock filter and alert, Overview stock alerts, and Export CSV on Orders and Sales.
 - **Let customers spend loyalty points at checkout**, so earned points turn into repeat sales.
 - **Proper product variants** (shade, wig length, size), each with its own stock and price.
 - **Bridal bundles:** a curated set at a bundle price, priced on the server like vouchers.

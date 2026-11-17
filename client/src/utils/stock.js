@@ -10,7 +10,8 @@ export function isOutOfStock(product) {
   return !(Number(product.stock) > 0);
 }
 
-const LOW_STOCK = 5;
+// Same number as server/config/inventory.js (admin low-stock alerts).
+export const LOW_STOCK = 5;
 
 // Customer-facing stock text, from the real count.
 export function stockLabel(product) {

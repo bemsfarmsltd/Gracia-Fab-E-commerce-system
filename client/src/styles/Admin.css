@@ -552,3 +552,28 @@
 .order-refund-due { margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: var(--error); }
 .order-refund-due .btn-edit { padding: 3px 10px; font-size: 0.75rem; }
 .order-refund-done { margin-top: 6px; font-size: 0.8rem; font-weight: 600; color: var(--success); }
+
+/* Overview: low / out-of-stock alert */
+.admin-stock-alert {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 1.5rem;
+}
+
+.admin-stock-alert .admin-section-header {
+  margin-bottom: 0.5rem;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-stock-alert h2 {
+  color: var(--warning);
+  margin: 0;
+}
+
+.admin-stock-alert p {
+  margin: 0;
+  color: var(--text);
+}
