@@ -20,6 +20,8 @@ export const createOrderSchema = z.object({
   // Accepted for backwards compatibility but ignored — the server sets the
   // delivery fee (see config/shipping.js).
   deliveryPrice: z.number().nonnegative().optional(),
+  // Optional discount code; validated and priced on the server.
+  voucherCode: z.string().trim().max(30).optional(),
 });
 
 // The server verifies the reference it generated and stored on the order;

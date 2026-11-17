@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import InventoryPanel from "../components/InventoryPanel";
+import VoucherPanel from "../components/VoucherPanel";
 import "../styles/Admin.css";
 import API_URL from "../config";
 
@@ -11,6 +12,7 @@ const tabs = [
   { id: "overview", label: "📊 Overview" },
   { id: "products", label: "🛍️ Products" },
   { id: "inventory", label: "📋 Inventory" },
+  { id: "vouchers", label: "🎟️ Vouchers" },
   { id: "orders", label: "📦 Orders" },
   { id: "users", label: "👥 Users" },
   { id: "messages", label: "💌 Messages" },
@@ -430,6 +432,9 @@ function AdminDashboard() {
 
         {/* ── INVENTORY ── */}
         {activeTab === "inventory" && <InventoryPanel />}
+
+        {/* ── VOUCHERS ── */}
+        {activeTab === "vouchers" && <VoucherPanel />}
 
         {/* ── OVERVIEW ── */}
         {activeTab === "overview" && (

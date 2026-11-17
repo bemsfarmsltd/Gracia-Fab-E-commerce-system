@@ -10,6 +10,7 @@ import {
 import { emailTemplates } from "../services/emailService.js";
 import logger from "../utils/logger.js";
 import { DELIVERY_FEE } from "../config/shipping.js";
+import { checkVoucher, VoucherError } from "../services/vouchers.js";
 import { confirmOrderPayment } from "../services/orderPayment.js";
 import { getMonnifyConfig } from "../services/monnify.js";
 
@@ -19,7 +20,7 @@ export const createOrder = async (req, res) => {
   try {
     // deliveryPrice from the client is deliberately ignored — the server sets
     // the fee, otherwise a tampered request could skip it entirely.
-    const { orderItems, deliveryAddress } = req.body;
+    const { orderItems, deliveryAddress, voucherCode } = req.body;
     const deliveryPrice = DELIVERY_FEE;
 
     // Recalculate prices from database
@@ -87,7 +88,24 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    const totalPrice = itemsPrice + deliveryPrice;
+    // ── VOUCHER (re-checked here on the server; the checkout preview is only
+    // a preview). The discount comes off the items, never delivery.
+    let voucher;
+    let discount = 0;
+    if (voucherCode) {
+      try {
+        const result = await checkVoucher({ code: voucherCode, userId: req.user._id, itemsPrice });
+        discount = result.discount;
+        voucher = { code: result.voucher.code, discount };
+      } catch (error) {
+        if (error instanceof VoucherError) {
+          return res.status(400).json({ message: error.message });
+        }
+        throw error;
+      }
+    }
+
+    const totalPrice = itemsPrice - discount + deliveryPrice;
 
     // ── CREATE ORDER
     const order = await Order.create({
@@ -98,6 +116,10 @@ export const createOrder = async (req, res) => {
       deliveryAddress,
 
       itemsPrice,
+
+      voucher,
+
+      discount,
 
       deliveryPrice,
 

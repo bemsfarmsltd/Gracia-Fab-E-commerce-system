@@ -20,9 +20,18 @@ function Checkout({ onCartOpen }) {
   // server/config/shipping.js.
   const DELIVERY_ESTIMATE = 2500;
   const [serverTotals, setServerTotals] = useState(null);
+
+  // Voucher: previewed by the server here, then applied for real (re-checked
+  // and re-priced) by the server when the order is created.
+  const [voucherInput, setVoucherInput] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState(null); // { code, discount, discountLabel }
+  const [voucherError, setVoucherError] = useState("");
+  const [voucherLoading, setVoucherLoading] = useState(false);
+
   const subtotal = serverTotals?.itemsPrice ?? cartTotal;
+  const discount = serverTotals ? serverTotals.discount || 0 : appliedVoucher?.discount || 0;
   const deliveryPrice = serverTotals?.deliveryPrice ?? DELIVERY_ESTIMATE;
-  const totalPrice = serverTotals?.totalPrice ?? cartTotal + deliveryPrice;
+  const totalPrice = serverTotals?.totalPrice ?? cartTotal - discount + deliveryPrice;
 
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
@@ -47,6 +56,39 @@ function Checkout({ onCartOpen }) {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleApplyVoucher = async (e) => {
+    e.preventDefault();
+    const code = voucherInput.trim();
+    if (!code) return;
+    if (!user) return navigate("/login");
+    try {
+      setVoucherLoading(true);
+      setVoucherError("");
+      const response = await fetch(`${API_URL}/api/vouchers/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ code, subtotal: cartTotal }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "That code didn't work");
+      setAppliedVoucher({ code: data.code, discount: data.discount, discountLabel: data.discountLabel });
+      setVoucherInput("");
+    } catch (err) {
+      setAppliedVoucher(null);
+      setVoucherError(err.message);
+    } finally {
+      setVoucherLoading(false);
+    }
+  };
+
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherError("");
   };
 
   // Step 1 — Save order to DB first
@@ -75,6 +117,7 @@ function Checkout({ onCartOpen }) {
           product: item._id,
         })),
         deliveryAddress: formData,
+        ...(appliedVoucher ? { voucherCode: appliedVoucher.code } : {}),
       };
 
       const response = await fetch(`${API_URL}/api/orders`, {
@@ -93,6 +136,8 @@ function Checkout({ onCartOpen }) {
       setOrderId(data._id);
       setServerTotals({
         itemsPrice: data.itemsPrice,
+        discount: data.discount || 0,
+        voucherCode: data.voucher?.code,
         deliveryPrice: data.deliveryPrice,
         totalPrice: data.totalPrice,
       });
@@ -429,11 +474,65 @@ function Checkout({ onCartOpen }) {
               ))}
             </div>
 
+            {/* Voucher code — locked once the order is saved, because the
+                payment must match the saved order total. */}
+            <div className="checkout-voucher">
+              {orderReady ? (
+                serverTotals?.voucherCode && (
+                  <p className="checkout-voucher-applied">
+                    🎟️ Voucher <strong>{serverTotals.voucherCode}</strong> applied
+                  </p>
+                )
+              ) : appliedVoucher ? (
+                <div className="checkout-voucher-applied">
+                  <span>
+                    🎟️ <strong>{appliedVoucher.code}</strong> · {appliedVoucher.discountLabel}
+                  </span>
+                  <button type="button" className="checkout-voucher-remove" onClick={handleRemoveVoucher}>
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <form className="checkout-voucher-form" onSubmit={handleApplyVoucher}>
+                  <label htmlFor="voucher-code" className="checkout-voucher-label">
+                    Voucher code
+                  </label>
+                  <div className="checkout-voucher-row">
+                    <input
+                      id="voucher-code"
+                      type="text"
+                      value={voucherInput}
+                      onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                      placeholder="e.g. BEAUTY20"
+                      autoComplete="off"
+                      maxLength={30}
+                    />
+                    <button type="submit" disabled={voucherLoading || !voucherInput.trim()}>
+                      {voucherLoading ? "Checking…" : "Apply"}
+                    </button>
+                  </div>
+                  {voucherError && (
+                    <p className="checkout-voucher-error" role="alert">
+                      {voucherError}
+                    </p>
+                  )}
+                </form>
+              )}
+            </div>
+
             <div className="checkout-totals">
               <div className="total-row">
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {discount > 0 && (
+                <div className="total-row total-row-discount">
+                  <span>
+                    Discount ({serverTotals?.voucherCode || appliedVoucher?.code})
+                  </span>
+                  <span>−{formatPrice(discount)}</span>
+                </div>
+              )}
               <div className="total-row">
                 <span>Delivery</span>
                 <span>{formatPrice(deliveryPrice)}</span>

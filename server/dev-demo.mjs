@@ -6,6 +6,8 @@ import mongoose from "mongoose";
 import Product from "./models/Product.js";
 import products from "./data/products.js";
 import User from "./models/User.js";
+import Voucher from "./models/Voucher.js";
+import { ADVERTISED_VOUCHERS } from "./services/vouchers.js";
 
 const mongod = await MongoMemoryServer.create();
 const uri = mongod.getUri();
@@ -22,6 +24,9 @@ await Product.insertMany(products);
 console.log(`Seeded ${products.length} products into in-memory MongoDB`);
 
 await User.deleteMany();
+await Voucher.deleteMany();
+await Voucher.insertMany(ADVERTISED_VOUCHERS);
+
 await User.create([
   {
     name: "Gracia Fab Admin",

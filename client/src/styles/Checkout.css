@@ -482,3 +482,25 @@
     font-size: 0.75rem;
   }
 }
+/* ── Voucher code (functional base; uses theme tokens only) ── */
+.checkout-voucher { margin: 16px 0 4px; }
+.checkout-voucher-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.checkout-voucher-row { display: flex; gap: 8px; }
+.checkout-voucher-row input {
+  flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface); color: var(--text); font: inherit; letter-spacing: 0.04em;
+}
+.checkout-voucher-row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.checkout-voucher-row button,
+.checkout-voucher-remove {
+  padding: 10px 16px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent);
+  color: var(--white); font: inherit; font-weight: 600; cursor: pointer;
+}
+.checkout-voucher-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+.checkout-voucher-remove { background: transparent; color: var(--accent); padding: 6px 12px; }
+.checkout-voucher-applied {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0;
+  padding: 10px 12px; border-radius: 10px; background: var(--success-bg); color: var(--success); font-size: 0.9rem;
+}
+.checkout-voucher-error { margin: 6px 0 0; color: var(--error); font-size: 0.85rem; }
+.total-row-discount span:last-child { color: var(--success); font-weight: 600; }

@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import Voucher from "../models/Voucher.js";
 import { pointsQueue, addToQueue } from "../queues/index.js";
 import { queryTransaction } from "./monnify.js";
 import logger from "../utils/logger.js";
@@ -134,6 +135,11 @@ export async function markOrderPaid(filter, paymentResult) {
       { orderId: order._id, shortfalls },
       "Order paid but stock was insufficient for some items",
     );
+  }
+
+  // A voucher counts as used once its order is paid (not when entered).
+  if (order.voucher?.code) {
+    await Voucher.updateOne({ code: order.voucher.code }, { $inc: { usedCount: 1 } });
   }
 
   // Loyalty points (₦1 spent = 0.01 points, minimum 1 point).

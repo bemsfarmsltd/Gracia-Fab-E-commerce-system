@@ -78,6 +78,16 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
           json: () => Promise.resolve(MOCK_REVIEWS),
         });
       }
+      if (url.includes("/api/vouchers/public")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { code: "GLOW05", discountLabel: "5% OFF", conditionLabel: "First order only" },
+              { code: "BEAUTY20", discountLabel: "20% OFF", conditionLabel: "Min spend ₦25,000" },
+            ]),
+        });
+      }
       if (url.includes("/api/track/view") || url.includes("/api/wishlist")) {
         return Promise.resolve({
           ok: true,
@@ -214,5 +224,20 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
     fireEvent.click(voucherCard);
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("GLOW05");
+    expect(screen.getByText("Min spend ₦25,000")).toBeInTheDocument();
+  });
+
+  it("shows no voucher section when no vouchers are live", async () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn((url) =>
+      url.includes("/api/vouchers/public")
+        ? Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
+        : original(url),
+    );
+
+    renderProductDetail();
+
+    await screen.findAllByText(/Pure Glow Vitamin C Elixir/i);
+    expect(screen.queryByText(/Available Vouchers For You/i)).not.toBeInTheDocument();
   });
 });

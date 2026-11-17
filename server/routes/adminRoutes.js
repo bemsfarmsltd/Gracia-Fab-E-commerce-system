@@ -11,6 +11,13 @@ import {
   bulkUpdateStock
 } from '../controllers/adminController.js'
 import { updateOrderStatus } from '../controllers/orderController.js'
+import {
+  listVouchers,
+  createVoucher,
+  updateVoucher,
+  deleteVoucher
+} from '../controllers/voucherController.js'
+import { createVoucherSchema, updateVoucherSchema } from '../validators/voucherValidators.js'
 import protect from '../middleware/authMiddleware.js'
 import admin from '../middleware/adminMiddleware.js'
 import validate from '../middleware/validate.js'
@@ -38,5 +45,9 @@ router.put('/products/stock', validate(bulkStockSchema), bulkUpdateStock)
 router.put('/products/:id', validate(updateProductSchema), updateProduct)
 router.delete('/products/:id', deleteProduct)
 router.get('/users', getAllUsers)
+router.get('/vouchers', listVouchers)
+router.post('/vouchers', validate(createVoucherSchema), createVoucher)
+router.put('/vouchers/:id', validate(updateVoucherSchema), updateVoucher)
+router.delete('/vouchers/:id', deleteVoucher)
 
 export default router

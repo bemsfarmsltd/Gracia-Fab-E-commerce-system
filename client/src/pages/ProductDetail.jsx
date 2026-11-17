@@ -9,12 +9,10 @@ import API_URL from "../config";
 import "../styles/ProductDetail.css";
 import { isOutOfStock, stockLabel } from "../utils/stock";
 
-// ── Vouchers / Coupons (matching GLOWIFY Screen 1, 2, 3, 4) ──
-const AVAILABLE_VOUCHERS = [
-  { code: "GLOW05", discount: "5% OFF", condition: "First luxury order" },
-  { code: "BEAUTY20", discount: "20% OFF", condition: "Orders over ₦25,000" },
-  { code: "LUXE5K", discount: "₦5,000 OFF", condition: "Min spend ₦50,000" },
-];
+// Vouchers shown on this page come from the server (GET /api/vouchers/public:
+// active codes marked "show on product page"), with labels built from each
+// code's real rules — so the page can only advertise codes checkout accepts.
+// Managed in Admin → Vouchers.
 
 // ── Fallback angle shots for rich gallery when product has single image ──
 function getProductGallery(product) {
@@ -85,6 +83,20 @@ export default function ProductDetail({ onCartOpen }) {
   const [added, setAdded] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [copiedVoucher, setCopiedVoucher] = useState(null);
+  const [vouchers, setVouchers] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API_URL}/api/vouchers/public`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (alive) setVouchers(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Tabs state: "desc" | "ingredients" | "howTo" | "routine"
   const [activeTab, setActiveTab] = useState("desc");
@@ -569,21 +581,22 @@ export default function ProductDetail({ onCartOpen }) {
               </div>
             </div>
 
-            {/* Voucher Promo Cards Strip (Screens 1–4) */}
+            {/* Voucher Promo Cards Strip — only live codes from the server */}
+            {vouchers.length > 0 && (
             <div className="pdp-vouchers-strip">
               <div className="pdp-vouchers-title">
                 <span>🎟️ Available Vouchers For You</span>
               </div>
               <div className="pdp-vouchers-grid">
-                {AVAILABLE_VOUCHERS.map((voucher) => (
+                {vouchers.map((voucher) => (
                   <div
                     key={voucher.code}
                     className="pdp-voucher-card"
                     onClick={() => handleCopyCode(voucher.code)}
-                    title="Click to copy coupon code"
+                    title="Click to copy, then enter it at checkout"
                   >
-                    <span className="pdp-voucher-discount">{voucher.discount}</span>
-                    <span className="pdp-voucher-condition">{voucher.condition}</span>
+                    <span className="pdp-voucher-discount">{voucher.discountLabel}</span>
+                    <span className="pdp-voucher-condition">{voucher.conditionLabel}</span>
                     <span className="pdp-voucher-code">
                       {copiedVoucher === voucher.code ? "COPIED! ✅" : voucher.code}
                       <span style={{ fontSize: "0.7rem", opacity: 0.7 }}>📋</span>
@@ -592,6 +605,7 @@ export default function ProductDetail({ onCartOpen }) {
                 ))}
               </div>
             </div>
+            )}
 
             {/* Shipping & Delivery Perks Card */}
             <div className="pdp-perks-card">

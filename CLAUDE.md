@@ -44,5 +44,6 @@ cd server && npm test
 
 - Payments are confirmed only by querying Monnify's API (`confirmOrderPayment` in `server/services/orderPayment.js`), never by trusting the browser or the webhook payload. Stock is committed and loyalty points awarded at payment, in `markOrderPaid`, not at order creation.
 - Admin image uploads go to Cloudinary (`server/services/imageStorage.js`). Never write uploads to local disk in production: Render's filesystem is wiped on every deploy. Without `CLOUDINARY_URL` the server refuses uploads in production and uses local disk only in development.
+- Vouchers (`server/services/vouchers.js`) are checked and priced on the server in `createOrder`; the checkout preview (`/api/vouchers/validate`) is only a preview. The discount comes off items, never delivery, and usage is counted in `markOrderPaid`. The product page shows only codes from `/api/vouchers/public`; never hard-code voucher codes in the UI.
 - Stock defaults to 0 (out of stock) until counted; counts are entered in the admin Inventory tab or by CSV upload there.
 - Keep the working copy outside OneDrive. OneDrive syncing corrupted an earlier `.git`. The canonical local clone is `C:\dev\gracia-fab`.

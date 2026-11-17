@@ -52,6 +52,9 @@ const orderSchema = new mongoose.Schema(
       paidAt: String,
     },
     itemsPrice: { type: Number, required: true },
+    // Voucher applied at checkout; `discount` comes off itemsPrice.
+    voucher: { code: String, discount: Number },
+    discount: { type: Number, default: 0, min: 0 },
     deliveryPrice: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
     isPaid: { type: Boolean, default: false },

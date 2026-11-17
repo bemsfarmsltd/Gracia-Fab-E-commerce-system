@@ -22,6 +22,7 @@ import loyaltyRoutes from "./routes/loyaltyRoutes.js";
 import skinAnalysisRoutes from "./routes/skinAnalysisRoutes.js";
 import trackingRoutes from "./routes/trackingRoutes.js";
 import routineRoutes from "./routes/routineRoutes.js";
+import voucherRoutes from "./routes/voucherRoutes.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -124,6 +125,8 @@ app.use("/api/auth/verify-otp", authLimiter);
 app.use("/api/auth/resend-otp", authLimiter);
 app.use("/api/recommend", aiLimiter);
 app.use("/api/search", aiLimiter);
+// Slows anyone trying to guess voucher codes.
+app.use("/api/vouchers/validate", authLimiter);
 
 // ── Monnify Webhook — payment notifications straight from Monnify, so an order
 // still gets marked paid if the customer closes the tab before the checkout
@@ -323,6 +326,7 @@ app.use("/api/loyalty", loyaltyRoutes);
 app.use("/api/skin-analysis", skinAnalysisRoutes);
 app.use("/api/track", trackingRoutes);
 app.use("/api/routine", routineRoutes);
+app.use("/api/vouchers", voucherRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "💄 BeautyAI API is running!" });
