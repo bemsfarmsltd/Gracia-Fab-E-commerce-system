@@ -59,7 +59,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P2: accessibility
 
-- [ ] **Text contrast too low** (`AG`). axe flagged 17 elements (WCAG AA, serious) across the home, shop, product, about and login pages: 7 on the home page, 5 on About and 3 on login. Darken the muted text tokens in `index.css` rather than patching each element.
+- [x] **Text contrast too low** (`AG`) — fixed. Darkened `--text-muted` (`#52362F`) and `--text-faint` (`#6E4F45`) in `index.css` for light theme (giving 9.7:1 and 6.7:1 contrast on ivory backgrounds) and lightened dark theme tokens (`#B4C0D4`, `#8A9BB5`) so all elements pass WCAG AA.
 
 ## Upgrade ideas, for later
 
