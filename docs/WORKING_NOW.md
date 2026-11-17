@@ -33,7 +33,7 @@ editing the same files at the same time. Keep it short and current.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Claude Code | Project audit (read-only on code) + AGENTS.md for Codex | docs/AUDIT.md, AGENTS.md, docs/WORKING_NOW.md | 17 Nov |
 
 ## Open questions
 
