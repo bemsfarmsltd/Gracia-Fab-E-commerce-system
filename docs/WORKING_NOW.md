@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | P0: real contact details (Bems Group socials, WhatsApp 08037447068) | client/src/components/Footer.jsx, client/src/pages/Contact.jsx, client/index.html | 17 Nov |
 | Codex | P1: dependency vulnerabilities (npm audit fix) | client/package.json, client/package-lock.json, server/package.json, server/package-lock.json, docs/AUDIT.md | 17 Nov |
 
 ## Open questions
