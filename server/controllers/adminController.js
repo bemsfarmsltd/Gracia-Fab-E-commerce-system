@@ -6,6 +6,7 @@ import {
   storeProductImage,
   ImageStorageNotConfiguredError,
 } from '../services/imageStorage.js'
+import { sendServerError } from '../utils/httpErrors.js'
 import { ALLOWED_UPLOAD_MIME_TYPES } from '../validators/adminValidators.js'
 
 const MIME_TO_EXTENSION = {
@@ -43,7 +44,7 @@ export const getDashboardStats = async (req, res) => {
       recentOrders
     })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -56,7 +57,7 @@ export const getAllOrders = async (req, res) => {
       .sort({ createdAt: -1 })
     res.json(orders)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -67,7 +68,7 @@ export const getAllProducts = async (req, res) => {
     const products = await Product.find().sort({ createdAt: -1 })
     res.json(products)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -97,7 +98,7 @@ export const createProduct = async (req, res) => {
 
     res.status(201).json(product)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -132,7 +133,7 @@ product.image = image ?? product.image
     const updatedProduct = await product.save()
     res.json(updatedProduct)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -161,7 +162,7 @@ export const bulkUpdateStock = async (req, res) => {
 
     res.json({ updated: result.matchedCount, notFound })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -176,7 +177,7 @@ export const deleteProduct = async (req, res) => {
     await product.deleteOne()
     res.json({ message: 'Product deleted successfully' })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 
@@ -188,7 +189,7 @@ export const getAllUsers = async (req, res) => {
       .sort({ createdAt: -1 })
     res.json(users)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "adminController error");
   }
 }
 

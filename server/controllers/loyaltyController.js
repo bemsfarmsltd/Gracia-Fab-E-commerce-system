@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import logger from "../utils/logger.js";
+import { sendServerError } from "../utils/httpErrors.js";
 
 // Points rules
 const POINTS_RULES = {
@@ -96,7 +97,7 @@ export const getLoyaltyInfo = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return sendServerError(res, err, "loyaltyController error");
   }
 };
 
@@ -153,6 +154,6 @@ export const redeemPoints = async (req, res) => {
       message: `✅ Redeemed ${pointsToRedeem} points for ₦${discount.toLocaleString()} off!`,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return sendServerError(res, err, "loyaltyController error");
   }
 };

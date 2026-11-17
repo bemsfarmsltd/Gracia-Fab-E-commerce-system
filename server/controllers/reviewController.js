@@ -1,5 +1,6 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
+import { sendServerError } from "../utils/httpErrors.js";
 import Order from "../models/Order.js";
 
 // @route POST /api/reviews/:productId
@@ -53,7 +54,7 @@ export const addReview = async (req, res) => {
         .status(400)
         .json({ message: "You already reviewed this product" });
     }
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "reviewController error");
   }
 };
 
@@ -65,7 +66,7 @@ export const getProductReviews = async (req, res) => {
     });
     res.json(reviews);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "reviewController error");
   }
 };
 
@@ -83,6 +84,6 @@ export const deleteReview = async (req, res) => {
     await review.deleteOne();
     res.json({ message: "Review deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "reviewController error");
   }
 };

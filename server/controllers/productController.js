@@ -1,5 +1,6 @@
 import Product from '../models/Product.js'
 import { asSafeString, escapeRegex } from '../utils/queryHelpers.js'
+import { sendServerError } from '../utils/httpErrors.js'
 
 // @desc  Get all products
 // @route GET /api/products
@@ -22,7 +23,7 @@ export const getProducts = async (req, res) => {
     const products = await Product.find(filter).lean()
     res.json(products)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "productController error");
   }
 }
 
@@ -37,7 +38,7 @@ export const getProductById = async (req, res) => {
       res.status(404).json({ message: 'Product not found' })
     }
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "productController error");
   }
 }
 
@@ -48,6 +49,6 @@ export const getFeaturedProducts = async (req, res) => {
     const products = await Product.find({ isFeatured: true }).limit(6).lean()
     res.json(products)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "productController error");
   }
 }

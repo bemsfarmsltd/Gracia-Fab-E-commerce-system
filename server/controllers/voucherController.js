@@ -1,5 +1,6 @@
 import Voucher from "../models/Voucher.js";
 import logger from "../utils/logger.js";
+import { sendServerError } from "../utils/httpErrors.js";
 import { checkVoucher, describeVoucher, VoucherError } from "../services/vouchers.js";
 
 // @desc   Vouchers to advertise on product pages (active, not expired)
@@ -55,7 +56,7 @@ export const listVouchers = async (req, res) => {
     const vouchers = await Voucher.find().sort({ createdAt: -1 });
     res.json(vouchers.map((v) => ({ ...v.toObject(), ...describeVoucher(v) })));
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "voucherController error");
   }
 };
 
@@ -68,7 +69,7 @@ export const createVoucher = async (req, res) => {
     const voucher = await Voucher.create(req.body);
     res.status(201).json({ ...voucher.toObject(), ...describeVoucher(voucher) });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "voucherController error");
   }
 };
 
@@ -86,7 +87,7 @@ export const updateVoucher = async (req, res) => {
     await voucher.save();
     res.json({ ...voucher.toObject(), ...describeVoucher(voucher) });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "voucherController error");
   }
 };
 
@@ -97,6 +98,6 @@ export const deleteVoucher = async (req, res) => {
     if (!voucher) return res.status(404).json({ message: "Voucher not found" });
     res.json({ message: "Voucher deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "voucherController error");
   }
 };

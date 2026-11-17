@@ -1,18 +1,25 @@
 import logger from "../utils/logger.js";
+import { GENERIC_SERVER_ERROR } from "../utils/httpErrors.js";
 
-// This function catches ALL errors in the app
-// Think of it as the "emergency cleanup crew"
-
+// Catches every error passed to next() or thrown in a route.
 const errorHandler = (err, req, res, next) => {
-  // Log the full error for YOU (developer) to see
+  // The full error goes to the server log.
   logger.error({ err, method: req.method, path: req.path }, "Request error");
 
-  // But send a clean response to the USER
   const statusCode = err.status || err.statusCode || 500;
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // 4xx messages are deliberate ("Route not found", bad JSON, ...). 5xx
+  // messages can leak internals (database errors, SDK responses), so in
+  // production the customer only gets a generic message.
+  const message =
+    statusCode >= 500 && isProduction
+      ? GENERIC_SERVER_ERROR
+      : err.message || GENERIC_SERVER_ERROR;
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Something went wrong on our end",
+    message,
     // Only show detailed errors in development, not in production
     ...(process.env.NODE_ENV === "development" && {
       stack: err.stack,

@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import logger from "../utils/logger.js";
+import { sendServerError } from "../utils/httpErrors.js";
 
 // @desc   Get user wishlist
 // @route  GET /api/wishlist
@@ -16,8 +17,7 @@ export const getWishlist = async (req, res) => {
 
     res.json(user.wishlist || []);
   } catch (error) {
-    logger.error({ err: error }, "getWishlist error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "getWishlist error");
   }
 };
 
@@ -47,8 +47,7 @@ export const addToWishlist = async (req, res) => {
 
     res.json({ message: "Added to wishlist ❤️", wishlist: user.wishlist });
   } catch (error) {
-    logger.error({ err: error }, "addToWishlist error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "addToWishlist error");
   }
 };
 
@@ -69,8 +68,7 @@ export const removeFromWishlist = async (req, res) => {
     await user.save();
     res.json({ message: "Removed from wishlist", wishlist: user.wishlist });
   } catch (error) {
-    logger.error({ err: error }, "removeFromWishlist error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "removeFromWishlist error");
   }
 };
 
@@ -120,8 +118,7 @@ export const saveRecommendation = async (req, res) => {
       count: user.savedRecommendations.length,
     });
   } catch (error) {
-    logger.error({ err: error }, "saveRecommendation error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "saveRecommendation error");
   }
 };
 
@@ -156,7 +153,6 @@ export const getSavedRecommendations = async (req, res) => {
 
     res.json(recs);
   } catch (error) {
-    logger.error({ err: error }, "getSavedRecommendations error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "getSavedRecommendations error");
   }
 };

@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Groq from "groq-sdk";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
+import { sendServerError } from "../utils/httpErrors.js";
 import logger from "../utils/logger.js";
 
 // ── Lazy clients ──────────────────────────
@@ -239,8 +240,6 @@ Response format must match the requested routine schema. Set productId and produ
       });
     }
 
-    res.status(500).json({
-      message: err.message || "Could not generate routine. Please try again.",
-    });
+    return sendServerError(res, err, "routineController error", "Could not generate routine. Please try again.");
   }
 };

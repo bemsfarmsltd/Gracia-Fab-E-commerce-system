@@ -13,6 +13,7 @@ import { DELIVERY_FEE } from "../config/shipping.js";
 import { checkVoucher, VoucherError } from "../services/vouchers.js";
 import { confirmOrderPayment } from "../services/orderPayment.js";
 import { getMonnifyConfig } from "../services/monnify.js";
+import { sendServerError } from "../utils/httpErrors.js";
 import { cancelOrder, markRefunded, OrderCancelError } from "../services/orderCancel.js";
 
 // @desc   Create new order
@@ -167,11 +168,7 @@ export const createOrder = async (req, res) => {
 
     res.status(201).json(order);
   } catch (error) {
-    logger.error({ err: error }, "createOrder error");
-
-    res.status(500).json({
-      message: error.message,
-    });
+    return sendServerError(res, error, "createOrder error");
   }
 };
 
@@ -222,8 +219,7 @@ export const initPayment = async (req, res) => {
       isTestMode: monnify.isTestMode,
     });
   } catch (error) {
-    logger.error({ err: error }, "initPayment error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "initPayment error");
   }
 };
 
@@ -273,8 +269,7 @@ export const verifyPayment = async (req, res) => {
     logger.info({ orderId: result.order._id }, "Order marked as paid");
     res.json(result.order);
   } catch (error) {
-    logger.error({ err: error }, "verifyPayment error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "verifyPayment error");
   }
 };
 
@@ -288,9 +283,7 @@ export const getMyOrders = async (req, res) => {
 
     res.json(orders);
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    return sendServerError(res, error, "getMyOrders error");
   }
 };
 
@@ -318,9 +311,7 @@ export const getOrderById = async (req, res) => {
 
     res.json(order);
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    return sendServerError(res, error, "getOrderById error");
   }
 };
 

@@ -4,6 +4,7 @@ import Order from "../models/Order.js";
 import Groq from "groq-sdk";
 import logger from "../utils/logger.js";
 import { escapeRegex } from "../utils/queryHelpers.js";
+import { sendServerError } from "../utils/httpErrors.js";
 
 // ─────────────────────────────────────────
 //  SMART QUERY PARSER (No API needed)
@@ -351,8 +352,7 @@ export const semanticSearch = async (req, res) => {
       responseMs: Date.now() - start,
     });
   } catch (err) {
-    logger.error({ err }, "Search error");
-    res.status(500).json({ message: err.message });
+    return sendServerError(res, err, "Search error");
   }
 };
 

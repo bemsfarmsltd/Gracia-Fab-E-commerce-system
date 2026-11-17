@@ -1,5 +1,6 @@
 import Contact from '../models/Contact.js'
 import Subscriber from '../models/Subscriber.js'
+import { sendServerError } from '../utils/httpErrors.js'
 import logger from '../utils/logger.js'
 
 // @desc  Submit contact form
@@ -15,7 +16,7 @@ export const submitContact = async (req, res) => {
       message: "Message sent! We'll get back to you within 24 hours 💌"
     })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }
 
@@ -26,7 +27,7 @@ export const getContacts = async (req, res) => {
     const contacts = await Contact.find({}).sort({ createdAt: -1 })
     res.json(contacts)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }
 
@@ -42,7 +43,7 @@ export const updateContactStatus = async (req, res) => {
     if (!contact) return res.status(404).json({ message: 'Message not found' })
     res.json(contact)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }
 
@@ -53,7 +54,7 @@ export const deleteContact = async (req, res) => {
     await Contact.findByIdAndDelete(req.params.id)
     res.json({ message: 'Message deleted' })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }
 
@@ -76,7 +77,7 @@ export const subscribe = async (req, res) => {
       message: "Subscribed! Welcome to the Gracia Fab family 🌸"
     })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }
 
@@ -87,7 +88,7 @@ export const getSubscribers = async (req, res) => {
     const subscribers = await Subscriber.find({}).sort({ createdAt: -1 })
     res.json(subscribers)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }
 
@@ -98,6 +99,6 @@ export const deleteSubscriber = async (req, res) => {
     await Subscriber.findByIdAndDelete(req.params.id)
     res.json({ message: 'Subscriber removed' })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    return sendServerError(res, error, "contactController error");
   }
 }

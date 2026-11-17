@@ -4,6 +4,7 @@ import { emailQueue, addToQueue } from "../queues/index.js";
 import { emailTemplates, sendEmail } from "../services/emailService.js";
 import { generateOtpCode, hashOtpCode, otpExpiryDate, OTP_MAX_ATTEMPTS } from "../utils/otp.js";
 import logger from "../utils/logger.js";
+import { sendServerError } from "../utils/httpErrors.js";
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -45,7 +46,7 @@ export const registerUser = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "authController error");
   }
 };
 
@@ -162,8 +163,7 @@ export const verifyOtp = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    logger.error({ err: error }, "verifyOtp error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "verifyOtp error");
   }
 };
 
@@ -214,8 +214,7 @@ export const getUserProfile = async (req, res) => {
       marketingEmails: user.emailPreferences?.marketing !== false,
     });
   } catch (error) {
-    logger.error({ err: error }, "getUserProfile error");
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "getUserProfile error");
   }
 };
 
@@ -264,6 +263,6 @@ export const updateUserProfile = async (req, res) => {
       token: generateToken(updatedUser._id),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return sendServerError(res, error, "authController error");
   }
 };
