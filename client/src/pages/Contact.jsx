@@ -185,20 +185,20 @@ function Contact({ onCartOpen }) {
 
               {/* Phone — opens phone dialer */}
               <a
-                href="tel:+2348012345678"
+                href="tel:+2348037447068"
                 className="contact-info-card contact-info-link"
               >
                 <span className="contact-info-icon">📞</span>
                 <div>
                   <h3>Call Support</h3>
-                  <p>Mon–Sat, 9am–6pm WAT.</p>
+                  <p>+234 803 744 7068 · Mon–Sat, 9am–6pm WAT.</p>
                   <span className="contact-info-action">Tap to call →</span>
                 </div>
               </a>
 
               {/* WhatsApp — opens WhatsApp directly */}
               <a
-                href="https://wa.me/2348012345678?text=Hi%20Gracia%20Fab!%20I%20need%20help%20with..."
+                href="https://wa.me/2348037447068?text=Hi%20Gracia%20Fab!%20I%20need%20help%20with..."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-info-card contact-info-link"
@@ -206,7 +206,7 @@ function Contact({ onCartOpen }) {
                 <span className="contact-info-icon">💬</span>
                 <div>
                   <h3>WhatsApp Us</h3>
-                  <p>Chat with us instantly on WhatsApp.</p>
+                  <p>+234 803 744 7068 · chat with us on WhatsApp.</p>
                   <span className="contact-info-action">Open WhatsApp →</span>
                 </div>
               </a>
