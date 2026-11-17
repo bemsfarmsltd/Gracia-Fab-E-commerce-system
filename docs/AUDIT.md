@@ -70,3 +70,58 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - **Order tracking by WhatsApp** at each status change (Twilio is already wired up).
 - **Analytics** (Plausible or GA4) to see which products and pages convert.
 - **A performance and accessibility budget in CI** (e.g. Lighthouse CI), so speed and contrast don't slip again.
+
+---
+
+# Audit #2 — 17 November 2026 (evening)
+
+**How this was checked:** CI checks, a scan of every file and the full git history for secrets, live checks against the production API and site, a server code review (error handling, input safety, order lifecycle, email, scheduled jobs), a website review (routes, SEO, sitemap, images), and axe and performance passes in Chrome on the live site.
+
+## What's improved since this morning
+
+- **Live speed:** the home page shows its main content in 1.3 s on desktop and 2.3 s on mobile (was 4.2 s and 4.8 s). Main JS is 330 KB (was 540 KB). There are no JS errors on any page tested.
+- **Security:** five security headers are live, and the CSP report endpoint answers. **No secrets in the repo or its history**: only `user:password` placeholders, and no `.env` was ever committed.
+- **All checks pass:** client lint, 106 client tests and the build; 78 server tests.
+- **Legal pages** (`/privacy-policy`, `/terms`, `/shipping-returns`) exist and are linked from the footer and checkout (drafts).
+
+## P0: blocking real sales (mostly owner actions)
+
+- [ ] **No vouchers exist in production** (`YOU`). `GET /api/vouchers/public` returns `[]`, so the product page shows none. Create GLOW05, BEAUTY20 and LUXE5K in Admin → Vouchers.
+- [ ] **Only 13 of 89 products can be bought** (`YOU`, then `CC`). 59 have stock 0, 17 have no value and 12 are still on the invented 50. Enter real counts in Admin → Inventory, then run `npm run stock:zero-uncounted -- --apply`.
+- [ ] **Customer emails probably aren't being delivered** (`YOU`, then `CC`). Without `RESEND_FROM_EMAIL` the server sends from `onboarding@resend.dev`, which Resend only delivers to the Resend account owner. So login codes, order confirmations and marketing emails never reach customers. (The login "fail open" fix in September was a symptom.) Check `RESEND_FROM_EMAIL` on Render. If it's unset, verify a domain you own in Resend (graciafab.com if bought, or a subdomain of a Bems domain) and set it.
+- [ ] **No real payment confirmed yet** (`YOU`). Check the Monnify live keys and webhook on Render, then make one small real payment.
+
+## P1: fix soon
+
+- [ ] **A paid order can't be cancelled, and its stock is never returned** (`CC`). Payment moves an order straight to `processing`, and the status rules only allow cancelling from `pending`/`paid`. There's no way to handle a customer who cancels after paying. Add an admin "Cancel and refund" action that returns stock and records the refund (done in the Monnify dashboard or API), with an email/WhatsApp to the customer.
+- [ ] **Google can't find a sitemap** (`CC`). `robots.txt` and the sitemap use `graciafab.com`, which doesn't exist, and the sitemap lives on the API server while `/sitemap.xml` on the website returns the app. Build URLs from `FRONTEND_URL` and serve `/sitemap.xml` on the website (Vercel rewrite to the API).
+- [ ] **Shop and product pages have no SEO data** (`AG`). `Products.jsx` and `ProductDetail.jsx` don't use `<SEO>`, so every product shares the same generic title and preview in Google and when shared. Add a per-product title, description and image, plus `Product` structured data (price in NGN, availability from stock) for Google rich results.
+- [ ] **Marketing emails have no unsubscribe link** (`CC`). The weekly job (`marketingController.sendMarketingEmails`) sends without one. Add a signed one-click unsubscribe link and an `unsubscribe` endpoint that sets `emailPreferences`, as expected by email providers and Nigeria's NDPA.
+- [ ] **Raw internal errors sent to customers** (`CC`). 47 handlers across 11 controllers return `error.message` (for example Mongoose or database messages). Return a generic message in production and log the details.
+- [ ] **Remaining low-contrast text** (`AG`). About: `.craft-eyebrow-terracotta` (#c1652f on #f8efe4, 3.6:1, needs 4.5) ×4 and `.craft-cta-strip-text` (2.7:1, needs 3). Product page: `.pdp-brand-eyebrow` (#d4af37 gold on #fbf8f4, 2.0:1). The 7 home navbar items (white on cream) are probably a false positive, because the text sits over the dark hero video, which axe can't see; still, give the hero a dark fallback background so the menu stays readable if the video and still fail to load.
+- [ ] **Legal pages are drafts** (`YOU`). Review and confirm the wording (returns window, delivery times, data handling) before relying on them.
+
+## P2: hardening and housekeeping
+
+- [ ] **Unpaid orders pile up** (`CC`). Pending orders are never cleaned up. Auto-cancel unpaid orders after 48 hours (stock isn't held, so it's just tidying admin and reports).
+- [ ] **30-day logins kept in browser storage** (`CC`). Shorten to around 7 days with silent renewal, ideally after the CSP is enforced.
+- [ ] **CORS allows `localhost` in production** (`CC`). Only add the localhost origins when `NODE_ENV !== "production"`.
+- [ ] **Render free plan** (`YOU`). The server sleeps when idle: the first visitor waits about 30 s, and the 10:00 marketing job can't run while it's asleep. A paid instance or an uptime ping fixes both.
+- [ ] **Admin route tests** (`CC`). Stats, product CRUD, order status and the user list are still untested (stock, vouchers and uploads are covered).
+- [ ] **37 stock-photo links remain** (`AG`/`YOU`). Mostly editorial images (Home, About, Recommend, Hero) and image-error fallbacks (ProductCard, CartDrawer, Checkout); the fallbacks should use `/product-placeholder.svg`.
+
+## Upgrade ideas (product)
+
+- **Order tracking page:** a status timeline with WhatsApp updates at each step (Twilio is already wired up).
+- **Delivery fee by state**, instead of a flat ₦2,500.
+- **Pay on delivery for Lagos.**
+- **Abandoned-cart and back-in-stock emails** (once email delivery is fixed).
+- **Review requests** after delivery, with a "Verified buyer" badge.
+- **Admin:**
+  - Low-stock alerts in Inventory.
+  - Sales by product and by month.
+  - Order CSV export.
+- **Let customers spend loyalty points at checkout**, so earned points turn into repeat sales.
+- **Proper product variants** (shade, wig length, size), each with its own stock and price.
+- **Bridal bundles:** a curated set at a bundle price, priced on the server like vouchers.
+- **Privacy-friendly analytics** (e.g. Plausible) to see which products and pages convert.

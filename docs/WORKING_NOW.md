@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Audit #2 (read-only on code) | docs/AUDIT.md (new section at the end only) | 17 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 
