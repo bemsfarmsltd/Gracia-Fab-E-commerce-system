@@ -240,4 +240,37 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
     await screen.findAllByText(/Pure Glow Vitamin C Elixir/i);
     expect(screen.queryByText(/Available Vouchers For You/i)).not.toBeInTheDocument();
   });
+
+  it("shows 'No reviews yet' instead of 5 stars when product has no reviews", async () => {
+    const unreviewedProduct = {
+      ...MOCK_PRODUCT,
+      rating: 0,
+      numReviews: 0,
+    };
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn((url) => {
+      if (url.includes("/api/products/prod-101")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(unreviewedProduct),
+        });
+      }
+      if (url.includes("/api/reviews/prod-101")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return original(url);
+    });
+
+    renderProductDetail();
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText("No reviews yet").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("4.8/5")).not.toBeInTheDocument();
+  });
 });

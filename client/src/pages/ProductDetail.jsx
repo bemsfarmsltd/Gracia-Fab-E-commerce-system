@@ -438,24 +438,40 @@ export default function ProductDetail({ onCartOpen }) {
             <h1 className="pdp-product-title">{product.name}</h1>
 
             <div className="pdp-rating-sold-row">
-              <span className="pdp-rating-stars">
-                {"★".repeat(Math.round(product.rating || 5))}
-                {"☆".repeat(5 - Math.round(product.rating || 5))}
-              </span>
-              <span className="pdp-rating-score">
-                {(product.rating || 4.8).toFixed(1)}/5
-              </span>
-              <button
-                type="button"
-                className="pdp-reviews-count-link"
-                onClick={() => {
-                  const revEl = document.getElementById("reviews-section");
-                  if (revEl) revEl.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                ({product.numReviews || 24} Reviews)
-              </button>
-              <span className="pdp-sold-badge">128+ Sold</span>
+              {product.numReviews > 0 && product.rating ? (
+                <>
+                  <span className="pdp-rating-stars">
+                    {"★".repeat(Math.round(product.rating))}
+                    {"☆".repeat(5 - Math.round(product.rating))}
+                  </span>
+                  <span className="pdp-rating-score">
+                    {Number(product.rating).toFixed(1)}/5
+                  </span>
+                  <button
+                    type="button"
+                    className="pdp-reviews-count-link"
+                    onClick={() => {
+                      const revEl = document.getElementById("reviews-section");
+                      if (revEl) revEl.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    ({product.numReviews} {product.numReviews === 1 ? "Review" : "Reviews"})
+                  </button>
+                  <span className="pdp-sold-badge">128+ Sold</span>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="pdp-reviews-count-link"
+                  onClick={() => {
+                    const revEl = document.getElementById("reviews-section");
+                    if (revEl) revEl.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  style={{ textDecoration: "none", color: "var(--text-muted)" }}
+                >
+                  No reviews yet
+                </button>
+              )}
             </div>
 
             {/* Price Box */}
@@ -817,10 +833,18 @@ export default function ProductDetail({ onCartOpen }) {
                       {item.name}
                     </Link>
                     <div className="pdp-related-stars">
-                      {"★".repeat(Math.round(item.rating || 5))}
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "4px" }}>
-                        ({item.numReviews || 12})
-                      </span>
+                      {item.numReviews > 0 && item.rating ? (
+                        <>
+                          {"★".repeat(Math.round(item.rating))}
+                          <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "4px" }}>
+                            ({item.numReviews})
+                          </span>
+                        </>
+                      ) : (
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                          No reviews yet
+                        </span>
+                      )}
                     </div>
                     <span className="pdp-related-price">{formatNaira(item.price)}</span>
                   </div>
@@ -870,43 +894,6 @@ export default function ProductDetail({ onCartOpen }) {
   );
 }
 
-// ── Curated fallback reviews matching the rich GLOWIFY design ──
-const INITIAL_REVIEWS_SEED = [
-  {
-    _id: "seed-1",
-    name: "Amara Okonkwo",
-    rating: 5,
-    verified: true,
-    skinType: "Oily / Combination",
-    date: "14 Oct 2025",
-    comment:
-      "This serum completely cleared my stubborn post-acne dark marks after three weeks! The texture absorbs instantly without leaving that greasy film in Lagos humidity. Holy grail!",
-    helpful: 18,
-  },
-  {
-    _id: "seed-2",
-    name: "Tolu Adeleke",
-    rating: 5,
-    verified: true,
-    skinType: "Dry / Sensitive",
-    date: "02 Nov 2025",
-    comment:
-      "Gives that authentic glass-skin glow without feeling heavy. I layer it right under my daily sunscreen and my skin stays radiant all day long.",
-    helpful: 12,
-  },
-  {
-    _id: "seed-3",
-    name: "Zainab Bello",
-    rating: 4,
-    verified: true,
-    skinType: "Combination",
-    date: "28 Oct 2025",
-    comment:
-      "Extremely gentle on sensitive melanin skin. Zero breakouts and my hyperpigmentation around my cheeks has visibly faded.",
-    helpful: 7,
-  },
-];
-
 // ── Complete Customer Reviews Component (Matching GLOWIFY Reviews Hub) ──
 function ReviewSection({ productId, productName }) {
   const { user } = useAuth();
@@ -925,17 +912,12 @@ function ReviewSection({ productId, productName }) {
       if (res.ok) {
         const data = await res.json();
         const serverReviews = Array.isArray(data) ? data : [];
-        // Combine server reviews with seed reviews if server has none yet
-        if (serverReviews.length > 0) {
-          setReviews(serverReviews);
-        } else {
-          setReviews(INITIAL_REVIEWS_SEED);
-        }
+        setReviews(serverReviews);
       } else {
-        setReviews(INITIAL_REVIEWS_SEED);
+        setReviews([]);
       }
     } catch {
-      setReviews(INITIAL_REVIEWS_SEED);
+      setReviews([]);
     }
   };
 
@@ -988,7 +970,7 @@ function ReviewSection({ productId, productName }) {
   // Calculate review score & star breakdown
   const avgScore = reviews.length
     ? (reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / reviews.length).toFixed(1)
-    : "4.8";
+    : "0.0";
 
   const starBreakdown = useMemo(() => {
     const total = reviews.length || 1;
@@ -1033,53 +1015,62 @@ function ReviewSection({ productId, productName }) {
       </div>
 
       {/* Review Breakdown Dashboard (GLOWIFY Screen 1, 2, 3, 4) */}
-      <div className="pdp-review-dashboard">
-        <div className="pdp-score-card">
-          <div className="pdp-big-score">{avgScore}</div>
-          <div style={{ color: "#E5A93C", fontSize: "1.2rem", letterSpacing: "2px" }}>
-            {"★".repeat(Math.round(Number(avgScore)))}
-            {"☆".repeat(5 - Math.round(Number(avgScore)))}
-          </div>
-          <div className="pdp-score-sub">Based on {reviews.length} reviews</div>
+      {reviews.length === 0 ? (
+        <div style={{ padding: "2.5rem 1rem", textAlign: "center", color: "var(--text-muted)" }}>
+          <p style={{ margin: "0 0 0.5rem 0", fontSize: "1rem" }}>No reviews yet for this product.</p>
+          <p style={{ margin: 0, fontSize: "0.88rem" }}>Be the first to share your thoughts with the community!</p>
         </div>
-
-        <div className="pdp-breakdown-bars">
-          {starBreakdown.map((b) => (
-            <div key={b.star} className="pdp-bar-row">
-              <span className="pdp-bar-label">{b.star} Stars</span>
-              <div className="pdp-bar-track">
-                <div className="pdp-bar-fill" style={{ width: `${b.pct}%` }} />
+      ) : (
+        <>
+          <div className="pdp-review-dashboard">
+            <div className="pdp-score-card">
+              <div className="pdp-big-score">{avgScore}</div>
+              <div style={{ color: "#E5A93C", fontSize: "1.2rem", letterSpacing: "2px" }}>
+                {"★".repeat(Math.round(Number(avgScore)))}
+                {"☆".repeat(5 - Math.round(Number(avgScore)))}
               </div>
-              <span className="pdp-bar-pct">{b.pct}%</span>
+              <div className="pdp-score-sub">Based on {reviews.length} {reviews.length === 1 ? "review" : "reviews"}</div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Filter Tabs */}
-      <div className="pdp-review-filters">
-        <button
-          type="button"
-          className={`pdp-review-filter-btn ${filter === "all" ? "active" : ""}`}
-          onClick={() => setFilter("all")}
-        >
-          All Reviews ({reviews.length})
-        </button>
-        <button
-          type="button"
-          className={`pdp-review-filter-btn ${filter === "5star" ? "active" : ""}`}
-          onClick={() => setFilter("5star")}
-        >
-          5 Stars Only
-        </button>
-        <button
-          type="button"
-          className={`pdp-review-filter-btn ${filter === "verified" ? "active" : ""}`}
-          onClick={() => setFilter("verified")}
-        >
-          Verified Buyers
-        </button>
-      </div>
+            <div className="pdp-breakdown-bars">
+              {starBreakdown.map((b) => (
+                <div key={b.star} className="pdp-bar-row">
+                  <span className="pdp-bar-label">{b.star} Stars</span>
+                  <div className="pdp-bar-track">
+                    <div className="pdp-bar-fill" style={{ width: `${b.pct}%` }} />
+                  </div>
+                  <span className="pdp-bar-pct">{b.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="pdp-review-filters">
+            <button
+              type="button"
+              className={`pdp-review-filter-btn ${filter === "all" ? "active" : ""}`}
+              onClick={() => setFilter("all")}
+            >
+              All Reviews ({reviews.length})
+            </button>
+            <button
+              type="button"
+              className={`pdp-review-filter-btn ${filter === "5star" ? "active" : ""}`}
+              onClick={() => setFilter("5star")}
+            >
+              5 Stars Only
+            </button>
+            <button
+              type="button"
+              className={`pdp-review-filter-btn ${filter === "verified" ? "active" : ""}`}
+              onClick={() => setFilter("verified")}
+            >
+              Verified Buyers
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Expandable Review Form */}
       {showForm && (

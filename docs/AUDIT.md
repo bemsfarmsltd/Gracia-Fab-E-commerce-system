@@ -34,9 +34,9 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - [x] **`logo.png` is missing** (`AG`). `index.html` references `/logo.png` in structured data, but the file doesn't exist. — Fixed: added branded logo.png in client/public/.
 - [x] **Unknown URLs redirect to `/login`** (`AG`). Add a real "Page not found" page (`App.jsx`, catch-all route). — Fixed: created NotFound.jsx & NotFound.css and wired to catch-all route.
 - [ ] **Unverifiable marketing claims** (`YOU`). "100% single-donor raw hair", "AI undertone accuracy guarantee", "zero white cast" and the chatbot's "complimentary Maison packaging above ₦35,000". Keep only what the business can stand behind.
-- [ ] **The product page shows 5 stars when there are no ratings** (`AG`). `ProductDetail.jsx` uses `rating || 5`. Show "No reviews yet" instead.
+- [x] **The product page shows 5 stars when there are no ratings** (`AG`) — fixed. Shows "No reviews yet" when unreviewed, removed hardcoded 5-star fallbacks in `ProductDetail.jsx`, and added unit test.
 - [ ] **Stock photos where real images are expected** (`AG`). Unsplash images remain in the Home campaign cards, About, Recommend, the product image `onError` fallbacks (ProductCard, Products) and more (about 80 links in total). Editorial images are a judgement call; fallbacks should use `/product-placeholder.svg`.
-- [ ] **Admin header still says "Manage your BeautyAI store"** (`AG`). `AdminDashboard.jsx:402`.
+- [x] **Admin header still says "Manage your BeautyAI store"** (`AG`) — fixed. Updated to "Manage your Gracia Fab store" in `AdminDashboard.jsx:404`.
 
 ## P1: security and reliability
 

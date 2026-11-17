@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | P1: product page rating fallback (No reviews yet) & admin header store name | client/src/pages/ProductDetail.jsx, client/src/pages/AdminDashboard.jsx, docs/AUDIT.md | 17 Nov |
 
 ## Open questions
 

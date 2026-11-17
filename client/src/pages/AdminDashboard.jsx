@@ -401,7 +401,7 @@ function AdminDashboard() {
         <div className="admin-header">
           <div>
             <h1>Admin Dashboard 👑</h1>
-            <p>Manage your BeautyAI store</p>
+            <p>Manage your Gracia Fab store</p>
           </div>
           <button
             className="admin-back-to-store"
