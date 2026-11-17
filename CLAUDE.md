@@ -37,6 +37,7 @@ cd server && npm test
 
 ## Content rules
 
+- The store is in **Umuahia, Abia State**, not Lagos. Delivery is a flat ₦2,500 nationwide (`server/config/shipping.js`); don't advertise same-day, free-delivery thresholds or voucher codes that don't exist in `server/services/vouchers.js`.
 - Don't invent products, brands, reviews or claims. An earlier commit had to strip out fabricated content.
 - Product images must show the actual product. Use `/product-placeholder.svg` when there's no real photo; never use generic stock photos as stand-ins. Real photos so far are hosted on Cloudinary (`res.cloudinary.com/dyzkjerez/...`).
 
