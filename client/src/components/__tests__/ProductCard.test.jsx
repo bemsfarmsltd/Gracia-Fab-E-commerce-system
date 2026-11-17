@@ -56,4 +56,13 @@ describe("ProductCard", () => {
       screen.getByText(/added hydrating serum to cart/i),
     ).toBeInTheDocument();
   });
+
+  it("falls back to /product-placeholder.svg on image load error", () => {
+    renderProductCard();
+
+    const img = screen.getByRole("img", { name: "Hydrating Serum" });
+    fireEvent.error(img);
+
+    expect(img.getAttribute("src")).toBe("/product-placeholder.svg");
+  });
 });

@@ -480,8 +480,7 @@ function Checkout({ onCartOpen }) {
                     className="checkout-item-img"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src =
-                        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=100&h=100&fit=crop";
+                      e.target.src = "/product-placeholder.svg";
                     }}
                   />
                   <div className="checkout-item-info">

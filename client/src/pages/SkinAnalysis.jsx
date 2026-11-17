@@ -418,8 +418,8 @@ function SkinAnalysis({ onCartOpen }) {
                         src={p.image}
                         alt={p.name}
                         onError={(e) => {
-                          e.target.src =
-                            "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=200&fit=crop";
+                          e.target.onerror = null;
+                          e.target.src = "/product-placeholder.svg";
                         }}
                       />
                       <div className="sa-product-info">

@@ -108,7 +108,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - [ ] **CORS allows `localhost` in production** (`CC`). Only add the localhost origins when `NODE_ENV !== "production"`.
 - [ ] **Render free plan** (`YOU`). The server sleeps when idle: the first visitor waits about 30 s, and the 10:00 marketing job can't run while it's asleep. A paid instance or an uptime ping fixes both.
 - [ ] **Admin route tests** (`CC`). Stats, product CRUD, order status and the user list are still untested (stock, vouchers and uploads are covered).
-- [ ] **37 stock-photo links remain** (`AG`/`YOU`). Mostly editorial images (Home, About, Recommend, Hero) and image-error fallbacks (ProductCard, CartDrawer, Checkout); the fallbacks should use `/product-placeholder.svg`.
+- [x] **37 stock-photo links remain** (`AG`/`YOU`) — fixed image-error fallbacks in ProductCard, CartDrawer, Checkout, Products, RoutineStepCard, SkinToneDetector, and SkinAnalysis to `/product-placeholder.svg`. Remaining editorial stock photos (Home, About, Recommend, Hero) to be replaced when original brand imagery is provided (`YOU`).
 
 ## Upgrade ideas (product)
 

@@ -28,8 +28,7 @@ function ProductCard({ product }) {
             className="product-image"
             onError={(e) => {
               e.target.onerror = null; // prevent infinite loop
-              e.target.src =
-                "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop";
+              e.target.src = "/product-placeholder.svg";
             }}
           />
           {outOfStock ? (

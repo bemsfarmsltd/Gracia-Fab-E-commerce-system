@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | P2: replace image-error fallbacks with /product-placeholder.svg | client/src/components/ProductCard.jsx, client/src/components/CartDrawer.jsx, client/src/pages/Checkout.jsx, client/src/pages/Products.jsx, docs/AUDIT.md | 17 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 

@@ -24,8 +24,8 @@ function RoutineStepCard({ step }) {
               src={step.product.image}
               alt={step.product.name}
               onError={(e) => {
-                e.target.src =
-                  "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=80&h=80&fit=crop";
+                e.target.onerror = null;
+                e.target.src = "/product-placeholder.svg";
               }}
             />
             <div>

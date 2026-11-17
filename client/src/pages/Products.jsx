@@ -941,8 +941,7 @@ function Products({ onCartOpen }) {
                           className="card-img"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src =
-                              "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&auto=format&fit=crop&q=80";
+                            e.target.src = "/product-placeholder.svg";
                           }}
                         />
                       </Link>
@@ -1042,8 +1041,7 @@ function Products({ onCartOpen }) {
                           className="list-card-img"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src =
-                              "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&auto=format&fit=crop&q=80";
+                            e.target.src = "/product-placeholder.svg";
                           }}
                         />
                       </Link>

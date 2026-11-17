@@ -122,9 +122,13 @@ function CartDrawer({ isOpen, onClose }) {
               {cartItems.map((item) => (
                 <div key={item._id} className="drawer-item">
                   <img
-                    src={item.image || "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300"}
+                    src={item.image || "/product-placeholder.svg"}
                     alt={item.name}
                     className="drawer-item-img"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/product-placeholder.svg";
+                    }}
                   />
                   <div className="drawer-item-info">
                     <p className="drawer-item-name">{item.name}</p>
