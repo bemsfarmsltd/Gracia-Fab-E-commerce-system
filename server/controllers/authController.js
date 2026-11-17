@@ -211,6 +211,7 @@ export const getUserProfile = async (req, res) => {
       isAdmin: user.isAdmin || false,
       wishlist: user.wishlist || [],
       savedRecommendations: user.savedRecommendations || [],
+      marketingEmails: user.emailPreferences?.marketing !== false,
     });
   } catch (error) {
     logger.error({ err: error }, "getUserProfile error");
@@ -233,6 +234,12 @@ export const updateUserProfile = async (req, res) => {
     user.email = req.body.email || user.email;
     user.skinType = req.body.skinType || user.skinType;
     user.hairType = req.body.hairType || user.hairType;
+    if (typeof req.body.marketingEmails === "boolean") {
+      user.emailPreferences = {
+        ...(user.emailPreferences?.toObject?.() || user.emailPreferences || {}),
+        marketing: req.body.marketingEmails,
+      };
+    }
 
     // Update password only if provided
     if (req.body.password) {
@@ -253,6 +260,7 @@ export const updateUserProfile = async (req, res) => {
       skinType: updatedUser.skinType,
       hairType: updatedUser.hairType,
       isAdmin: updatedUser.isAdmin,
+      marketingEmails: updatedUser.emailPreferences?.marketing !== false,
       token: generateToken(updatedUser._id),
     });
   } catch (error) {

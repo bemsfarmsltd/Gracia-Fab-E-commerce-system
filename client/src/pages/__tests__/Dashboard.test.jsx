@@ -243,5 +243,30 @@ describe("Dashboard Page - My Beauty Profile Hub", () => {
     fireEvent.click(continueShoppingBtn);
     expect(mockNavigate).toHaveBeenCalled();
   });
-});
 
+  it("loads and saves the marketing email preference (it used to be screen-only)", async () => {
+    const base = window.fetch;
+    window.fetch = vi.fn((url, opts = {}) => {
+      if (url.includes("/api/auth/profile") && opts.method === "PUT") {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ marketingEmails: JSON.parse(opts.body).marketingEmails }) });
+      }
+      if (url.includes("/api/auth/profile")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ marketingEmails: false }) });
+      }
+      return base(url, opts);
+    });
+
+    renderDashboard("profile");
+    const toggle = await screen.findByRole("switch", { name: /marketing emails/i });
+    await waitFor(() => expect(toggle).toHaveAttribute("aria-checked", "false"));
+
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      const put = window.fetch.mock.calls.find(([u, o]) => u.includes("/api/auth/profile") && o?.method === "PUT");
+      expect(JSON.parse(put[1].body)).toEqual({ marketingEmails: true });
+    });
+    expect(toggle).toHaveAttribute("aria-checked", "true");
+    expect(mockAddToast).toHaveBeenCalledWith("Marketing emails switched on.", "success");
+  });
+});

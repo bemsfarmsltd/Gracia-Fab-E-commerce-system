@@ -51,9 +51,9 @@ export const startWorkers = () => {
   const emailWorker = new Worker(
     "email",
     async (job) => {
-      const { to, subject, html, type } = job.data;
+      const { to, subject, html, type, headers } = job.data;
       logger.info({ jobId: job.id, type, to }, "Processing email job");
-      await sendEmail({ to, subject, html });
+      await sendEmail({ to, subject, html, headers });
     },
     { connection, concurrency: 5 },
   );

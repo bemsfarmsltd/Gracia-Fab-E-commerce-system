@@ -23,6 +23,7 @@ import skinAnalysisRoutes from "./routes/skinAnalysisRoutes.js";
 import trackingRoutes from "./routes/trackingRoutes.js";
 import routineRoutes from "./routes/routineRoutes.js";
 import voucherRoutes from "./routes/voucherRoutes.js";
+import emailRoutes from "./routes/emailRoutes.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -375,6 +376,7 @@ app.use("/api/skin-analysis", skinAnalysisRoutes);
 app.use("/api/track", trackingRoutes);
 app.use("/api/routine", routineRoutes);
 app.use("/api/vouchers", voucherRoutes);
+app.use("/api/email", emailRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "💄 BeautyAI API is running!" });

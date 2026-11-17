@@ -699,6 +699,46 @@ function Dashboard({ onCartOpen }) {
     }
   };
 
+  // Marketing email preference: loaded from and saved to the account (this
+  // switch used to be screen-only, so turning it off did nothing).
+  useEffect(() => {
+    if (!user) return undefined;
+    let alive = true;
+    fetch(`${API_URL}/api/auth/profile`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (alive && data && typeof data.marketingEmails === "boolean") {
+          setMarketingEmail(data.marketingEmails);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [user]);
+
+  const handleMarketingToggle = async () => {
+    const next = !marketingEmail;
+    setMarketingEmail(next);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ marketingEmails: next }),
+      });
+      if (!res.ok) throw new Error();
+      notify(next ? "Marketing emails switched on." : "You won't get marketing emails any more.");
+    } catch {
+      setMarketingEmail(!next);
+      notify("Couldn't save your email preference. Please try again.", "error");
+    }
+  };
+
   const handleProfileSave = async ({ name, email }) => {
     setErrorMsg("");
     try {
@@ -1519,8 +1559,10 @@ function Dashboard({ onCartOpen }) {
                   <button
                     type="button"
                     className={`account-switch ${marketingEmail ? "on" : "off"}`}
-                    onClick={() => setMarketingEmail(!marketingEmail)}
-                    aria-label="Toggle marketing email preferences"
+                    onClick={handleMarketingToggle}
+                    role="switch"
+                    aria-checked={marketingEmail}
+                    aria-label="Marketing emails"
                   >
                     <span className="switch-knob">
                       {marketingEmail && <span className="switch-check">✓</span>}

@@ -26,6 +26,7 @@ export const updateProfileSchema = z.object({
   skinType: z.enum(["oily", "dry", "combination", "normal", "sensitive"]).optional(),
   hairType: z.enum(["straight", "wavy", "curly", "coily"]).optional(),
   password: z.string().min(6, "Password must be at least 6 characters").max(100).optional(),
+  marketingEmails: z.boolean().optional(),
 });
 
 export const googleLoginSchema = z.object({

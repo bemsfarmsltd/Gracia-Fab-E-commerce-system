@@ -1,3 +1,4 @@
+import { unsubscribeUrl, unsubscribeHeaders } from "../utils/unsubscribe.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import Groq from "groq-sdk";
@@ -142,7 +143,7 @@ export const sendMarketingEmails = async () => {
   <div style="padding:16px;text-align:center;border-top:1px solid #14213D;">
     <p style="font-size:11px;color:rgba(255,255,255,0.3);">
       You're receiving this because you're a Gracia Fab member.
-      <a href="https://gracia-fab.vercel.app/dashboard" style="color:rgba(255,255,255,0.5);">Unsubscribe</a>
+      <a href="${unsubscribeUrl(user._id)}" style="color:rgba(255,255,255,0.5);">Unsubscribe</a>
     </p>
   </div>
 </div>`;
@@ -153,6 +154,7 @@ export const sendMarketingEmails = async () => {
           subject: content.subject,
           html,
           type: "marketing",
+          headers: unsubscribeHeaders(user._id),
         });
 
         // Update last sent date

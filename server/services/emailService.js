@@ -25,7 +25,7 @@ const getClient = () => {
   return resend;
 };
 
-export const sendEmail = async ({ to, subject, html }) => {
+export const sendEmail = async ({ to, subject, html, headers }) => {
   const client = getClient();
 
   if (!client) {
@@ -35,7 +35,7 @@ export const sendEmail = async ({ to, subject, html }) => {
 
   const from = process.env.RESEND_FROM_EMAIL || "Gracia Fab Beauty <onboarding@resend.dev>";
 
-  const { error } = await client.emails.send({ from, to, subject, html });
+  const { error } = await client.emails.send({ from, to, subject, html, ...(headers ? { headers } : {}) });
 
   if (error) {
     logger.error({ err: error, to }, "Email failed");
