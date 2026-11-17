@@ -10,6 +10,7 @@ import { AuthContext } from "../../hooks/useAuth";
 const MOCK_CATALOG = [
   {
     _id: "prod-1",
+    stock: 10,
     name: "Vitamin C Radiance Serum",
     category: "skincare",
     brand: "Beauty Formulas",
@@ -24,6 +25,7 @@ const MOCK_CATALOG = [
   },
   {
     _id: "prod-2",
+    stock: 10,
     name: "Raw Virgin HD Glueless Wig",
     category: "wig",
     brand: "Gracia Fab Couture",
@@ -38,6 +40,7 @@ const MOCK_CATALOG = [
   },
   {
     _id: "prod-3",
+    stock: 10,
     name: "Nourishing Castor Scalp Oil",
     category: "haircare",
     brand: "Artnaturals",
@@ -51,6 +54,7 @@ const MOCK_CATALOG = [
   },
   {
     _id: "prod-4",
+    stock: 10,
     name: "Bridal Glow Radiance Setting Spray",
     category: "bridal",
     brand: "Saltylicious",

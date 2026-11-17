@@ -6,6 +6,7 @@ import WishlistButton from "../components/WishlistButton";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import API_URL from "../config";
+import { isOutOfStock } from "../utils/stock";
 
 // ── Canonical Category Tabs / Facets ──
 const CATEGORIES = [
@@ -902,7 +903,7 @@ function Products({ onCartOpen }) {
             /* ── GRID MODE (4-Column Layout) ── */
             <div className="glow-products-grid">
               {paginatedProducts.map((product) => {
-                const outOfStock = product.isInStock === false || product.stock === 0;
+                const outOfStock = isOutOfStock(product);
                 const discount = product.originalPrice && product.originalPrice > product.price
                   ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
                   : product.discountPercent || null;
@@ -1006,7 +1007,7 @@ function Products({ onCartOpen }) {
             /* ── LIST MODE (Horizontal Detailed Rows) ── */
             <div className="glow-products-list">
               {paginatedProducts.map((product) => {
-                const outOfStock = product.isInStock === false || product.stock === 0;
+                const outOfStock = isOutOfStock(product);
 
                 return (
                   <article key={product._id} className="glow-product-list-card">

@@ -3,6 +3,7 @@ import { useCart } from "../hooks/useCart";
 import WishlistButton from "./WishlistButton";
 import "./ProductCard.css";
 import { useToast } from "../hooks/useToast";
+import { isOutOfStock } from "../utils/stock";
 
 function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -15,7 +16,7 @@ function ProductCard({ product }) {
       minimumFractionDigits: 0,
     }).format(price);
 
-  const outOfStock = product.isInStock === false || product.stock === 0;
+  const outOfStock = isOutOfStock(product);
 
   return (
     <div className="product-card">

@@ -7,6 +7,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import API_URL from "../config";
 import "../styles/ProductDetail.css";
+import { isOutOfStock, stockLabel } from "../utils/stock";
 
 // ── Vouchers / Coupons (matching GLOWIFY Screen 1, 2, 3, 4) ──
 const AVAILABLE_VOUCHERS = [
@@ -194,7 +195,7 @@ export default function ProductDetail({ onCartOpen }) {
     return Math.round(((originalPrice - product.price) / originalPrice) * 100);
   }, [product, originalPrice]);
 
-  const outOfStock = product?.isInStock === false || product?.stock === 0;
+  const outOfStock = isOutOfStock(product);
 
   // Add to Bag action
   const handleAddToCart = () => {
@@ -498,7 +499,7 @@ export default function ProductDetail({ onCartOpen }) {
                 <span className="pdp-option-label">Stock:</span>
                 <span className={`pdp-stock-status ${outOfStock ? "out-of-stock" : "in-stock"}`}>
                   <span className="pdp-stock-pulse" />
-                  {outOfStock ? "Out of Stock" : "In Stock (Only 14 left in Lagos Hub)"}
+                  {stockLabel(product)}
                 </span>
               </div>
             </div>

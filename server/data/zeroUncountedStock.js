@@ -1,11 +1,13 @@
 // One-off: mark never-counted products as out of stock in an existing
-// database.
+// database. Two cases:
 //
-// Products seeded before the stock default changed to 0 got an invented
-// stock of 50. This finds the products whose catalog entry (data/products.js)
-// has no stock count AND whose database stock is still exactly 50 — i.e.
-// untouched since seeding — and sets them to 0. Anything an admin has since
-// edited (any value other than 50) is left alone.
+//   1. Products seeded before the stock default changed to 0 got an invented
+//      stock of 50. Those whose catalog entry (data/products.js) has no count
+//      AND whose database stock is still exactly 50 (untouched since seeding)
+//      are set to 0. Any other value an admin entered is left alone.
+//   2. Older products with no stock field at all are set to 0, so every
+//      product has an explicit count. (The shop showed them as available
+//      while checkout refused them.)
 //
 // Dry run by default; pass --apply to write:
 //   npm run stock:zero-uncounted            # shows what would change
@@ -30,15 +32,19 @@ const uncountedNames = products
 await mongoose.connect(process.env.MONGO_URI);
 
 const targets = await Product.find({
-  name: { $in: uncountedNames },
-  stock: OLD_DEFAULT,
-}).select("name stock");
+  $or: [
+    { name: { $in: uncountedNames }, stock: OLD_DEFAULT },
+    { stock: { $exists: false } },
+    { stock: null },
+  ],
+}).select("name stock").lean(); // lean: report what is stored, not schema defaults
 
+const invented = targets.filter((p) => p.stock === OLD_DEFAULT).length;
 console.log(
-  `${uncountedNames.length} catalog products have no stock count; ` +
-    `${targets.length} of them still show the old default of ${OLD_DEFAULT} in the database.`,
+  `${targets.length} products to set to 0: ${invented} still on the old default of ${OLD_DEFAULT}, ` +
+    `${targets.length - invented} with no stock value at all.`,
 );
-for (const p of targets) console.log(`  - ${p.name}`);
+for (const p of targets) console.log(`  - ${p.name}  (now: ${p.stock ?? "no value"})`);
 
 if (!apply) {
   console.log("\nDry run — nothing changed. Re-run with --apply to set these to 0.");

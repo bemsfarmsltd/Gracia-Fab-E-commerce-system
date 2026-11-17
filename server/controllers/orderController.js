@@ -53,9 +53,15 @@ export const createOrder = async (req, res) => {
         continue;
       }
 
-      if (product.stock !== undefined && product.stock < item.quantity) {
+      // A missing stock value means nobody has counted it: treat it as 0.
+      // (Don't rely on Mongoose filling in the schema default — lean queries
+      // and older documents don't have it.)
+      const available = Number(product.stock) > 0 ? Number(product.stock) : 0;
+      if (available < item.quantity) {
         stockErrors.push(
-          `"${product.name}" only has ${product.stock} left in stock`,
+          available === 0
+            ? `"${product.name}" is out of stock`
+            : `"${product.name}" only has ${available} left in stock`,
         );
       }
     }

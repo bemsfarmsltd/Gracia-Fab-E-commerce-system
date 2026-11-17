@@ -10,6 +10,7 @@ const product = {
   _id: "p1",
   name: "Hydrating Serum",
   price: 5000,
+  stock: 10,
   image: "https://example.com/serum.jpg",
 };
 

@@ -77,7 +77,43 @@ describe("Product stock defaults", () => {
       });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toMatch(/only has 0 left/i);
+    expect(res.body.message).toMatch(/is out of stock/i);
+  });
+
+  it("treats a product stored with no stock field as out of stock in the shop and at checkout", async () => {
+    // How 17 older products exist in the live database: no `stock` at all.
+    const { insertedId } = await mongoose.connection.collection("products").insertOne({
+      name: "CURL UP Defining Cream",
+      description: "Leave-in conditioner.",
+      price: 6000,
+      image: "https://example.com/curl.jpg",
+      category: "haircare",
+      isInStock: null,
+    });
+
+    // The shop list (a lean query) returns it without a stock value; the
+    // client's isOutOfStock() treats that as out of stock.
+    const list = await request(app).get("/api/products");
+    const listed = list.body.find((p) => String(p._id) === String(insertedId));
+    expect(listed.stock).toBeUndefined();
+
+    // Checkout refuses it with a clear message.
+    const token = await registerUser({ email: "buyer2@example.com" });
+    const res = await request(app)
+      .post("/api/orders")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        orderItems: [{ product: insertedId, quantity: 1 }],
+        deliveryAddress: {
+          fullName: "A",
+          phone: "08000000000",
+          address: "1 St",
+          city: "Lagos",
+          state: "Lagos",
+        },
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/"CURL UP Defining Cream" is out of stock/);
   });
 });
 
