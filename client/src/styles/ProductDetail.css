@@ -290,8 +290,12 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-gold, #D4AF37);
+  color: #7A5418;
   margin-bottom: 0.4rem;
+}
+
+[data-theme="dark"] .pdp-brand-eyebrow {
+  color: #E5B842;
 }
 
 .pdp-product-title {

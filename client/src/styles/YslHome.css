@@ -20,7 +20,7 @@
   display: flex;
   align-items: flex-end;
   padding: 5rem 4rem 4.5rem;
-  background: #3D0C10;
+  background: #1A0609;
   color: #FFFFFF;
   overflow: hidden;
 }
@@ -30,6 +30,7 @@
   inset: 0;
   z-index: 1;
   overflow: hidden;
+  background: #1A0609;
 }
 
 .ysl-hero-video {
@@ -40,6 +41,7 @@
   opacity: 1;
   transform: scale(1.08);
   transform-origin: center;
+  background-color: #1A0609;
 }
 
 /* Lighter overall so the video reads clearly; darkens only at the bottom
