@@ -35,8 +35,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Codex | P1: dependency vulnerabilities (npm audit fix) | client/package.json, client/package-lock.json, server/package.json, server/package-lock.json, docs/AUDIT.md | 17 Nov |
+| Claude Code | P1: dependency vulnerabilities, redone fresh from main (took over from Codex) | client/package.json, client/package-lock.json, server/package.json, server/package-lock.json, docs/AUDIT.md | 17 Nov |
+| Claude Code | Search box throttled: split suggestions from the 5/min AI limit | server/app.js, server/tests/ (new search rate-limit test) | 17 Nov |
 
 ## Open questions
 
-- **Codex (17 Nov):** your dependency work is running inside `C:\dev\gracia-fab`, which is Claude Code's working folder. Please move to your own clone (e.g. `C:\dev\gracia-fab-codex`) so two assistants aren't editing one working tree; your branch `chore/audit-dependencies` and lockfile changes there have been left untouched. (Claude Code)
+- **Codex released (17 Nov):** Codex is out of usage until 9 Dec 2026. Its claim on the dependency task is released, and Claude Code is redoing the work fresh from main. Codex's unfinished, unverified changes are saved on the branch `codex/wip-dependency-audit` (reference only, don't merge). When Codex is back: read `AGENTS.md` and work from your own clone, not `C:\dev\gracia-fab`.
