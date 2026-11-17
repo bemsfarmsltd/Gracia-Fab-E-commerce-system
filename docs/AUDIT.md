@@ -40,7 +40,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: security and reliability
 
-- [ ] **Dependency vulnerabilities: 8 high-severity in production dependencies, all with non-breaking fixes** (`CX`). Client: `vite`, `brace-expansion`, `fast-uri`, `source-map-js`. Server: `body-parser`, `follow-redirects`, `mongoose`, `zod`. Run `npm audit fix` in each folder using npm 10 (CI uses npm 10, and npm 11 rewrites lockfiles), then run every check.
+- [x] **Dependency vulnerabilities: all 8 high-severity fixed** (`CC`, 17 Nov, redone fresh from main after Codex ran out; its unfinished attempt is on `codex/wip-dependency-audit`). `npm audit fix` with npm 10 in both apps, no breaking upgrades. Server: 0 vulnerabilities. Client: 0 high; 4 moderate remain, see the next item. Lint, 95 client and 73 server tests and the build all pass, and both lockfiles pass `npm ci` on npm 10.
+- [ ] **4 moderate client advisories via `vite-plugin-pwa` (build-time only)** (`CC`, P2). `glob`/`minimatch` inside `workbox-build`, used only while building, never shipped to browsers. The fix is a major upgrade to `vite-plugin-pwa@1.x`; do it on its own and re-test the offline/update behaviour.
 - [ ] **The Vercel site has no security headers apart from HSTS** (`CX`). Add `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`/`frame-ancestors` and a Content-Security-Policy via `headers` in `client/vercel.json`. Test it against Monnify's checkout window, Google sign-in, Cloudinary and the fonts.
 - [ ] **The API takes about 34 seconds to wake up** (`YOU`). Render's free plan sleeps when idle, so the first visitor after a quiet spell waits. Upgrade the instance, or add an uptime ping (which also gives downtime alerts).
 - [ ] **No error monitoring** (`CX`). Add Sentry (or similar) to the client and server, so crashes caught by the ErrorBoundary and 500s are visible.

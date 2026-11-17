@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | P1: dependency vulnerabilities, redone fresh from main (took over from Codex) | client/package.json, client/package-lock.json, server/package.json, server/package-lock.json, docs/AUDIT.md | 17 Nov |
 | Claude Code | Search box throttled: split suggestions from the 5/min AI limit | server/app.js, server/tests/ (new search rate-limit test) | 17 Nov |
 
 ## Open questions
