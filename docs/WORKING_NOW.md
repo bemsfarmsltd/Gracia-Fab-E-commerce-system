@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | P1: legal pages (Privacy Policy, Terms of Service, Shipping & Returns drafts) | client/src/pages/PrivacyPolicy.jsx, client/src/pages/TermsOfService.jsx, client/src/pages/ShippingReturns.jsx, client/src/styles/Legal.css, client/src/components/Footer.jsx, client/src/pages/Checkout.jsx, client/src/App.jsx, docs/AUDIT.md | 17 Nov |
 
 ## Open questions
 

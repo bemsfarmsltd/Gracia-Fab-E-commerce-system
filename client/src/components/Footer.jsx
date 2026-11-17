@@ -137,6 +137,9 @@ function Footer() {
             <ul className="ysl-footer-links">
               <li><Link to="/contact">Contact Us</Link></li>
               <li><Link to="/my-orders">Track Your Order</Link></li>
+              <li><Link to="/shipping-returns">Shipping &amp; Returns</Link></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link to="/terms">Terms of Service</Link></li>
               <li><Link to="/dashboard">My Account</Link></li>
               <li><Link to="/wishlist">Wishlist</Link></li>
             </ul>
@@ -147,6 +150,13 @@ function Footer() {
       <div className="ysl-footer-bottom">
         <div className="ysl-footer-copy">
           © {new Date().getFullYear()} Gracia Fab <span className="ysl-footer-copy-star">✦</span> NG
+        </div>
+        <div className="ysl-footer-legal-links">
+          <Link to="/privacy-policy">Privacy Policy</Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/terms">Terms of Service</Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/shipping-returns">Shipping &amp; Returns</Link>
         </div>
       </div>
     </footer>

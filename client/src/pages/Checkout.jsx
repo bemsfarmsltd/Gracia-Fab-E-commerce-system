@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../hooks/useCart";
@@ -406,6 +406,12 @@ function Checkout({ onCartOpen }) {
                   >
                     {loading ? "Saving Order..." : "→ Continue to Payment"}
                   </button>
+                  <p className="checkout-legal-notice" style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "0.75rem", textAlign: "center", lineHeight: "1.4" }}>
+                    By continuing, you agree to Gracia Fab&rsquo;s{" "}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "underline" }}>Terms</Link>,{" "}
+                    <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "underline" }}>Privacy</Link> &amp;{" "}
+                    <Link to="/shipping-returns" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "underline" }}>Shipping Policies</Link>.
+                  </p>
                 </form>
               </>
             ) : (
@@ -443,6 +449,12 @@ function Checkout({ onCartOpen }) {
 
                   <p className="payment-secure">
                     🔒 Secured by Monnify · Card · Bank Transfer · USSD
+                  </p>
+
+                  <p className="checkout-legal-notice" style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "0.5rem", textAlign: "center", lineHeight: "1.4" }}>
+                    By paying, you accept our{" "}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "underline" }}>Terms of Service</Link> and{" "}
+                    <Link to="/shipping-returns" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "underline" }}>Returns Policy</Link>.
                   </p>
 
                   <button

@@ -249,6 +249,11 @@
   margin: 0 auto;
   padding: 1.75rem 3.5rem;
   border-top: 1px solid rgba(61, 12, 16, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .ysl-footer-copy {
@@ -258,6 +263,25 @@
 
 .ysl-footer-copy-star {
   color: #C1440E;
+}
+
+.ysl-footer-legal-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+
+.ysl-footer-legal-links a {
+  color: var(--text-2);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ysl-footer-legal-links a:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

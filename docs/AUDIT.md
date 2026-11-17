@@ -29,7 +29,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: trust, legal, SEO
 
-- [ ] **No privacy policy, terms, or shipping and returns pages** (`AG` builds, `YOU` supplies the wording). Customers expect them, and payment providers usually require them. Link them from the footer and checkout.
+- [x] **No privacy policy, terms, or shipping and returns pages** (`AG` builds, `YOU` supplies the wording) — fixed. Built standard PrivacyPolicy.jsx, TermsOfService.jsx, and ShippingReturns.jsx marked with owner-review draft banners (no unverified addresses or claims; accurate ₦2,500 shipping rate and Monnify notices). Linked from footer and checkout with unit tests.
 - [ ] **The domain `graciafab.com` doesn't exist** (`YOU`, then `CX`). The sitemap (`server/routes/sitemapRoutes.js`), `og:url`, structured data and `logo.png` all point to it. Either buy it and connect it to Vercel, or switch those references to the real URL.
 - [x] **`logo.png` is missing** (`AG`). `index.html` references `/logo.png` in structured data, but the file doesn't exist. — Fixed: added branded logo.png in client/public/.
 - [x] **Unknown URLs redirect to `/login`** (`AG`). Add a real "Page not found" page (`App.jsx`, catch-all route). — Fixed: created NotFound.jsx & NotFound.css and wired to catch-all route.

@@ -43,6 +43,9 @@ const SkinToneDetector = lazyWithReload(() => import("./components/SkinToneDetec
 const SkinAnalysis = lazyWithReload(() => import("./pages/SkinAnalysis"));
 const RoutineGenerator = lazyWithReload(() => import("./pages/RoutineGenerator"));
 const Compare = lazyWithReload(() => import("./pages/Compare"));
+const PrivacyPolicy = lazyWithReload(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazyWithReload(() => import("./pages/TermsOfService"));
+const ShippingReturns = lazyWithReload(() => import("./pages/ShippingReturns"));
 
 function PageLoading() {
   return (
@@ -239,6 +242,19 @@ function App() {
         <Route
           path="/routine-generator"
           element={<RoutineGenerator onCartOpen={openCart} />}
+        />
+        {/* ── Legal & Policy Pages (Drafts for Owner Review) ── */}
+        <Route
+          path="/privacy-policy"
+          element={<PrivacyPolicy onCartOpen={openCart} />}
+        />
+        <Route
+          path="/terms"
+          element={<TermsOfService onCartOpen={openCart} />}
+        />
+        <Route
+          path="/shipping-returns"
+          element={<ShippingReturns onCartOpen={openCart} />}
         />
         {/* ── Catch all (branded 404 page) ── */}
         <Route path="*" element={<NotFound onCartOpen={openCart} />} />
