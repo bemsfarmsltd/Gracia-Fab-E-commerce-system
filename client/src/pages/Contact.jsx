@@ -155,33 +155,10 @@ function Contact({ onCartOpen }) {
 
             {/* Info cards */}
             <div className="contact-info">
-              {/* Email — opens mail app */}
-              <a
-                href="mailto:hello@graciafab.com?subject=Beauty Inquiry"
-                className="contact-info-card contact-info-link"
-              >
-                <span className="contact-info-icon">📧</span>
-                <div>
-                  <h3>Email Us</h3>
-                  <p>hello@graciafab.com — we reply within 24 hours.</p>
-                  <span className="contact-info-action">Tap to email →</span>
-                </div>
-              </a>
-
-              {/* Store — opens Google Maps */}
-              <a
-                href="https://maps.google.com/?q=Victoria+Island+Lagos+Nigeria"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact-info-card contact-info-link"
-              >
-                <span className="contact-info-icon">🏪</span>
-                <div>
-                  <h3>Visit Our Store</h3>
-                  <p>Victoria Island, Lagos, Nigeria.</p>
-                  <span className="contact-info-action">Get directions →</span>
-                </div>
-              </a>
+              {/* No email card until there's a working address (graciafab.com
+                  doesn't exist, so hello@graciafab.com bounced), and no store
+                  card: there's no physical store address to show yet. The
+                  form above saves messages to the admin Messages tab. */}
 
               {/* Phone — opens phone dialer */}
               <a

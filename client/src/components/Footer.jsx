@@ -49,10 +49,6 @@ function Footer() {
             </p>
 
             <div className="ysl-footer-contact">
-              <a href="mailto:hello@graciafab.com" className="ysl-footer-contact-link">
-                <span className="ysl-footer-contact-icon" aria-hidden="true">✉</span>
-                hello@graciafab.com
-              </a>
               <a
                 href="https://wa.me/2348037447068?text=Hi%20Gracia%20Fab!%20I%20need%20help%20with..."
                 target="_blank"
