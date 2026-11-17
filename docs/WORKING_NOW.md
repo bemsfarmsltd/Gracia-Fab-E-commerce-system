@@ -36,6 +36,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
 | Claude Code | P1: cancel paid orders + refund tracking | server: models/Order.js, models/User.js (points enum), services/ (new orderCancel.js, orderPayment.js, emailService.js, whatsappService.js), controllers/orderController.js, routes/adminRoutes.js, validators/orderValidators.js; client: AdminDashboard.jsx (orders tab), MyOrders.jsx | 17 Nov |
+| Antigravity | P1: per-product SEO and structured data | client/src/components/SEO.jsx, client/src/pages/Products.jsx, client/src/pages/ProductDetail.jsx, docs/AUDIT.md | 17 Nov |
 
 ## Open questions
 
