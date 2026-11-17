@@ -35,7 +35,8 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Claude Code | P0: products with no stock value (treat missing as 0) | server/controllers/orderController.js, server/services/orderPayment.js, server/data/zeroUncountedStock.js, outOfStock checks in client ProductCard.jsx / Products.jsx / ProductDetail.jsx | 17 Nov |
+| Claude Code | P0: real voucher codes (BEAUTY20 / GLOW05 / LUXE5K) | server: new Voucher model, validators, routes, orderController; client: Checkout.jsx, ProductDetail.jsx voucher section, AdminDashboard Vouchers tab | 17 Nov |
 
 ## Open questions
 
