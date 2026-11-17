@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Search box throttled: split suggestions from the 5/min AI limit | server/app.js, server/tests/ (new search rate-limit test) | 17 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 

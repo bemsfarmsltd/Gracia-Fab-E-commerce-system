@@ -40,6 +40,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: security and reliability
 
+- [x] **The search box blocked shoppers after a few pauses** (found by `AG`, fixed by `CC` 17 Nov). Autocomplete (`GET /api/search/suggestions`, a plain database lookup) shared the 5-per-minute AI limit, so the 6th pause in a minute got a 429. Suggestions now have their own 60/min limit; the 5/min cap applies only to the AI searches (POST). Covered by a production-limits test.
+
 - [x] **Dependency vulnerabilities: all 8 high-severity fixed** (`CC`, 17 Nov, redone fresh from main after Codex ran out; its unfinished attempt is on `codex/wip-dependency-audit`). `npm audit fix` with npm 10 in both apps, no breaking upgrades. Server: 0 vulnerabilities. Client: 0 high; 4 moderate remain, see the next item. Lint, 95 client and 73 server tests and the build all pass, and both lockfiles pass `npm ci` on npm 10.
 - [ ] **4 moderate client advisories via `vite-plugin-pwa` (build-time only)** (`CC`, P2). `glob`/`minimatch` inside `workbox-build`, used only while building, never shipped to browsers. The fix is a major upgrade to `vite-plugin-pwa@1.x`; do it on its own and re-test the offline/update behaviour.
 - [ ] **The Vercel site has no security headers apart from HSTS** (`CX`). Add `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`/`frame-ancestors` and a Content-Security-Policy via `headers` in `client/vercel.json`. Test it against Monnify's checkout window, Google sign-in, Cloudinary and the fonts.

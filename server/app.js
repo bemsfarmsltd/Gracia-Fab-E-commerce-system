@@ -106,6 +106,19 @@ const aiLimiter = rateLimit({
   },
 });
 
+// ── Search autocomplete: plain database lookups fired as people type (the
+// search box debounces, so roughly one per pause). They used to share the
+// 5/min AI cap, which blocked shoppers after a few pauses.
+const suggestionsLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: isTest ? 100000 : 60,
+  message: {
+    message: "Too many search suggestions. Please wait a moment.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // ── Conversational chat limiter: allows natural multi-turn dialogue while preventing abuse
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -124,7 +137,11 @@ app.use("/api/auth/register", authLimiter);
 app.use("/api/auth/verify-otp", authLimiter);
 app.use("/api/auth/resend-otp", authLimiter);
 app.use("/api/recommend", aiLimiter);
-app.use("/api/search", aiLimiter);
+app.use("/api/search/suggestions", suggestionsLimiter);
+// Only the AI-powered searches (POST / and /personalized) are expensive.
+app.use("/api/search", (req, res, next) =>
+  req.method === "POST" ? aiLimiter(req, res, next) : next(),
+);
 // Slows anyone trying to guess voucher codes.
 app.use("/api/vouchers/validate", authLimiter);
 
