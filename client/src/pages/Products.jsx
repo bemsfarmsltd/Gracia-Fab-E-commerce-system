@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import "../styles/Products.css";
 import SmartSearch from "../components/SmartSearch";
 import WishlistButton from "../components/WishlistButton";
+import SEO from "../components/SEO";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import API_URL from "../config";
@@ -349,8 +350,29 @@ function Products({ onCartOpen }) {
     }
   };
 
+  const categoryLabel = selectedCategories.length === 1
+    ? CATEGORIES.find((c) => c.id === selectedCategories[0])?.label || "Beauty"
+    : null;
+
+  const pageTitle = categoryLabel
+    ? `${categoryLabel} Collection`
+    : "Shop Luxury Skincare, Haircare & Wigs";
+
+  const pageDesc = categoryLabel
+    ? `Explore Gracia Fab's curated ${categoryLabel.toLowerCase()} collection in Nigeria. Authentic formulations and products tailored for your beauty routine.`
+    : "Explore Gracia Fab's curated collection of clinical skincare, raw hair wigs, and bridal beauty formulated for Nigerian complexions and climate.";
+
+  const pageUrl = selectedCategories.length === 1
+    ? `/products?category=${selectedCategories[0]}`
+    : "/products";
+
   return (
     <div className="glow-catalog-page" ref={catalogTopRef}>
+      <SEO
+        title={pageTitle}
+        description={pageDesc}
+        url={pageUrl}
+      />
       {/* ── 1. Editorial Header Banner ── */}
       <section className="glow-catalog-hero">
         <div className="glow-catalog-hero-inner">

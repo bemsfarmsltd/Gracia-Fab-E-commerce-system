@@ -273,4 +273,21 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
     expect(screen.getAllByText("No reviews yet").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("4.8/5")).not.toBeInTheDocument();
   });
+
+  it("renders Product structured data schema with price in NGN and stock availability", async () => {
+    renderProductDetail();
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    });
+
+    const script = document.querySelector('script[type="application/ld+json"]');
+    expect(script).not.toBeNull();
+    const parsed = JSON.parse(script.textContent);
+    expect(parsed["@type"]).toBe("Product");
+    expect(parsed.name).toBe("Pure Glow Vitamin C Elixir");
+    expect(parsed.offers.priceCurrency).toBe("NGN");
+    expect(parsed.offers.price).toBe(29900);
+    expect(parsed.offers.availability).toBe("https://schema.org/InStock");
+  });
 });

@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | P1: per-product SEO and structured data | client/src/components/SEO.jsx, client/src/pages/Products.jsx, client/src/pages/ProductDetail.jsx, docs/AUDIT.md | 17 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 

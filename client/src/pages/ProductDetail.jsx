@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import FloatingBackHeader from "../components/FloatingBackHeader";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
@@ -287,6 +288,41 @@ export default function ProductDetail({ onCartOpen }) {
     return [...sameCategory, ...fallbacks].slice(0, 4);
   }, [product, allProducts]);
 
+  const productSchema = useMemo(() => {
+    if (!product) return null;
+    const inStock = !isOutOfStock(product);
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": product.name,
+      "image": gallery.length > 0 ? gallery : [product.image].filter(Boolean),
+      "description": product.description || `Buy ${product.name} at Gracia Fab.`,
+      "brand": {
+        "@type": "Brand",
+        "name": product.brand || "Gracia Fab",
+      },
+      "category": product.category || "Beauty",
+      "offers": {
+        "@type": "Offer",
+        "url": `https://graciafab.com/products/${product._id}`,
+        "priceCurrency": "NGN",
+        "price": product.price,
+        "availability": inStock
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+        "itemCondition": "https://schema.org/NewCondition",
+      },
+    };
+    if (product.numReviews > 0 && product.rating > 0) {
+      schema.aggregateRating = {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": product.numReviews,
+      };
+    }
+    return schema;
+  }, [product, gallery]);
+
   if (loading) {
     return (
       <div className="pdp-page">
@@ -323,6 +359,17 @@ export default function ProductDetail({ onCartOpen }) {
 
   return (
     <div className="pdp-page" role="main">
+      <SEO
+        title={product.name}
+        description={
+          product.description ||
+          `Discover ${product.name} by ${product.brand || "Gracia Fab"} — curated for your beauty routine.`
+        }
+        image={product.image}
+        url={`/products/${product._id}`}
+        type="product"
+        schema={productSchema}
+      />
       <FloatingBackHeader backLabel="Back to Products" onCartOpen={onCartOpen} />
 
       <div className="pdp-container">

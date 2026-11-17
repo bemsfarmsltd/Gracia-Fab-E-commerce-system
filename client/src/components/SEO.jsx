@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-function SEO({ title, description, keywords, image, url, type = "website" }) {
+function SEO({ title, description, keywords, image, url, type = "website", schema }) {
   const siteName = "Gracia Fab";
   const defaultDesc =
     "Gracia Fab is your AI-powered beauty advisor. Get personalized skincare routines, haircare tips, wig styles and bridal beauty recommendations made just for you.";
@@ -48,6 +48,13 @@ function SEO({ title, description, keywords, image, url, type = "website" }) {
       {/* Geo - Nigeria targeting */}
       <meta name="geo.region" content="NG" />
       <meta name="geo.country" content="Nigeria" />
+
+      {/* Structured Data (JSON-LD) */}
+      {schema && (
+        <script type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      )}
     </Helmet>
   );
 }
