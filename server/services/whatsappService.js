@@ -1,5 +1,6 @@
 import twilio from "twilio";
 import logger from "../utils/logger.js";
+import { siteHost } from "../utils/siteUrl.js";
 
 // Initialize only if credentials exist
 let client = null;
@@ -79,5 +80,5 @@ _Gracia Fab Beauty_`,
     `🎉 *Order Delivered!*\n\nHi ${name}! Your Gracia Fab order has been delivered. We hope you love your new beauty products!\n\n✨ Don't forget to leave a review — it helps other beauty lovers.\n\n_Gracia Fab Beauty_`,
 
   welcomeMessage: (name) =>
-    `💄 *Welcome to Gracia Fab!*\n\nHi ${name}! You've just joined Nigeria's premier AI-powered beauty community.\n\n✦ Get personalized skincare recommendations\n✦ Shop premium beauty products\n✦ Earn loyalty points on every purchase\n\nVisit: gracia-fab.vercel.app\n\n_Gracia Fab Beauty_`,
+    `💄 *Welcome to Gracia Fab!*\n\nHi ${name}! You've just joined Nigeria's premier AI-powered beauty community.\n\n✦ Get personalized skincare recommendations\n✦ Shop premium beauty products\n✦ Earn loyalty points on every purchase\n\nVisit: ${siteHost()}\n\n_Gracia Fab Beauty_`,
 };

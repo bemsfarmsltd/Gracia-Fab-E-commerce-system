@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Compare page real stock; prepare graciafab.com (CORS, one site-URL setting) | Compare.jsx, Compare.css, app.js, SEO/site URL refs, emails | 18 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 

@@ -181,4 +181,11 @@ describe("CORS", () => {
     const res = await request(app).options("/api/products").set("Origin", "https://gracia-fab.vercel.app").set("Access-Control-Request-Method", "GET");
     expect(res.headers["access-control-allow-origin"]).toBe("https://gracia-fab.vercel.app");
   });
+
+  it("is ready for the graciafab.com domain", async () => {
+    for (const origin of ["https://graciafab.com", "https://www.graciafab.com"]) {
+      const res = await request(app).options("/api/products").set("Origin", origin).set("Access-Control-Request-Method", "GET");
+      expect(res.headers["access-control-allow-origin"]).toBe(origin);
+    }
+  });
 });

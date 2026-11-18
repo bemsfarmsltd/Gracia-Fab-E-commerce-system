@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
-import API_URL from "../config";
+import API_URL, { SITE_URL } from "../config";
 import "../styles/BeautyLanding.css";
 
 // SEO page definitions — add as many as you want
@@ -222,13 +222,13 @@ function BeautyLanding({ onCartOpen }) {
         <meta name="keywords" content={page.keywords} />
         <link
           rel="canonical"
-          href={`https://gracia-fab.vercel.app/beauty/${slug}`}
+          href={`${SITE_URL}/beauty/${slug}`}
         />
         <meta property="og:title" content={page.title} />
         <meta property="og:description" content={page.description} />
         <meta
           property="og:url"
-          content={`https://gracia-fab.vercel.app/beauty/${slug}`}
+          content={`${SITE_URL}/beauty/${slug}`}
         />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -239,7 +239,7 @@ function BeautyLanding({ onCartOpen }) {
             publisher: {
               "@type": "Organization",
               name: "Gracia Fab",
-              url: "https://gracia-fab.vercel.app",
+              url: SITE_URL,
             },
             datePublished: "2026-01-01",
             dateModified: new Date().toISOString().split("T")[0],

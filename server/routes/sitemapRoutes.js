@@ -4,11 +4,9 @@ import logger from "../utils/logger.js";
 
 const router = express.Router();
 
-// The public website's address. FRONTEND_URL is already set on Render for
-// CORS; when the store moves to its own domain, update it there (and in
-// client/public/robots.txt, client/index.html and SEO.jsx).
-export const siteUrl = () =>
-  (process.env.FRONTEND_URL || "https://gracia-fab.vercel.app").replace(/\/+$/, "");
+import { siteUrl } from "../utils/siteUrl.js";
+
+export { siteUrl };
 
 const STATIC_PAGES = [
   { url: "/", priority: "1.0", changefreq: "weekly" },

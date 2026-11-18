@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { SITE_URL } from "../config";
 
 function SEO({ title, description, keywords, image, url, type = "website", schema }) {
   const siteName = "Gracia Fab";
@@ -8,10 +9,8 @@ function SEO({ title, description, keywords, image, url, type = "website", schem
   // size), not a stock photo.
   const defaultImage =
     "https://res.cloudinary.com/dyzkjerez/video/upload/so_0,w_1200,h_630,c_fill,q_auto/v1789284554/Generate_a_high_end_glossy_c_1_arwzb5.jpg";
-  // The live site's address (graciafab.com isn't registered). If the store
-  // moves to its own domain, change it here, in client/index.html,
-  // client/public/robots.txt and FRONTEND_URL on Render (used by the sitemap).
-  const baseUrl = "https://gracia-fab.vercel.app";
+  // VITE_SITE_URL on Vercel (see config.js).
+  const baseUrl = SITE_URL;
 
   const fullTitle = title
     ? `${title} | ${siteName}`

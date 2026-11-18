@@ -6,7 +6,7 @@ import SEO from "../components/SEO";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
-import API_URL from "../config";
+import API_URL, { SITE_URL } from "../config";
 import "../styles/ProductDetail.css";
 import { isOutOfStock, stockLabel } from "../utils/stock";
 
@@ -304,7 +304,7 @@ export default function ProductDetail({ onCartOpen }) {
       "category": product.category || "Beauty",
       "offers": {
         "@type": "Offer",
-        "url": `https://gracia-fab.vercel.app/products/${product._id}`,
+        "url": `${SITE_URL}/products/${product._id}`,
         "priceCurrency": "NGN",
         "price": product.price,
         "availability": inStock

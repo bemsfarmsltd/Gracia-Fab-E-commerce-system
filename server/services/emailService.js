@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import logger from "../utils/logger.js";
+import { siteUrl, siteHost } from "../utils/siteUrl.js";
 
 // Customer-supplied text (e.g. names) going into HTML emails.
 const escapeHtml = (s) =>
@@ -79,7 +80,7 @@ export const emailTemplates = {
             </div>
           </div>
           <div style="text-align: center; margin-top: 32px;">
-            <a href="https://gracia-fab.vercel.app/my-orders"
+            <a href="${siteUrl()}/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               Track My Order
             </a>
@@ -87,7 +88,7 @@ export const emailTemplates = {
         </div>
         <div style="background: #14213D; padding: 20px; text-align: center;">
           <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin: 0;">
-            © 2026 Gracia Fab Beauty · Nigeria · gracia-fab.vercel.app
+            © 2026 Gracia Fab Beauty · Nigeria · ${siteHost()}
           </p>
         </div>
       </div>
@@ -108,7 +109,7 @@ export const emailTemplates = {
           <p>Great news! Your Gracia Fab order <strong>#${orderId}</strong> has been shipped and is on its way to you.</p>
           <p>Expected delivery: <strong style="color: #FCA311;">2–5 business days</strong></p>
           <div style="text-align: center; margin-top: 24px;">
-            <a href="https://gracia-fab.vercel.app/my-orders"
+            <a href="${siteUrl()}/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               Track Order
             </a>
@@ -133,7 +134,7 @@ export const emailTemplates = {
           ${refundAmount ? `<p>A refund of <strong style="color: #FCA311;">₦${refundAmount.toLocaleString()}</strong> will be sent to your original payment method. We'll email you when it's on its way.</p>` : ""}
           <p>If you have any questions, just reply to this email or message us on WhatsApp.</p>
           <div style="text-align: center; margin-top: 24px;">
-            <a href="https://gracia-fab.vercel.app/my-orders"
+            <a href="${siteUrl()}/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               View My Orders
             </a>
@@ -157,7 +158,7 @@ export const emailTemplates = {
           <p>We've sent your refund of <strong style="color: #FCA311;">₦${amount.toLocaleString()}</strong> for order <strong>#${orderId}</strong>.</p>
           <p>Depending on your bank, it can take a few working days to show in your account.</p>
           <div style="text-align: center; margin-top: 24px;">
-            <a href="https://gracia-fab.vercel.app/my-orders"
+            <a href="${siteUrl()}/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               View My Orders
             </a>
@@ -181,7 +182,7 @@ export const emailTemplates = {
           <p>Your Gracia Fab order has arrived. We hope you love your new beauty products! ✨</p>
           <p>Don't forget to leave a review — it helps other beauty lovers discover their perfect match.</p>
           <div style="text-align: center; margin-top: 24px;">
-            <a href="https://gracia-fab.vercel.app/my-orders"
+            <a href="${siteUrl()}/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               View My Orders
             </a>
@@ -230,7 +231,7 @@ export const emailTemplates = {
             <li>✦ Exclusive offers for members</li>
           </ul>
           <div style="text-align: center; margin-top: 24px;">
-            <a href="https://gracia-fab.vercel.app/recommend"
+            <a href="${siteUrl()}/recommend"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
               Get My AI Recommendations →
             </a>

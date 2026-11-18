@@ -4,6 +4,7 @@ import Product from "../models/Product.js";
 import Groq from "groq-sdk";
 import { addToQueue, emailQueue } from "../queues/index.js";
 import logger from "../utils/logger.js";
+import { siteUrl } from "../utils/siteUrl.js";
 
 let groqClient = null;
 const getGroq = () => {
@@ -134,7 +135,7 @@ export const sendMarketingEmails = async () => {
         .join("")}
     </div>
     <div style="text-align:center;margin-top:24px;">
-      <a href="https://gracia-fab.vercel.app/products?category=${topCategory}"
+      <a href="${siteUrl()}/products?category=${topCategory}"
          style="background:#FCA311;color:#000;padding:14px 32px;border-radius:30px;text-decoration:none;font-weight:bold;display:inline-block;">
         Shop Now →
       </a>

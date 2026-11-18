@@ -2,9 +2,45 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
+// The public site address: VITE_SITE_URL on Vercel (https://graciafab.com once
+// the domain is connected). Fills %SITE_URL% in index.html and writes
+// robots.txt, so changing domains needs no code edits.
+const DEFAULT_SITE_URL = "https://gracia-fab.vercel.app";
+const ROBOTS = (site) => `User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /checkout
+Disallow: /cart
+Disallow: /my-orders
+
+Sitemap: ${site}/sitemap.xml
+`;
+
+function siteUrlPlugin() {
+  let site = DEFAULT_SITE_URL;
+  return {
+    name: "gracia-site-url",
+    configResolved(config) {
+      site = (config.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
+    },
+    transformIndexHtml: (html) => html.replaceAll("%SITE_URL%", site),
+    configureServer(server) {
+      server.middlewares.use("/robots.txt", (_req, res) => {
+        res.setHeader("Content-Type", "text/plain");
+        res.end(ROBOTS(site));
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "robots.txt", source: ROBOTS(site) });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
+    siteUrlPlugin(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],

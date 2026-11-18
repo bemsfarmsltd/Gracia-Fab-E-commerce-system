@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import User from "../models/User.js";
 import logger from "../utils/logger.js";
+import { siteUrl } from "../utils/siteUrl.js";
 import { isValidUnsubscribeToken } from "../utils/unsubscribe.js";
 
 const router = express.Router();
@@ -13,7 +14,7 @@ const page = (title, message) => `<!doctype html>
 <main style="max-width:440px;text-align:center;background:#fff;border-radius:16px;padding:32px;box-shadow:0 6px 28px rgba(122,36,50,0.15);">
 <h1 style="font-family:Georgia,serif;color:#7A2432;margin:0 0 12px;">${title}</h1>
 <p style="color:#5f4038;line-height:1.6;margin:0 0 20px;">${message}</p>
-<a href="https://gracia-fab.vercel.app" style="display:inline-block;background:#7A2432;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold;">Back to Gracia Fab</a>
+<a href="${siteUrl()}" style="display:inline-block;background:#7A2432;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold;">Back to Gracia Fab</a>
 </main></body></html>`;
 
 async function unsubscribe(req) {
