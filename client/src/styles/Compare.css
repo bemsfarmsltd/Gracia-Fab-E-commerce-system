@@ -479,6 +479,19 @@
   background: #4A8B5E;
 }
 
+.cell-stock-status.is-out {
+  color: var(--warning);
+}
+
+.cell-stock-status.is-out .stock-dot {
+  background: var(--warning);
+}
+
+.compare-slot-add-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 /* ── MODAL PICKER ── */
 .compare-picker-overlay {
   position: fixed;

@@ -6,6 +6,7 @@ import SEO from "../components/SEO";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import API_URL from "../config";
+import { isOutOfStock, stockLabel } from "../utils/stock";
 import "../styles/Compare.css";
 
 // ── Common Active Ingredients Dictionary for AI Tagging ──
@@ -228,6 +229,10 @@ function Compare({ onCartOpen }) {
   // Add individual product to cart
   const handleAddToCart = (product) => {
     if (!product) return;
+    if (isOutOfStock(product)) {
+      addToast(`"${product.name}" is out of stock`, "error");
+      return;
+    }
     addToCart({
       _id: product._id,
       name: product.name,
@@ -239,9 +244,12 @@ function Compare({ onCartOpen }) {
   };
 
   // Add all compared products to cart
+  // Only the ones that can actually be bought.
+  const buyableProducts = selectedProducts.filter((p) => !isOutOfStock(p));
+
   const handleAddAllToCart = () => {
-    if (selectedProducts.length === 0) return;
-    selectedProducts.forEach((p) => {
+    if (buyableProducts.length === 0) return;
+    buyableProducts.forEach((p) => {
       addToCart({
         _id: p._id,
         name: p.name,
@@ -249,7 +257,13 @@ function Compare({ onCartOpen }) {
         image: p.image,
       });
     });
-    addToast(`Added all ${selectedProducts.length} items to your bag! 🌟`, "cart");
+    const skipped = selectedProducts.length - buyableProducts.length;
+    addToast(
+      skipped
+        ? `Added ${buyableProducts.length} to your bag. ${skipped} out of stock.`
+        : `Added all ${buyableProducts.length} items to your bag! 🌟`,
+      "cart"
+    );
     if (onCartOpen) onCartOpen();
   };
 
@@ -327,8 +341,9 @@ function Compare({ onCartOpen }) {
               type="button"
               className="compare-add-all-btn"
               onClick={handleAddAllToCart}
+              disabled={buyableProducts.length === 0}
             >
-              + Add All ({selectedProducts.length}) to Bag
+              + Add All ({buyableProducts.length}) to Bag
             </button>
           )}
         </div>
@@ -374,15 +389,18 @@ function Compare({ onCartOpen }) {
                   </div>
 
                   <div className="compare-rating-pill">
-                    ★ {prod.rating || 4.8} ({prod.numReviews || 12})
+                    {Number(prod.numReviews) > 0
+                      ? `★ ${Number(prod.rating).toFixed(1)} (${prod.numReviews})`
+                      : "No reviews yet"}
                   </div>
 
                   <button
                     type="button"
                     className="compare-slot-add-btn"
                     onClick={() => handleAddToCart(prod)}
+                    disabled={isOutOfStock(prod)}
                   >
-                    Add to Bag 🛍️
+                    {isOutOfStock(prod) ? "Out of stock" : "Add to Bag 🛍️"}
                   </button>
                 </div>
               ))}
@@ -546,8 +564,11 @@ function Compare({ onCartOpen }) {
                         <strong className="cell-price-bold">
                           ₦{Number(prod.price).toLocaleString()}
                         </strong>
-                        <div className="cell-stock-status">
-                          <span className="stock-dot" /> In Stock · Ships from Umuahia
+                        <div
+                          className={`cell-stock-status${isOutOfStock(prod) ? " is-out" : ""}`}
+                        >
+                          <span className="stock-dot" /> {stockLabel(prod)}
+                          {!isOutOfStock(prod) && " · Ships from Umuahia"}
                         </div>
                       </div>
                     ))}

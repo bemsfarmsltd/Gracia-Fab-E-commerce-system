@@ -13,6 +13,7 @@ const MOCK_PRODUCTS = [
     name: "Vitamin C Brightening Serum",
     brand: "Gracia Fab",
     price: 18500,
+    stock: 12,
     rating: 4.8,
     numReviews: 24,
     category: "skincare",
@@ -26,8 +27,9 @@ const MOCK_PRODUCTS = [
     name: "Retinol Night Renewal Serum",
     brand: "Gracia Fab",
     price: 22000,
-    rating: 4.9,
-    numReviews: 38,
+    stock: 0,
+    rating: 0,
+    numReviews: 0,
     category: "skincare",
     tags: ["retinol", "anti-aging", "peptides"],
     description: "Smoothes fine lines with retinol.",
@@ -105,6 +107,26 @@ describe("Compare (Beauty Product Comparison Tool)", () => {
     expect(
       screen.getByText(/added "vitamin c brightening serum" to your bag/i)
     ).toBeInTheDocument();
+  });
+
+  it("shows real stock and reviews, and won't add an out-of-stock product", async () => {
+    const onCartOpen = vi.fn();
+    renderCompare({ onCartOpen });
+
+    // prod-1 has 12 in stock, prod-2 none.
+    expect(await screen.findByText(/^In stock · Ships from Umuahia$/)).toBeInTheDocument();
+    expect(screen.getByText(/^Out of stock$/, { selector: ".cell-stock-status" })).toBeInTheDocument();
+    expect(screen.queryByText(/In Stock · Ships/)).not.toBeInTheDocument();
+
+    expect(screen.getByText("★ 4.8 (24)")).toBeInTheDocument();
+    expect(screen.getByText("No reviews yet")).toBeInTheDocument();
+
+    const outBtn = screen.getByRole("button", { name: "Out of stock" });
+    expect(outBtn).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: /add all \(1\) to bag/i }));
+    expect(onCartOpen).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/added 1 to your bag\. 1 out of stock/i)).toBeInTheDocument();
   });
 
   it("opens the product picker modal when clicking Add Product to Compare slot", async () => {
