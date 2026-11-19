@@ -88,7 +88,9 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 - [ ] **No vouchers exist in production** (`YOU`). `GET /api/vouchers/public` returns `[]`, so the product page shows none. Create GLOW05, BEAUTY20 and LUXE5K in Admin → Vouchers.
 - [ ] **Only 13 of 89 products can be bought** (`YOU`, then `CC`). 59 have stock 0, 17 have no value and 12 are still on the invented 50. Enter real counts in Admin → Inventory, then run `npm run stock:zero-uncounted -- --apply`.
-- [ ] **Customer emails probably aren't being delivered** (`YOU`, then `CC`). Without `RESEND_FROM_EMAIL` the server sends from `onboarding@resend.dev`, which Resend only delivers to the Resend account owner. So login codes, order confirmations and marketing emails never reach customers. (The login "fail open" fix in September was a symptom.) Check `RESEND_FROM_EMAIL` on Render. If it's unset, verify a domain you own in Resend (graciafab.com if bought, or a subdomain of a Bems domain) and set it.
+- [x] **Customer emails weren't being delivered** (fixed 19 Nov). graciafab.com is verified in Resend and RESEND_FROM_EMAIL is set on Render; the owner confirmed login codes arrive. Every email now also has a plain-text part and emoji-free subjects (`CC`). The first test landed in Gmail spam: normal for a brand-new domain, see the deliverability item.
+- [ ] **Redesign the customer emails** (`AG`). Brief: `docs/EMAIL_DESIGN_BRIEF.md`. Preview with `cd server && npm run email:preview`.
+- [ ] **Email deliverability: new-domain reputation** (`YOU`, then `CC`). Ask a few people to open the emails and press "Not spam"/move to Inbox; keep volume low for the first weeks (marketing emails are the riskiest). Check Google Postmaster Tools for graciafab.com. After about 2 weeks of clean sending, tighten DMARC from `p=none` to `p=quarantine` in Hostinger DNS.
 - [ ] **No real payment confirmed yet** (`YOU`). Check the Monnify live keys and webhook on Render, then make one small real payment.
 
 ## P1: fix soon

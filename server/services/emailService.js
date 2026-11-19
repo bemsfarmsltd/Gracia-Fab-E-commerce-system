@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import logger from "../utils/logger.js";
 import { siteUrl, siteHost } from "../utils/siteUrl.js";
+import { htmlToText } from "../utils/htmlToText.js";
 
 // Customer-supplied text (e.g. names) going into HTML emails.
 const escapeHtml = (s) =>
@@ -27,7 +28,7 @@ const getClient = () => {
   return resend;
 };
 
-export const sendEmail = async ({ to, subject, html, headers }) => {
+export const sendEmail = async ({ to, subject, html, text, headers }) => {
   const client = getClient();
 
   if (!client) {
@@ -44,6 +45,8 @@ export const sendEmail = async ({ to, subject, html, headers }) => {
     to,
     subject,
     html,
+    // Plain-text part: HTML-only mail is more likely to land in spam.
+    text: text || htmlToText(html),
     ...(replyTo ? { replyTo } : {}),
     ...(headers ? { headers } : {}),
   });
@@ -59,7 +62,7 @@ export const sendEmail = async ({ to, subject, html, headers }) => {
 // ── Email templates
 export const emailTemplates = {
   orderConfirmed: (name, orderId, total, items) => ({
-    subject: `✅ Order Confirmed — #${orderId} | Gracia Fab`,
+    subject: `Order confirmed: #${orderId} | Gracia Fab`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #14213D, #1C2E52); padding: 32px; text-align: center;">
@@ -67,7 +70,7 @@ export const emailTemplates = {
           <p style="color: rgba(255,255,255,0.7); margin: 8px 0 0;">Your beauty order is confirmed!</p>
         </div>
         <div style="padding: 32px;">
-          <h2 style="color: #FCA311;">Hi ${name}! ✨</h2>
+          <h2 style="color: #FCA311;">Hi ${escapeHtml(name)}! ✨</h2>
           <p style="color: rgba(255,255,255,0.8);">Your order has been confirmed and is being prepared.</p>
           <div style="background: #14213D; border-radius: 10px; padding: 20px; margin: 20px 0;">
             <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin: 0 0 8px;">ORDER NUMBER</p>
@@ -78,7 +81,7 @@ export const emailTemplates = {
               .map(
                 (item) => `
               <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                <span style="color: rgba(255,255,255,0.8);">${item.name} × ${item.quantity}</span>
+                <span style="color: rgba(255,255,255,0.8);">${escapeHtml(item.name)} × ${item.quantity}</span>
                 <span style="color: #FCA311;">₦${(item.price * item.quantity).toLocaleString()}</span>
               </div>
             `,
@@ -106,7 +109,7 @@ export const emailTemplates = {
   }),
 
   orderShipped: (name, orderId) => ({
-    subject: `🚚 Your Order is on its Way! #${orderId} | Gracia Fab`,
+    subject: `Your order #${orderId} is on its way | Gracia Fab`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #14213D, #1C2E52); padding: 32px; text-align: center;">
@@ -115,7 +118,7 @@ export const emailTemplates = {
           <h2 style="color: #fff;">Your order is shipped!</h2>
         </div>
         <div style="padding: 32px; color: rgba(255,255,255,0.8);">
-          <p>Hi <strong style="color: #FCA311;">${name}</strong>!</p>
+          <p>Hi <strong style="color: #FCA311;">${escapeHtml(name)}</strong>!</p>
           <p>Great news! Your Gracia Fab order <strong>#${orderId}</strong> has been shipped and is on its way to you.</p>
           <p>Expected delivery: <strong style="color: #FCA311;">2–5 business days</strong></p>
           <div style="text-align: center; margin-top: 24px;">
@@ -179,7 +182,7 @@ export const emailTemplates = {
   }),
 
   orderDelivered: (name) => ({
-    subject: `🎉 Order Delivered | Gracia Fab`,
+    subject: `Your order has been delivered | Gracia Fab`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #14213D, #1C2E52); padding: 32px; text-align: center;">
@@ -188,7 +191,7 @@ export const emailTemplates = {
           <h2 style="color: #fff;">Your order has been delivered!</h2>
         </div>
         <div style="padding: 32px; color: rgba(255,255,255,0.8);">
-          <p>Hi <strong style="color: #FCA311;">${name}</strong>!</p>
+          <p>Hi <strong style="color: #FCA311;">${escapeHtml(name)}</strong>!</p>
           <p>Your Gracia Fab order has arrived. We hope you love your new beauty products! ✨</p>
           <p>Don't forget to leave a review — it helps other beauty lovers discover their perfect match.</p>
           <div style="text-align: center; margin-top: 24px;">
@@ -211,7 +214,7 @@ export const emailTemplates = {
           <p style="color: rgba(255,255,255,0.7); margin: 8px 0 0;">Your sign-in verification code</p>
         </div>
         <div style="padding: 32px; text-align: center;">
-          <p style="color: rgba(255,255,255,0.8);">Hi ${name}, enter this code to finish signing in:</p>
+          <p style="color: rgba(255,255,255,0.8);">Hi ${escapeHtml(name)}, enter this code to finish signing in:</p>
           <div style="background: #14213D; border-radius: 10px; padding: 24px; margin: 20px 0;">
             <p style="color: #FCA311; font-size: 36px; font-weight: bold; letter-spacing: 8px; margin: 0;">${code}</p>
           </div>
@@ -224,7 +227,7 @@ export const emailTemplates = {
   }),
 
   welcome: (name) => ({
-    subject: `💄 Welcome to Gracia Fab, ${name}!`,
+    subject: `Welcome to Gracia Fab, ${name}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #FE938C, #C49792); padding: 40px; text-align: center;">
@@ -232,7 +235,7 @@ export const emailTemplates = {
           <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 18px;">AI-Powered Beauty for You</p>
         </div>
         <div style="padding: 32px; color: rgba(255,255,255,0.8);">
-          <h2 style="color: #FCA311;">Welcome, ${name}! ✨</h2>
+          <h2 style="color: #FCA311;">Welcome, ${escapeHtml(name)}! ✨</h2>
           <p>You've joined Nigeria's premier AI-powered beauty community.</p>
           <ul style="line-height: 2; color: rgba(255,255,255,0.7);">
             <li>✦ Get personalized skincare recommendations</li>

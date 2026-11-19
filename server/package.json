@@ -8,7 +8,8 @@
     "seed": "node data/seeder.js",
     "test": "vitest run",
     "stock:zero-uncounted": "node data/zeroUncountedStock.js",
-    "catalog:sync": "node data/syncCatalog.js"
+    "catalog:sync": "node data/syncCatalog.js",
+    "email:preview": "node scripts/previewEmails.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

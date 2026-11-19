@@ -25,7 +25,27 @@ describe("sendEmail sender settings", () => {
     expect(send).toHaveBeenCalledWith(expect.objectContaining({
       from: "Gracia Fab <orders@graciafab.com>",
       replyTo: "shop@example.com",
+      text: "x",
     }));
+  });
+
+  it("sends a plain-text part, escapes names and keeps emojis out of subjects", async () => {
+    const { sendEmail, emailTemplates } = await load();
+    const t = emailTemplates.loginOtp("<b>Ada</b>", "123456");
+    expect(t.html).toContain("&lt;b&gt;Ada&lt;/b&gt;");
+
+    await sendEmail({ to: "a@b.com", ...t });
+    const { text } = send.mock.calls[0][0];
+    expect(text).toContain("123456");
+    expect(text).not.toMatch(/<(div|p|h1)\b|style=/);
+
+    const subjects = [
+      emailTemplates.orderConfirmed("A", "1", 100, []),
+      emailTemplates.orderShipped("A", "1"),
+      emailTemplates.orderDelivered("A"),
+      emailTemplates.welcome("A"),
+    ].map((x) => x.subject);
+    for (const s of subjects) expect(s).not.toMatch(/\p{Extended_Pictographic}/u);
   });
 
   it("leaves reply-to out, and doesn't invite replies, when no inbox is set", async () => {
