@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Antigravity | My Vanity design and responsive styling | client/src/pages/MyVanity.jsx, client/src/styles/MyVanity.css, optionally Navbar.jsx | 20 Nov |
 
 ## Open questions
 
