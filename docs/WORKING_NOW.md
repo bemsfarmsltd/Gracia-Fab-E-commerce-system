@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Claude Code | My Vanity v1: API, beauty profile, login routing, logo link, functional page (Antigravity styles it after) | server: routes/vanityRoutes.js, controllers/vanityController.js, models/User.js (beautyProfile), validators; client: pages/MyVanity.jsx, App.jsx, Login/Register/VerifyCode redirects, header logo links | 19 Nov |
 
 ## Open questions
 
