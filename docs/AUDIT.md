@@ -87,20 +87,20 @@ What's left is mostly **data, content and trust** (things a customer would notic
 ## P0: blocking real sales (mostly owner actions)
 
 - [ ] **No vouchers exist in production** (`YOU`). `GET /api/vouchers/public` returns `[]`, so the product page shows none. Create GLOW05, BEAUTY20 and LUXE5K in Admin → Vouchers.
-- [ ] **Only 13 of 89 products can be bought** (`YOU`, then `CC`). 59 have stock 0, 17 have no value and 12 are still on the invented 50. Enter real counts in Admin → Inventory, then run `npm run stock:zero-uncounted -- --apply`.
+- Duplicate of **Stock counts not entered** above.
 - [x] **Customer emails weren't being delivered** (fixed 19 Nov). graciafab.com is verified in Resend and RESEND_FROM_EMAIL is set on Render; the owner confirmed login codes arrive. Every email now also has a plain-text part and emoji-free subjects (`CC`). The first test landed in Gmail spam: normal for a brand-new domain, see the deliverability item.
-- [ ] **Redesign the customer emails** (`AG`). Brief: `docs/EMAIL_DESIGN_BRIEF.md`. Preview with `cd server && npm run email:preview`.
+- [x] **Redesign the customer emails** (`AG`, done 19 Nov, 0befffb). Checked by CC: table layout, Umuahia footer, escaped names, emoji-free subjects.
 - [ ] **Email deliverability: new-domain reputation** (`YOU`, then `CC`). Ask a few people to open the emails and press "Not spam"/move to Inbox; keep volume low for the first weeks (marketing emails are the riskiest). Check Google Postmaster Tools for graciafab.com. After about 2 weeks of clean sending, tighten DMARC from `p=none` to `p=quarantine` in Hostinger DNS.
-- [ ] **No real payment confirmed yet** (`YOU`). Check the Monnify live keys and webhook on Render, then make one small real payment.
+- Duplicate of **Confirm Monnify live keys are set on Render** above.
 
 ## P1: fix soon
 
 - [x] **My Vanity v1** (`CC`, 19 Nov). Private home for signed-in customers at `/my-vanity` (`GET /api/vanity`, `PUT|DELETE /api/vanity/profile`): optional beauty profile, picks from real in-stock products with the real reason, orders on their way, restock reminders, saved routine, wishlist, recently viewed, rewards. Sign-in lands there (or back to where the customer was going, e.g. checkout); the logo goes there when signed in. Also fixed: account/login legal links pointed at the homepage.
-- [ ] **Design My Vanity** (`AG`). Brief: `docs/MY_VANITY_BRIEF.md`.
+- [x] **Design My Vanity** (`AG`, done 20 Nov, 96b3593).
 - [x] **Loyalty tier benefits promised free delivery** (fixed 20 Nov, owner decision: remove). Every tier now shows the real rule (1 point per ₦100, 100 points = ₦500 off); the unimplemented "% back", priority support, early access and VIP perks were removed too. Add tier perks back only when checkout/support actually applies them.
 - [x] **Bridal countdown in My Vanity** (`CC`, 20 Nov, owner asked for it). Optional wedding date in the beauty profile; countdown plus milestones from the site's bridal guide (start routine 8 weeks before, makeup trial 4 weeks, no new products 2 weeks); bridal products and "For your wedding" picks within 12 weeks; hides after the date.
 
-- [ ] **Responsive polish on 15 target screens** (`AG`). Brief: `docs/RESPONSIVE_AUDIT.md`. Layout breakages fixed by CC on 19 Nov (shop overflow, account page phone layout, beauty guides behind login); the list there is the remaining polish, most important first (home menu icon nearly invisible on phones).
+- [x] **Responsive polish on 15 target screens** (`AG`, done 20 Nov, 87cb5f0). Brief: `docs/RESPONSIVE_AUDIT.md`.
 
 - [x] **Moved the site to www.graciafab.com** (live 19 Nov, checked by CC). The main address is **www.graciafab.com** (graciafab.com redirects there). VITE_SITE_URL on Vercel and FRONTEND_URL on Render are both https://www.graciafab.com; VITE_API_URL stays https://gracia-fab.onrender.com. Checked live: canonical/og links, robots.txt, sitemap and CORS. Resend verified graciafab.com on 19 Nov (DKIM, SPF and DMARC records checked publicly). Set RESEND_FROM_EMAIL on Render; optional RESEND_REPLY_TO for a real inbox (graciafab.com has no MX, so it can send but not receive).
 - [x] **Compare page said "In Stock" for everything** (`CC`, fixed 18 Nov). It now shows the real stock text, won't add out-of-stock products (Add All skips them), and shows "No reviews yet" instead of a made-up "★ 4.8 (12)".
@@ -120,7 +120,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - [x] **Unpaid orders pile up** (`CC`). Pending orders are never cleaned up. Auto-cancel unpaid orders after 48 hours (stock isn't held, so it's just tidying admin and reports). Done 17 Nov (CC): `services/orderCleanup.js` runs hourly from `server.js`. If a payment was started, it asks Monnify first and marks the order paid if the customer did pay; it sends no message to the customer.
 - [ ] **30-day logins kept in browser storage** (`CC`). Shorten to around 7 days with silent renewal, ideally after the CSP is enforced.
 - [x] **CORS allows `localhost` in production** (`CC`). Only add the localhost origins when `NODE_ENV !== "production"`. Done 17 Nov (CC): needs `NODE_ENV=production` on Render, which also turns on the generic 500 messages.
-- [ ] **Render free plan** (`YOU`). The server sleeps when idle: the first visitor waits about 30 s, and the 10:00 marketing job can't run while it's asleep. A paid instance or an uptime ping fixes both.
+- Duplicate of **The API takes about 34 seconds to wake up** above.
 - [x] **Admin route tests** (`CC`). Stats, product CRUD, order status and the user list are still untested (stock, vouchers and uploads are covered). Done 17 Nov (CC): `tests/admin.test.js`. This also found that the user list sent login-code hashes to the browser; now fixed.
 - [x] **37 stock-photo links remain** (`AG`/`YOU`) — fixed image-error fallbacks in ProductCard, CartDrawer, Checkout, Products, RoutineStepCard, SkinToneDetector, and SkinAnalysis to `/product-placeholder.svg`. Remaining editorial stock photos (Home, About, Recommend, Hero) to be replaced when original brand imagery is provided (`YOU`).
 
