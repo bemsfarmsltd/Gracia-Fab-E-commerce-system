@@ -57,7 +57,8 @@
   text-decoration: none;
   background: none;
   border: none;
-  padding: 0;
+  padding: 0.5rem 0.6rem;
+  min-height: 44px;
   cursor: pointer;
   transition: color 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
@@ -365,27 +366,36 @@
   background: none;
   border: none;
   flex-direction: column;
-  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: 0.25rem;
+  border-radius: 4px;
 }
 
 .ysl-burger-line {
-  width: 18px;
-  height: 1.5px;
+  width: 22px;
+  height: 2px;
   background: var(--text);
+  border-radius: 1px;
   transition: all 0.2s ease;
   display: block;
 }
 
 .ysl-burger-line.open:nth-child(1) {
-  transform: translateY(5.5px) rotate(45deg);
+  transform: translateY(7px) rotate(45deg);
 }
 .ysl-burger-line.open:nth-child(2) {
   opacity: 0;
 }
 .ysl-burger-line.open:nth-child(3) {
-  transform: translateY(-5.5px) rotate(-45deg);
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* ── Mobile Drawer ── */
@@ -529,10 +539,13 @@
 .ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-brand-wordmark,
 .ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-sub-link,
 .ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-cat-link,
-.ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-search-pill-btn,
-.ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-burger-line {
+.ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-search-pill-btn {
   color: #FFFFFF;
   border-color: rgba(255, 255, 255, 0.6);
+}
+
+.ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-burger-line {
+  background: #FFFFFF !important;
 }
 
 .ysl-header.ysl-header--transparent:not(.ysl-header--scrolled) .ysl-search-pill-btn {
@@ -555,9 +568,22 @@
 @media (max-width: 900px) {
   .ysl-subbar-left { display: none; }
   .ysl-search-pill-btn { display: none; }
-  .ysl-mobile-toggle { display: flex; }
+  .ysl-mobile-toggle { display: inline-flex; }
   .ysl-subbar-right .ysl-sub-link:not(.ysl-cart-utility-btn) { display: none; }
-  .ysl-subbar { padding: 0.75rem 1.25rem; }
-  .ysl-brand-icon { height: 42px; }
-  .ysl-brand-text { font-size: 0.85rem; letter-spacing: 0.14em; }
+  .ysl-subbar { padding: 0.65rem 1rem; }
+  .ysl-subbar-right { gap: 0.5rem; }
+  .ysl-cart-utility-btn {
+    min-height: 44px;
+    padding: 0.5rem 0.65rem;
+    display: inline-flex;
+    align-items: center;
+  }
+  .ysl-brand-icon { height: 38px; }
+  .ysl-brand-text { font-size: 0.82rem; letter-spacing: 0.12em; }
+}
+
+@media (max-width: 480px), (max-height: 700px) and (max-width: 900px) {
+  .ysl-subbar { padding: 0.45rem 0.75rem; }
+  .ysl-brand-icon { height: 32px; }
+  .ysl-brand-text { font-size: 0.75rem; letter-spacing: 0.1em; }
 }

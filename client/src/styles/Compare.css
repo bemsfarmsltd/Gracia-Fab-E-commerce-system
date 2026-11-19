@@ -171,10 +171,12 @@
 
 .compare-remove-slot-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 26px;
-  height: 26px;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   border-radius: 50%;
   border: 1px solid rgba(122, 36, 50, 0.15);
   background: #FFFFFF;
@@ -183,7 +185,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   transition: all 0.15s ease;
 }
 

@@ -18,7 +18,7 @@
 
 .contact-eyebrow {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -81,7 +81,7 @@
 .contact-full { grid-column: 1 / -1; }
 
 .contact-field label {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;

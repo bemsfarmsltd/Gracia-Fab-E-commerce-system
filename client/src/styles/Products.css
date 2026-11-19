@@ -239,6 +239,13 @@
   font-size: 1.3rem;
   color: #3D0C10;
   cursor: pointer;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
 }
 
 [data-theme="dark"] .sidebar-mobile-close-btn {
@@ -271,7 +278,8 @@
   font-weight: 700;
   color: #3D0C10;
   cursor: pointer;
-  padding: 0.2rem 0;
+  padding: 0.65rem 0;
+  min-height: 44px;
   text-align: left;
 }
 
@@ -979,7 +987,7 @@
 }
 
 .card-badge {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   padding: 0.25rem 0.6rem;
@@ -1065,7 +1073,7 @@
 }
 
 .card-brand {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1533,7 +1541,7 @@
   }
 
   .sidebar-mobile-close-btn {
-    display: block;
+    display: inline-flex;
   }
 
   .mobile-drawer-footer {

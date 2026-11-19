@@ -89,7 +89,13 @@
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.14em;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.floating-brand-mark .brand-name {
+  white-space: nowrap;
 }
 
 [data-theme="dark"] .floating-brand-mark {
@@ -162,21 +168,52 @@
 
 @media (max-width: 600px) {
   .floating-back-header {
-    padding: 0.65rem 1rem;
+    padding: 0.6rem 0.85rem;
+  }
+  .floating-back-inner {
+    gap: 0.5rem;
   }
   .floating-back-btn {
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem 0.75rem;
     font-size: 0.8rem;
+    min-height: 40px;
   }
   .floating-brand-mark {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+    letter-spacing: 0.08em;
+  }
+  .floating-brand-mark .brand-sparkle {
+    display: none;
   }
   .floating-cart-pill {
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem 0.75rem;
     font-size: 0.8rem;
+    min-height: 40px;
   }
   .floating-cart-pill .cart-label {
     display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .floating-back-header {
+    padding: 0.45rem 0.6rem;
+  }
+  .floating-back-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .floating-back-btn .back-text {
+    display: none;
+  }
+  .floating-brand-mark {
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
   }
 }
 

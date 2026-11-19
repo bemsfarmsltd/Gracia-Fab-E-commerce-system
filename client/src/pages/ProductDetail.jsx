@@ -384,9 +384,6 @@ export default function ProductDetail({ onCartOpen }) {
             <span className="pdp-breadcrumbs-sep">/</span>
             <span className="pdp-breadcrumbs-current">{product.name}</span>
           </nav>
-          <button className="pdp-btn-back" onClick={() => navigate("/products")}>
-            ← Back to Products
-          </button>
         </div>
 
         {/* ── Main Showcase Grid (Gallery + Buy Box) ── */}

@@ -50,6 +50,10 @@
 .rg-options-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .rg-option-btn {
   padding: 0.5rem 1rem;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--surface-2);
   border: 1.5px solid var(--border-soft);
   border-radius: 20px;
@@ -209,7 +213,8 @@
 
   .rg-option-btn {
     padding: 0.45rem 0.85rem;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
+    min-height: 38px;
   }
 
   .rg-field { margin-bottom: 1.4rem; }
@@ -281,13 +286,14 @@
   .rg-form-card { padding: 1rem 0.85rem; }
 
   .rg-option-btn {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.72rem;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.76rem;
+    min-height: 38px;
   }
 
   .rg-tab {
-    padding: 0.65rem 0.5rem;
-    font-size: 0.68rem;
+    padding: 0.65rem 0.6rem;
+    font-size: 0.75rem;
   }
 
   .rg-steps-list { gap: 0.75rem; }
