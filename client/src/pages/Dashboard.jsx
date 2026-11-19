@@ -1498,7 +1498,7 @@ function Dashboard({ onCartOpen }) {
               {/* User Personal Info Card */}
               <div className="account-card">
                 <div className="account-card-header">
-                  <h3>{user.name || "Esther Obisesan"}</h3>
+                  <h3>{user.name || "Your name"}</h3>
                   <button
                     type="button"
                     className="account-action-btn"
@@ -1535,7 +1535,7 @@ function Dashboard({ onCartOpen }) {
                   </span>
                   <div className="account-address-info">
                     <p className="account-address-title">
-                      {user.name || "Esther Obisesan"}{" "}
+                      {user.name || "Your name"}{" "}
                       <span className="account-default-pill">Default</span>
                     </p>
                     <p className="account-address-text">{userAddress}</p>

@@ -95,6 +95,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: fix soon
 
+- [ ] **Responsive polish on 15 target screens** (`AG`). Brief: `docs/RESPONSIVE_AUDIT.md`. Layout breakages fixed by CC on 19 Nov (shop overflow, account page phone layout, beauty guides behind login); the list there is the remaining polish, most important first (home menu icon nearly invisible on phones).
+
 - [x] **Moved the site to www.graciafab.com** (live 19 Nov, checked by CC). The main address is **www.graciafab.com** (graciafab.com redirects there). VITE_SITE_URL on Vercel and FRONTEND_URL on Render are both https://www.graciafab.com; VITE_API_URL stays https://gracia-fab.onrender.com. Checked live: canonical/og links, robots.txt, sitemap and CORS. Resend verified graciafab.com on 19 Nov (DKIM, SPF and DMARC records checked publicly). Set RESEND_FROM_EMAIL on Render; optional RESEND_REPLY_TO for a real inbox (graciafab.com has no MX, so it can send but not receive).
 - [x] **Compare page said "In Stock" for everything** (`CC`, fixed 18 Nov). It now shows the real stock text, won't add out-of-stock products (Add All skips them), and shows "No reviews yet" instead of a made-up "★ 4.8 (12)".
 

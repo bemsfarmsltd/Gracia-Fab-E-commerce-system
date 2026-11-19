@@ -206,11 +206,9 @@ function App() {
         />
         <Route
           path="/beauty/:slug"
-          element={
-            <ProtectedRoute>
-              <BeautyLanding onCartOpen={openCart} />
-            </ProtectedRoute>
-          }
+          // Public on purpose: these guides are in the sitemap for Google and
+          // first-time visitors, so they must not sit behind the login.
+          element={<BeautyLanding onCartOpen={openCart} />}
         />
         {/* ── Admin only ── */}
         <Route

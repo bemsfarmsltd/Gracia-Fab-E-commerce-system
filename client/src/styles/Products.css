@@ -1325,6 +1325,7 @@
 .glow-pagination {
   display: flex;
   align-items: center;
+  max-width: 100%;
   justify-content: center;
   gap: 0.6rem;
   margin-top: 3.5rem;
@@ -1389,7 +1390,10 @@
 .pagination-pages-group {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap; /* many pages wrap instead of running off narrow phones */
   gap: 0.4rem;
+  min-width: 0;
 }
 
 /* ── 7. Pre-Footer Standalone Newsletter Card (Screen 2 & 3) ── */
@@ -1547,6 +1551,7 @@
 
   .glow-catalog-container {
     flex-direction: column;
+    align-items: stretch;
   }
 }
 
