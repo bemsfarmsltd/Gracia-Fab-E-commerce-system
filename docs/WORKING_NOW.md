@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Claude Code | Bridal countdown in My Vanity; truthful loyalty tier text | server: vanity controller/config/validators, User.beautyProfile, loyaltyController; client: MyVanity.jsx (new section + wedding date field only), utils/vanity.js | 20 Nov |
 
 ## Open questions
 
