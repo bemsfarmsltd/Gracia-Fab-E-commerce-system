@@ -950,7 +950,7 @@ function Dashboard({ onCartOpen }) {
           <span className="account-back-text">Back to Store</span>
         </button>
 
-        <Link to="/" className="account-logo-link" title="Gracia Fab Home">
+        <Link to="/my-vanity" className="account-logo-link" title="My Vanity">
           <GraciaLogo size="md" variant="editorial" />
         </Link>
 
@@ -1726,10 +1726,10 @@ function Dashboard({ onCartOpen }) {
       <footer className="account-legal-footer">
         <div className="account-legal-links">
           <span className="account-region-select">Nigeria ⌄</span>
-          <Link to="/">Refund policy</Link>
-          <Link to="/">Shipping</Link>
-          <Link to="/">Privacy policy</Link>
-          <Link to="/">Terms of service</Link>
+          <Link to="/shipping-returns">Refund policy</Link>
+          <Link to="/shipping-returns">Shipping</Link>
+          <Link to="/privacy-policy">Privacy policy</Link>
+          <Link to="/terms">Terms of service</Link>
           <Link to="/contact">Contact information</Link>
         </div>
       </footer>

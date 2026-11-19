@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { afterLoginPath } from "../utils/afterLogin";
 import { useAuth } from "../hooks/useAuth";
 import "./AuthFullscreen.css";
 import SEO from "../components/SEO";
@@ -8,6 +9,8 @@ import SocialLogin from "../components/SocialLogin";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
   const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [remindDrops, setRemindDrops] = useState(true);
@@ -29,10 +32,10 @@ function Login() {
       const data = await login(formData.email, formData.password);
       if (data.requiresOtp) {
         navigate("/verify-code", {
-          state: { email: data.email, devOtpCode: data.devOtpCode },
+          state: { email: data.email, devOtpCode: data.devOtpCode, from },
         });
       } else {
-        navigate(data.isAdmin ? "/admin" : "/");
+        navigate(afterLoginPath(data, from), { replace: true });
       }
     } catch (err) {
       setError(err.message);
@@ -189,15 +192,15 @@ function Login() {
         </form>
 
         <p className="auth-toggle">
-          Don't have an account? <Link to="/register">Sign up free</Link>
+          Don't have an account? <Link to="/register" state={{ from }}>Sign up free</Link>
         </p>
       </div>
 
       <div className="auth-legal">
         <p>
-          By continuing, you agree to our <Link to="/">Terms of service</Link>
+          By continuing, you agree to our <Link to="/terms">Terms of service</Link>
         </p>
-        <Link to="/" className="auth-privacy-link">
+        <Link to="/privacy-policy" className="auth-privacy-link">
           Privacy policy
         </Link>
       </div>

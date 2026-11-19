@@ -95,6 +95,11 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: fix soon
 
+- [x] **My Vanity v1** (`CC`, 19 Nov). Private home for signed-in customers at `/my-vanity` (`GET /api/vanity`, `PUT|DELETE /api/vanity/profile`): optional beauty profile, picks from real in-stock products with the real reason, orders on their way, restock reminders, saved routine, wishlist, recently viewed, rewards. Sign-in lands there (or back to where the customer was going, e.g. checkout); the logo goes there when signed in. Also fixed: account/login legal links pointed at the homepage.
+- [ ] **Design My Vanity** (`AG`). Brief: `docs/MY_VANITY_BRIEF.md`.
+- [ ] **Loyalty tier benefits promise free delivery** (`YOU`). `server/controllers/loyaltyController.js` lists "free delivery" for Silver and Platinum, but delivery is always ₦2,500. Decide: offer it (then the checkout must apply it) or remove the wording.
+- [ ] **Bridal countdown in My Vanity** (`YOU` to decide). Left out of v1 on purpose.
+
 - [ ] **Responsive polish on 15 target screens** (`AG`). Brief: `docs/RESPONSIVE_AUDIT.md`. Layout breakages fixed by CC on 19 Nov (shop overflow, account page phone layout, beauty guides behind login); the list there is the remaining polish, most important first (home menu icon nearly invisible on phones).
 
 - [x] **Moved the site to www.graciafab.com** (live 19 Nov, checked by CC). The main address is **www.graciafab.com** (graciafab.com redirects there). VITE_SITE_URL on Vercel and FRONTEND_URL on Render are both https://www.graciafab.com; VITE_API_URL stays https://gracia-fab.onrender.com. Checked live: canonical/og links, robots.txt, sitemap and CORS. Resend verified graciafab.com on 19 Nov (DKIM, SPF and DMARC records checked publicly). Set RESEND_FROM_EMAIL on Render; optional RESEND_REPLY_TO for a real inbox (graciafab.com has no MX, so it can send but not receive).

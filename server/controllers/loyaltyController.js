@@ -61,6 +61,29 @@ export const awardPoints = async (userId, points, reason) => {
   }
 };
 
+// Points, tier and progress to the next tier, shared by the loyalty page and
+// My Vanity. Needs loyaltyPoints, loyaltyTier and pointsHistory on `user`.
+export const loyaltySummary = (user) => {
+  const totalEarned = (user.pointsHistory || [])
+    .filter((h) => h.type === "earn")
+    .reduce((sum, h) => sum + h.points, 0);
+
+  const tierOrder = ["bronze", "silver", "gold", "platinum"];
+  const tier = user.loyaltyTier || "bronze";
+  const nextTier = tierOrder[tierOrder.indexOf(tier) + 1] || null;
+  const pointsToNext = nextTier ? Math.max(0, TIERS[nextTier] - totalEarned) : 0;
+
+  return {
+    points: user.loyaltyPoints || 0,
+    tier,
+    totalEarned,
+    nextTier,
+    pointsToNext,
+    nextTierAt: nextTier ? TIERS[nextTier] : null,
+    nairaValue: Math.floor((user.loyaltyPoints || 0) / 100) * 500,
+  };
+};
+
 // @desc  Get user's loyalty info
 // @route GET /api/loyalty
 export const getLoyaltyInfo = async (req, res) => {
@@ -71,23 +94,15 @@ export const getLoyaltyInfo = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Calculate points to next tier
-    const totalEarned = (user.pointsHistory || [])
-      .filter((h) => h.type === "earn")
-      .reduce((sum, h) => sum + h.points, 0);
-
-    const tierOrder = ["bronze", "silver", "gold", "platinum"];
-    const currentIdx = tierOrder.indexOf(user.loyaltyTier);
-    const nextTier = tierOrder[currentIdx + 1];
-    const pointsToNext = nextTier ? TIERS[nextTier] - totalEarned : 0;
+    const { points, tier, totalEarned, nextTier, pointsToNext, nairaValue } = loyaltySummary(user);
 
     res.json({
-      points: user.loyaltyPoints,
-      tier: user.loyaltyTier,
+      points,
+      tier,
       totalEarned,
-      nextTier,
-      pointsToNext: Math.max(0, pointsToNext),
-      nairaValue: Math.floor(user.loyaltyPoints / 100) * 500,
+      nextTier: nextTier || undefined,
+      pointsToNext,
+      nairaValue,
       history: (user.pointsHistory || []).slice(-10).reverse(),
       tierBenefits: {
         bronze: "Earn 1% back on purchases",

@@ -1,10 +1,13 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../hooks/useCart";
+import { useAuth } from "../hooks/useAuth";
+import { homePath } from "../utils/afterLogin";
 import "./FloatingBackHeader.css";
 
 function FloatingBackHeader({ onCartOpen, backLabel = "Back", showBrand = true }) {
   const navigate = useNavigate();
   const { cartItems } = useCart();
+  const { user } = useAuth() || {};
   const cartCount = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   const handleBack = () => {
@@ -31,7 +34,7 @@ function FloatingBackHeader({ onCartOpen, backLabel = "Back", showBrand = true }
 
         {/* Center: Minimalist Luxury Wordmark */}
         {showBrand && (
-          <Link to="/" className="floating-brand-mark" title="Gracia Fab Home">
+          <Link to={homePath(user)} className="floating-brand-mark" title={user ? "My Vanity" : "Gracia Fab home"}>
             <span className="brand-name">GRACIA FAB</span>
             <span className="brand-sparkle">✦</span>
           </Link>

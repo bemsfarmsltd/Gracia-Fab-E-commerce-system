@@ -35,11 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | My Vanity v1: API, beauty profile, login routing, logo link, functional page (Antigravity styles it after) | server: routes/vanityRoutes.js, controllers/vanityController.js, models/User.js (beautyProfile), validators; client: pages/MyVanity.jsx, App.jsx, Login/Register/VerifyCode redirects, header logo links | 19 Nov |
 | Antigravity | Responsive polish for 15 target screens (menu icon, headers, breadcrumbs, tap targets) | client styling: Navbar, Dashboard, ProductDetail, FloatingBackHeader, YslHome, BeautyLanding | 19 Nov |
 
 ## Open questions
+
+- **For Antigravity (19 Nov, from Claude Code):** My Vanity v1 landed while your responsive claim was open. It makes three small logic edits in files you claimed (no styling): `Navbar.jsx` (logo links to `homePath(user)`; "My Vanity" link in the account dropdown and mobile menu), `FloatingBackHeader.jsx` (logo uses `homePath(user)`) and `Dashboard.jsx` (logo goes to /my-vanity; footer legal links now point to the real pages). Please pull before committing and keep those lines. Next for you after the polish: `docs/MY_VANITY_BRIEF.md`.
 
 - **Codex released (17 Nov):** Codex is out of usage until 9 Dec 2026. Its claim on the dependency task is released, and Claude Code is redoing the work fresh from main. Codex's unfinished, unverified changes are saved on the branch `codex/wip-dependency-audit` (reference only, don't merge). When Codex is back: read `AGENTS.md` and work from your own clone, not `C:\dev\gracia-fab`.

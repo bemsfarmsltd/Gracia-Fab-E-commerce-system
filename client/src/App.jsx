@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import CartDrawer from "./components/CartDrawer";
@@ -21,6 +22,7 @@ import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
 import AiConciergeChat from "./components/AiConciergeChat";
 import { startMotion } from "./utils/motion";
+import { afterLoginPath, homePath } from "./utils/afterLogin";
 import "./styles/motion.css";
 
 // Code-split pages. Only the core shopping path (home, shop, product page,
@@ -37,6 +39,7 @@ const Checkout = lazyWithReload(() => import("./pages/Checkout"));
 const OrderConfirmation = lazyWithReload(() => import("./pages/OrderConfirmation"));
 const MyOrders = lazyWithReload(() => import("./pages/MyOrders"));
 const Dashboard = lazyWithReload(() => import("./pages/Dashboard"));
+const MyVanity = lazyWithReload(() => import("./pages/MyVanity"));
 const Wishlist = lazyWithReload(() => import("./pages/Wishlist"));
 const BeautyLanding = lazyWithReload(() => import("./pages/BeautyLanding"));
 const SkinToneDetector = lazyWithReload(() => import("./components/SkinToneDetector"));
@@ -69,6 +72,7 @@ function SkinToneDetectorPage({ onCartOpen }) {
 // ── Protected route — redirects to login if not authenticated ──
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading)
     return (
       <div
@@ -86,24 +90,26 @@ function ProtectedRoute({ children }) {
         Loading...
       </div>
     );
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   return children;
 }
 
 // ── Admin route — redirects non-admins ──
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  if (!user.isAdmin) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  if (!user.isAdmin) return <Navigate to={homePath(user)} replace />;
   return children;
 }
 
-// ── Public only route — redirects logged-in users to home ──
+// ── Public only route — sends signed-in users on (My Vanity, or where they were going) ──
 function PublicOnlyRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return null;
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={afterLoginPath(user, location.state?.from)} replace />;
   return children;
 }
 
@@ -180,6 +186,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-vanity"
+          element={
+            <ProtectedRoute>
+              <MyVanity onCartOpen={openCart} />
             </ProtectedRoute>
           }
         />

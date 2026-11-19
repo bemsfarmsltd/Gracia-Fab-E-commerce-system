@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { afterLoginPath } from "../utils/afterLogin";
 import { useAuth } from "../hooks/useAuth";
 import "./AuthFullscreen.css";
 import SEO from "../components/SEO";
@@ -8,6 +9,7 @@ import SocialLogin from "../components/SocialLogin";
 
 function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
@@ -37,7 +39,7 @@ function Register() {
     try {
       setLoading(true);
       const data = await register(formData.name, formData.email, formData.password);
-      navigate(data.isAdmin ? "/admin" : "/");
+      navigate(afterLoginPath(data, location.state?.from), { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -141,15 +143,15 @@ function Register() {
         </form>
 
         <p className="auth-toggle">
-          Already have an account? <Link to="/login">Sign in</Link>
+          Already have an account? <Link to="/login" state={{ from: location.state?.from }}>Sign in</Link>
         </p>
       </div>
 
       <div className="auth-legal">
         <p>
-          By continuing, you agree to our <Link to="/">Terms of service</Link>
+          By continuing, you agree to our <Link to="/terms">Terms of service</Link>
         </p>
-        <Link to="/" className="auth-privacy-link">
+        <Link to="/privacy-policy" className="auth-privacy-link">
           Privacy policy
         </Link>
       </div>

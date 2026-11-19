@@ -1,0 +1,316 @@
+/* My Vanity: functional base layout. The visual design is Antigravity's
+   (docs/MY_VANITY_BRIEF.md); keep to the tokens in index.css. */
+
+.vanity-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  color: var(--text);
+}
+
+.vanity-center {
+  min-height: 50vh;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.vanity-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  margin: 0.25rem 0;
+}
+
+.vanity-eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.vanity-muted {
+  color: var(--text-muted);
+}
+
+.vanity-small {
+  font-size: 0.875rem;
+}
+
+.vanity-progress {
+  height: 8px;
+  max-width: 360px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  overflow: hidden;
+  margin: 0.75rem 0 0.35rem;
+}
+
+.vanity-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.vanity-card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+
+.vanity-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin: 0 0 0.75rem;
+}
+
+.vanity-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.vanity-btn {
+  min-height: 44px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--white);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vanity-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.vanity-btn-ghost {
+  background: transparent;
+  color: var(--accent);
+}
+
+.vanity-btn-small {
+  min-height: 36px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.875rem;
+}
+
+.vanity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.vanity-inline-link,
+.vanity-link-btn {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vanity-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Profile */
+.vanity-profile-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 0;
+}
+
+.vanity-profile-list dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.vanity-profile-list dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+}
+
+.vanity-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.vanity-fieldset legend,
+.vanity-field > span {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.vanity-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.vanity-chip {
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.vanity-chip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+}
+
+.vanity-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.vanity-field input {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  max-width: 360px;
+}
+
+/* Products */
+.vanity-products {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.vanity-product {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.vanity-product-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.vanity-product img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: var(--bg-2);
+  border-radius: var(--radius-md);
+}
+
+.vanity-product-brand {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.vanity-product-name {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.vanity-product-note {
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.vanity-product-price {
+  font-weight: 700;
+}
+
+.vanity-stock-low {
+  font-size: 0.8rem;
+  color: var(--warning);
+}
+
+.vanity-stock-out {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Orders */
+.vanity-orders {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vanity-order p {
+  margin: 0 0 0.5rem;
+}
+
+.vanity-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.vanity-steps li {
+  border-top: 4px solid var(--border);
+  padding-top: 0.35rem;
+}
+
+.vanity-steps li.done {
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.vanity-order-pending {
+  color: var(--warning);
+}
+
+.vanity-privacy {
+  text-align: center;
+  padding: 0.5rem 0;
+}

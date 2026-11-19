@@ -1,7 +1,9 @@
 import { useGoogleLogin } from "@react-oauth/google";
+import { useLocation } from "react-router-dom";
+import { afterLoginPath } from "../utils/afterLogin";
 import "./SocialLogin.css";
 
-const saveAndRedirect = (data) => {
+const saveAndRedirect = (data, from) => {
   localStorage.setItem("token", data.token);
   localStorage.setItem(
     "user",
@@ -12,10 +14,11 @@ const saveAndRedirect = (data) => {
       isAdmin: data.isAdmin,
     }),
   );
-  window.location.href = data.isAdmin ? "/admin" : "/";
+  window.location.href = afterLoginPath(data, from);
 };
 
 function GoogleButton() {
+  const from = useLocation().state?.from;
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -30,7 +33,7 @@ function GoogleButton() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
-        saveAndRedirect(data);
+        saveAndRedirect(data, from);
       } catch (err) {
         console.error("Google login failed:", err);
         alert("Google login failed: " + err.message);

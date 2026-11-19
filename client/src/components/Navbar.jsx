@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { homePath, VANITY_PATH } from "../utils/afterLogin";
 import { useCart } from "../hooks/useCart";
 import LogoMark from "./LogoMark";
 import "./Navbar.css";
@@ -106,7 +107,7 @@ function Navbar({ onCartOpen, transparent = false }) {
 
         {/* Center Maison Wordmark */}
         <div className="ysl-brand-center">
-          <Link to="/" className="ysl-brand-wordmark" title="Gracia Fab Maison">
+          <Link to={homePath(user)} className="ysl-brand-wordmark" title={user ? "My Vanity" : "Gracia Fab home"}>
             <LogoMark className="ysl-brand-icon" />
             <span className="ysl-brand-text">GRACIA FAB</span>
           </Link>
@@ -128,6 +129,9 @@ function Navbar({ onCartOpen, transparent = false }) {
               </button>
               {accountOpen && (
                 <div className="ysl-account-dropdown">
+                  <Link to={VANITY_PATH} onClick={() => setAccountOpen(false)}>
+                    My Vanity
+                  </Link>
                   <Link to="/dashboard" onClick={() => setAccountOpen(false)}>
                     My Account ({user.name?.split(" ")[0]})
                   </Link>
@@ -305,6 +309,13 @@ function Navbar({ onCartOpen, transparent = false }) {
 
             {user ? (
               <>
+                <Link
+                  to={VANITY_PATH}
+                  onClick={() => setMenuOpen(false)}
+                  className={location.pathname === VANITY_PATH ? "active" : ""}
+                >
+                  MY VANITY
+                </Link>
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}

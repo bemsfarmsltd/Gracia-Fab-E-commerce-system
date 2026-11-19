@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import {
+  SKIN_TYPES,
+  HAIR_TYPES,
+  SHOPPING_FOR,
+  BUDGETS,
+  SKIN_CONCERNS,
+  HAIR_CONCERNS,
+} from "../config/beautyProfile.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -148,6 +156,19 @@ const userSchema = new mongoose.Schema(
     emailPreferences: {
       marketing: { type: Boolean, default: true },
       lastSent: Date,
+    },
+    // My Vanity beauty profile. Every answer is optional and starts empty (unlike
+    // the older skinType/hairType above, whose defaults can't be told apart from
+    // a real answer). Options: server/config/beautyProfile.js.
+    beautyProfile: {
+      skinType: { type: String, enum: SKIN_TYPES },
+      hairType: { type: String, enum: HAIR_TYPES },
+      skinConcerns: { type: [{ type: String, enum: Object.keys(SKIN_CONCERNS) }], default: undefined },
+      hairConcerns: { type: [{ type: String, enum: Object.keys(HAIR_CONCERNS) }], default: undefined },
+      shoppingFor: { type: [{ type: String, enum: SHOPPING_FOR }], default: undefined },
+      budget: { type: String, enum: BUDGETS },
+      undertone: { type: String, maxlength: 60 },
+      updatedAt: Date,
     },
   },
 

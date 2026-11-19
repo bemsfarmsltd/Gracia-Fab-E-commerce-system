@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { afterLoginPath } from "../utils/afterLogin";
 import { useAuth } from "../hooks/useAuth";
 import GraciaLogo from "../components/GraciaLogo";
 import SEO from "../components/SEO";
@@ -84,7 +85,7 @@ function VerifyCode() {
     setError("");
     try {
       const data = await verifyOtp(email, fullCode);
-      navigate(data.isAdmin ? "/admin" : "/");
+      navigate(afterLoginPath(data, location.state?.from), { replace: true });
     } catch (err) {
       setError(err.message || "Incorrect code. Please try again.");
       setDigits(["", "", "", "", "", ""]);
