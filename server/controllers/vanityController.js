@@ -10,6 +10,9 @@ import {
   BUDGET_RANGES,
   PROFILE_STEPS,
   profileOptions,
+  BRIDAL_MILESTONES,
+  BRIDAL_FOCUS_DAYS,
+  todayInNigeria,
 } from "../config/beautyProfile.js";
 
 // My Vanity: one private page per customer, built only from their own data
@@ -46,8 +49,34 @@ const cleanProfile = (bp = {}) => ({
   shoppingFor: bp.shoppingFor || [],
   budget: bp.budget || null,
   undertone: bp.undertone || null,
+  weddingDate: bp.weddingDate ? new Date(bp.weddingDate).toISOString().slice(0, 10) : null,
   updatedAt: bp.updatedAt || null,
 });
+
+const dayNumber = (ymd) => Math.round(new Date(`${ymd}T00:00:00Z`).getTime() / DAY);
+const ymdFromDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
+
+// Countdown and milestones for an upcoming wedding; null when there's no date
+// or the day has passed.
+export const bridalCountdown = (weddingDate, now = new Date()) => {
+  if (!weddingDate) return null;
+  const today = dayNumber(todayInNigeria(now));
+  const wedding = dayNumber(weddingDate);
+  const daysLeft = wedding - today;
+  if (daysLeft < 0) return null;
+  let nextFound = false;
+  const milestones = BRIDAL_MILESTONES.map((m) => {
+    const day = wedding - m.weeksBefore * 7;
+    let status;
+    if (day < today) status = "past"; // date gone by (we don't know if they did it)
+    else if (!nextFound) {
+      status = day === today ? "today" : "next";
+      nextFound = true;
+    } else status = "upcoming";
+    return { key: m.key, label: m.label, tip: m.tip, date: ymdFromDay(day), status };
+  });
+  return { weddingDate, daysLeft, milestones };
+};
 
 const completeness = (profile) => {
   const filled = PROFILE_STEPS.filter((k) => {
@@ -92,6 +121,10 @@ export const scoreProduct = (p, profile, viewedCategories = new Set()) => {
     }
   }
   if (profile.shoppingFor.includes(p.category)) score += 2;
+  if (profile.weddingSoon && p.category === "bridal") {
+    score += 3;
+    reasons.unshift("For your wedding");
+  }
   if (viewedCategories.has(p.category)) {
     score += 1;
     if (!reasons.length) reasons.push(`Because you've been browsing ${CATEGORY_LABEL[p.category] || p.category}`);
@@ -187,7 +220,14 @@ export const getVanity = async (req, res) => {
       .map((i) => card(i.productId));
     const viewedCategories = new Set((user.interests || []).map((i) => i.productId?.category || i.category).filter(Boolean));
 
-    const picks = await pickProducts(profile, {
+    const bridal = bridalCountdown(profile.weddingDate);
+    if (bridal) {
+      bridal.products = (
+        await Product.find({ category: "bridal", stock: { $gt: 0 }, isInStock: { $ne: false } }).select(PRODUCT_FIELDS).limit(4).lean()
+      ).map(card);
+    }
+
+    const picks = await pickProducts({ ...profile, weddingSoon: Boolean(bridal && bridal.daysLeft <= BRIDAL_FOCUS_DAYS) }, {
       exclude: new Set([...wishlist.map((p) => String(p._id)), ...recentlyBought]),
       viewedCategories,
     });
@@ -206,6 +246,7 @@ export const getVanity = async (req, res) => {
       profile,
       completeness: completeness(profile),
       options: profileOptions(),
+      bridal,
       picks,
       activeOrders,
       restock,
@@ -227,7 +268,7 @@ export const updateBeautyProfile = async (req, res) => {
     const unset = {};
     for (const [k, v] of Object.entries(req.body)) {
       if (v === null || (Array.isArray(v) && v.length === 0) || v === "") unset[`beautyProfile.${k}`] = "";
-      else set[`beautyProfile.${k}`] = v;
+      else set[`beautyProfile.${k}`] = k === "weddingDate" ? new Date(`${v}T00:00:00Z`) : v;
     }
     set["beautyProfile.updatedAt"] = new Date();
     const user = await User.findByIdAndUpdate(

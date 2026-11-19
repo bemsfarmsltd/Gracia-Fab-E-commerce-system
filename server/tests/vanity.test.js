@@ -6,6 +6,8 @@ import app from "../app.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
+import { bridalCountdown } from "../controllers/vanityController.js";
+import { todayInNigeria } from "../config/beautyProfile.js";
 
 let mongod;
 const DAY = 24 * 60 * 60 * 1000;
@@ -130,5 +132,61 @@ describe("My Vanity", () => {
     expect(theirs.body.activeOrders).toHaveLength(1);
     expect(theirs.body.activeOrders[0].status).toBe("processing");
     expect(theirs.body.restock).toEqual([]);
+  });
+});
+
+describe("bridal countdown", () => {
+  const inDays = (n) => new Date(Date.parse(todayInNigeria() + "T00:00:00Z") + n * DAY).toISOString().slice(0, 10);
+
+  it("counts down and marks the milestones from the bridal guide", () => {
+    const c = bridalCountdown("2026-12-30", new Date("2026-11-20T10:00:00Z"));
+    expect(c.daysLeft).toBe(40);
+    expect(c.milestones.map((m) => [m.key, m.date, m.status])).toEqual([
+      ["routine", "2026-11-04", "past"],
+      ["trial", "2026-12-02", "next"],
+      ["freeze", "2026-12-16", "upcoming"],
+      ["day", "2026-12-30", "upcoming"],
+    ]);
+    // Late on the 19th UTC is already the 20th in Nigeria.
+    expect(bridalCountdown("2026-11-20", new Date("2026-11-19T23:30:00Z")).milestones[3].status).toBe("today");
+    expect(bridalCountdown("2026-11-19", new Date("2026-11-20T10:00:00Z"))).toBeNull();
+    expect(bridalCountdown(null)).toBeNull();
+  });
+
+  it("validates the wedding date and shows the countdown with bridal products", async () => {
+    const me = await register("bride@example.com");
+    for (const bad of ["2020-01-01", "2026-02-31", "31/12/2026", inDays(4 * 365)]) {
+      const r = await request(app).put("/api/vanity/profile").set(me).send({ weddingDate: bad });
+      expect(r.status, bad).toBe(400);
+    }
+    await make({ name: "Bridal glow kit", category: "bridal" });
+    await make({ name: "Sold out bridal set", category: "bridal", stock: 0 });
+
+    const ok = await request(app).put("/api/vanity/profile").set(me).send({ weddingDate: inDays(30) });
+    expect(ok.status).toBe(200);
+    expect(ok.body.profile.weddingDate).toBe(inDays(30));
+    // Optional extra: doesn't count towards the 5 profile steps.
+    expect(ok.body.completeness.done).toBe(0);
+
+    const res = await request(app).get("/api/vanity").set(me);
+    expect(res.body.bridal).toMatchObject({ weddingDate: inDays(30), daysLeft: 30 });
+    expect(res.body.bridal.milestones.find((m) => m.status === "next").key).toBe("trial");
+    expect(res.body.bridal.products.map((p) => p.name)).toEqual(["Bridal glow kit"]);
+    // Within 12 weeks, bridal products lead the picks with the reason.
+    expect(res.body.picks.items[0]).toMatchObject({ name: "Bridal glow kit", reasons: ["For your wedding"] });
+
+    const cleared = await request(app).put("/api/vanity/profile").set(me).send({ weddingDate: null });
+    expect(cleared.body.profile.weddingDate).toBeNull();
+    expect((await request(app).get("/api/vanity").set(me)).body.bridal).toBeNull();
+  });
+});
+
+describe("loyalty wording", () => {
+  it("only describes what the store actually does (no free delivery)", async () => {
+    const me = await register("loyal@example.com");
+    const res = await request(app).get("/api/loyalty").set(me);
+    const text = Object.values(res.body.tierBenefits).join(" ");
+    expect(text).not.toMatch(/free delivery|priority|VIP|early access|% back/i);
+    expect(res.body.tierBenefits.bronze).toBe("Earn 1 point for every ₦100 you spend · 100 points = ₦500 off");
   });
 });

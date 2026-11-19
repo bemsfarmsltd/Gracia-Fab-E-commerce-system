@@ -35,5 +35,26 @@ export function profileFromDevice(local, options) {
   if (budget) out.budget = budget;
   const tone = local.skinTone?.label || local.skinTone?.undertone;
   if (tone) out.undertone = String(tone).slice(0, 60);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(local.weddingDate || "") && local.weddingDate >= todayInNigeria()) out.weddingDate = local.weddingDate;
   return out;
+}
+
+// Today in Nigeria (UTC+1) as YYYY-MM-DD, for date inputs and comparisons.
+export function todayInNigeria(now = new Date()) {
+  return new Date(now.getTime() + 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+// "Wednesday 30 December 2026" for a YYYY-MM-DD date (no timezone drift).
+export function longDate(ymd) {
+  return new Date(`${ymd}T12:00:00Z`).toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+export function shortDate(ymd) {
+  return new Date(`${ymd}T12:00:00Z`).toLocaleDateString("en-NG", { day: "numeric", month: "short", timeZone: "UTC" });
+}
+
+export function countdownText(daysLeft) {
+  if (daysLeft === 0) return "Today's the day";
+  if (daysLeft === 1) return "1 day to go";
+  return `${daysLeft.toLocaleString("en-NG")} days to go`;
 }

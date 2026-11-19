@@ -757,3 +757,99 @@
     width: 100%;
   }
 }
+
+/* ── Bridal countdown (Claude Code, 20 Nov) ── */
+.vanity-bridal-days {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1.1;
+  color: var(--accent);
+  margin: 0.25rem 0 0.15rem;
+}
+
+.vanity-timeline {
+  list-style: none;
+  margin: 1.25rem 0 1rem;
+  padding: 0 0 0 1.5rem;
+  border-left: 3px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.vanity-timeline-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.vanity-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: calc(-1.5rem - 8px);
+  top: 0.3rem;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2.5px solid var(--border-soft);
+}
+
+.vanity-timeline-date {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.vanity-timeline-label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.vanity-timeline-item.is-past .vanity-timeline-label {
+  color: var(--text-muted);
+}
+
+.vanity-timeline-item.is-past::before {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+}
+
+.vanity-timeline-item.is-next::before,
+.vanity-timeline-item.is-today::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+
+.vanity-timeline-item.is-next .vanity-timeline-date,
+.vanity-timeline-item.is-today .vanity-timeline-date {
+  color: var(--accent);
+}
+
+.vanity-subhead {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.vanity-bridal .vanity-products {
+  margin-bottom: 1rem;
+}
+
+.vanity-field input[type="date"] {
+  color-scheme: light dark;
+}
+
+.vanity-field > label > span {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.vanity-hint {
+  margin: 0;
+}

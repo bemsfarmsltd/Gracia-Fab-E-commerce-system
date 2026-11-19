@@ -473,7 +473,7 @@ function Home({ onCartOpen }) {
 
           {/* Right Column: 2 Stacked Cards */}
           <div className="ysl-promo-col-stacked">
-            {/* Card 2: Free Delivery */}
+            {/* Card 2: Delivery (flat ₦2,500) */}
             <article className="ysl-promo-card ysl-promo-card-delivery">
               <div className="promo-card-content">
                 <span className="promo-eyebrow">✦ FAST NATIONWIDE DISPATCH</span>

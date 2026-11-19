@@ -104,12 +104,12 @@ export const getLoyaltyInfo = async (req, res) => {
       pointsToNext,
       nairaValue,
       history: (user.pointsHistory || []).slice(-10).reverse(),
-      tierBenefits: {
-        bronze: "Earn 1% back on purchases",
-        silver: "Earn 1.5% back + free delivery on orders over ₦20,000",
-        gold: "Earn 2% back + priority support + early access",
-        platinum: "Earn 3% back + free delivery always + VIP access",
-      },
+      // Only what the store actually does: every tier earns the same way, and
+      // delivery is always a flat ₦2,500. Add tier perks here only once
+      // checkout or support really applies them.
+      tierBenefits: Object.fromEntries(
+        ["bronze", "silver", "gold", "platinum"].map((t) => [t, "Earn 1 point for every ₦100 you spend · 100 points = ₦500 off"]),
+      ),
     });
   } catch (err) {
     return sendServerError(res, err, "loyaltyController error");

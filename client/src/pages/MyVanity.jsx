@@ -7,7 +7,7 @@ import API_URL from "../config";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import { useBeautyProfile } from "../hooks/useBeautyProfile";
-import { greeting, profileFromDevice } from "../utils/vanity";
+import { greeting, profileFromDevice, todayInNigeria, longDate, shortDate, countdownText } from "../utils/vanity";
 import "../styles/MyVanity.css";
 
 // My Vanity: the signed-in customer's private home. Everything on it comes
@@ -38,6 +38,7 @@ const LABELS = {
   skinConcerns: "Skin concerns",
   shoppingFor: "Shopping for",
   undertone: "Undertone",
+  weddingDate: "Wedding date",
 };
 const SHOPPING_LABEL = { skincare: "Skincare", haircare: "Haircare", wig: "Wigs", bridal: "Bridal" };
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
@@ -115,7 +116,7 @@ function ProfileEditor({ profile, options, onSave, onCancel, saving }) {
       className="vanity-profile-form"
       onSubmit={(e) => {
         e.preventDefault();
-        const answers = { ...draft, undertone: draft.undertone?.trim() || null };
+        const answers = { ...draft, undertone: draft.undertone?.trim() || null, weddingDate: draft.weddingDate || null };
         delete answers.updatedAt;
         onSave(answers);
       }}
@@ -138,6 +139,20 @@ function ProfileEditor({ profile, options, onSave, onCancel, saving }) {
         />
         <Link to="/skin-tone" className="vanity-inline-link">Find mine with the skin tone scan</Link>
       </label>
+      <div className="vanity-field">
+        <label htmlFor="vanity-wedding-date"><span>Wedding date (optional)</span></label>
+        <input
+          id="vanity-wedding-date"
+          type="date"
+          min={todayInNigeria()}
+          value={draft.weddingDate || ""}
+          aria-describedby="vanity-wedding-hint"
+          onChange={(e) => setDraft((d) => ({ ...d, weddingDate: e.target.value || null }))}
+        />
+        <p id="vanity-wedding-hint" className="vanity-muted vanity-small vanity-hint">
+          Getting married? Add the date for a bridal countdown. Leave it empty if not.
+        </p>
+      </div>
       <div className="vanity-actions">
         <button type="submit" className="vanity-btn" disabled={saving}>{saving ? "Saving…" : "Save my profile"}</button>
         <button type="button" className="vanity-btn vanity-btn-ghost" onClick={onCancel}>Cancel</button>
@@ -206,6 +221,14 @@ function MyVanity({ onCartOpen }) {
     }
   };
 
+  // Open the profile editor and bring it into view (it sits lower on the page).
+  const openEditor = () => {
+    setEditing(true);
+    requestAnimationFrame(() =>
+      document.getElementById("vanity-profile-title")?.scrollIntoView?.({ behavior: "smooth", block: "start" }),
+    );
+  };
+
   const addToBag = (p) => {
     addToCart({ _id: p._id, name: p.name, price: p.price, image: p.image });
     addToast(`Added "${p.name}" to your bag`, "cart");
@@ -243,7 +266,7 @@ function MyVanity({ onCartOpen }) {
     );
   }
 
-  const { profile, completeness, options, picks, activeOrders, restock, wishlist, recentlyViewed, savedRoutine, loyalty } = data;
+  const { profile, completeness, options, picks, activeOrders, restock, wishlist, recentlyViewed, savedRoutine, loyalty, bridal } = data;
   const conLabel = (list, id) => list.find((c) => c.id === id)?.label || id;
   const summary = [
     ["skinType", cap(profile.skinType)],
@@ -251,6 +274,7 @@ function MyVanity({ onCartOpen }) {
     ["skinConcerns", profile.skinConcerns.map((id) => conLabel(options.skinConcerns, id)).join(", ")],
     ["shoppingFor", profile.shoppingFor.map((id) => SHOPPING_LABEL[id] || id).join(", ")],
     ["undertone", profile.undertone],
+    ...(profile.weddingDate ? [["weddingDate", longDate(profile.weddingDate)]] : []),
   ];
   const tierProgress = loyalty.nextTierAt ? Math.min(100, Math.round((loyalty.totalEarned / loyalty.nextTierAt) * 100)) : 100;
 
@@ -273,6 +297,56 @@ function MyVanity({ onCartOpen }) {
             {completeness.done < completeness.total && " · the more you share, the better your picks"}
           </p>
         </header>
+
+        {bridal && (
+          <section className="vanity-card vanity-bridal" aria-labelledby="vanity-bridal-title">
+            <div className="vanity-card-head">
+              <h2 id="vanity-bridal-title">Your wedding countdown</h2>
+              <button type="button" className="vanity-inline-link vanity-link-btn" onClick={openEditor}>
+                Change date
+              </button>
+            </div>
+            <p className="vanity-bridal-days" aria-live="polite">{countdownText(bridal.daysLeft)}</p>
+            <p className="vanity-muted">{longDate(bridal.weddingDate)}</p>
+            <ol className="vanity-timeline">
+              {bridal.milestones.map((m) => (
+                <li
+                  key={m.key}
+                  className={`vanity-timeline-item is-${m.status}`}
+                  aria-current={m.status === "next" || m.status === "today" ? "step" : undefined}
+                >
+                  <span className="vanity-timeline-date">{m.status === "today" ? "Today" : shortDate(m.date)}</span>
+                  <span className="vanity-timeline-label">
+                    {m.label}
+                    {m.status === "past" && <span className="sr-only"> (date passed)</span>}
+                  </span>
+                  <span className="vanity-muted vanity-small">{m.tip}</span>
+                </li>
+              ))}
+            </ol>
+            {bridal.products.length > 0 && (
+              <>
+                <h3 className="vanity-subhead">For your big day</h3>
+                <ul className="vanity-products">
+                  {bridal.products.map((p) => <ProductTile key={p._id} p={p} onAdd={addToBag} />)}
+                </ul>
+              </>
+            )}
+            <Link to="/beauty/bridal-skincare-routine-nigeria" className="vanity-inline-link">
+              Read the full bridal skincare guide
+            </Link>
+          </section>
+        )}
+
+        {!bridal && !editing && profile.shoppingFor.includes("bridal") && (
+          <section className="vanity-card vanity-bridal-invite" aria-labelledby="vanity-bridal-invite-title">
+            <h2 id="vanity-bridal-invite-title">Getting married?</h2>
+            <p className="vanity-muted">Add your wedding date for a countdown with a bridal beauty timeline.</p>
+            <button type="button" className="vanity-btn vanity-btn-small" onClick={openEditor}>
+              Add my wedding date
+            </button>
+          </section>
+        )}
 
         {offerImport && (
           <section className="vanity-card vanity-import" aria-labelledby="vanity-import-title">

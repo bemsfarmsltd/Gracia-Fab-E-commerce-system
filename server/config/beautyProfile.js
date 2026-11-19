@@ -42,3 +42,19 @@ export const profileOptions = () => ({
   skinConcerns: Object.entries(SKIN_CONCERNS).map(([id, c]) => ({ id, label: c.label })),
   hairConcerns: Object.entries(HAIR_CONCERNS).map(([id, c]) => ({ id, label: c.label })),
 });
+
+// Bridal countdown milestones, taken from the site's own bridal guide
+// (client/src/pages/BeautyLanding.jsx, "bridal-skincare-routine-nigeria").
+export const BRIDAL_MILESTONES = [
+  { key: "routine", weeksBefore: 8, label: "Start your bridal skincare routine", tip: "6–8 weeks before is ideal: enough time for real improvements without rushing." },
+  { key: "trial", weeksBefore: 4, label: "Do a trial run of your full makeup look", tip: "Try the complete look about 4 weeks before the day." },
+  { key: "freeze", weeksBefore: 2, label: "Stop trying new products", tip: "Never try new products within 2 weeks of the wedding day." },
+  { key: "day", weeksBefore: 0, label: "Your wedding day", tip: "Keep to your routine, stay hydrated and get some sleep." },
+];
+// Bridal products get a boost in picks when the wedding is this close.
+export const BRIDAL_FOCUS_DAYS = 12 * 7;
+// Furthest ahead a wedding date can be set.
+export const MAX_WEDDING_DAYS_AHEAD = 3 * 365;
+
+// Today's date in Nigeria (UTC+1, no daylight saving) as YYYY-MM-DD.
+export const todayInNigeria = (now = new Date()) => new Date(now.getTime() + 60 * 60 * 1000).toISOString().slice(0, 10);

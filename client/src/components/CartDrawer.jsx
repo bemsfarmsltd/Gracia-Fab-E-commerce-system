@@ -85,7 +85,7 @@ function CartDrawer({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Free Shipping / Delivery Trust Bar */}
+        {/* Delivery trust bar (flat ₦2,500) */}
         <div className="drawer-delivery-strip">
           <span className="delivery-icon">🚚</span>
           <span>Flat ₦2,500 Nationwide Delivery · Ships from Umuahia</span>

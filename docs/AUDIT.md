@@ -97,8 +97,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 - [x] **My Vanity v1** (`CC`, 19 Nov). Private home for signed-in customers at `/my-vanity` (`GET /api/vanity`, `PUT|DELETE /api/vanity/profile`): optional beauty profile, picks from real in-stock products with the real reason, orders on their way, restock reminders, saved routine, wishlist, recently viewed, rewards. Sign-in lands there (or back to where the customer was going, e.g. checkout); the logo goes there when signed in. Also fixed: account/login legal links pointed at the homepage.
 - [ ] **Design My Vanity** (`AG`). Brief: `docs/MY_VANITY_BRIEF.md`.
-- [ ] **Loyalty tier benefits promise free delivery** (`YOU`). `server/controllers/loyaltyController.js` lists "free delivery" for Silver and Platinum, but delivery is always ₦2,500. Decide: offer it (then the checkout must apply it) or remove the wording.
-- [ ] **Bridal countdown in My Vanity** (`YOU` to decide). Left out of v1 on purpose.
+- [x] **Loyalty tier benefits promised free delivery** (fixed 20 Nov, owner decision: remove). Every tier now shows the real rule (1 point per ₦100, 100 points = ₦500 off); the unimplemented "% back", priority support, early access and VIP perks were removed too. Add tier perks back only when checkout/support actually applies them.
+- [x] **Bridal countdown in My Vanity** (`CC`, 20 Nov, owner asked for it). Optional wedding date in the beauty profile; countdown plus milestones from the site's bridal guide (start routine 8 weeks before, makeup trial 4 weeks, no new products 2 weeks); bridal products and "For your wedding" picks within 12 weeks; hides after the date.
 
 - [ ] **Responsive polish on 15 target screens** (`AG`). Brief: `docs/RESPONSIVE_AUDIT.md`. Layout breakages fixed by CC on 19 Nov (shop overflow, account page phone layout, beauty guides behind login); the list there is the remaining polish, most important first (home menu icon nearly invisible on phones).
 

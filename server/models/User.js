@@ -168,6 +168,8 @@ const userSchema = new mongoose.Schema(
       shoppingFor: { type: [{ type: String, enum: SHOPPING_FOR }], default: undefined },
       budget: { type: String, enum: BUDGETS },
       undertone: { type: String, maxlength: 60 },
+      // Optional; powers the bridal countdown. Stored as midnight UTC of the day.
+      weddingDate: Date,
       updatedAt: Date,
     },
   },
