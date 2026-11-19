@@ -4,7 +4,10 @@ import Product from "../models/Product.js";
 import Groq from "groq-sdk";
 import { addToQueue, emailQueue } from "../queues/index.js";
 import logger from "../utils/logger.js";
-import { siteUrl } from "../utils/siteUrl.js";
+import { siteUrl, siteHost } from "../utils/siteUrl.js";
+
+const escapeHtml = (s) =>
+  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 let groqClient = null;
 const getGroq = () => {
@@ -112,42 +115,83 @@ export const sendMarketingEmails = async () => {
 
         // Build HTML email
         const html = `
-<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#000;color:#fff;border-radius:12px;overflow:hidden;">
-  <div style="background:linear-gradient(135deg,#14213D,#1C2E52);padding:32px;text-align:center;">
-    <h1 style="color:#FCA311;font-style:italic;margin:0;">Gracia Fab</h1>
-    <p style="color:rgba(255,255,255,0.7);margin:6px 0 0;font-size:14px;">Your Beauty Update</p>
-  </div>
-  <div style="padding:32px;">
-    <p style="color:rgba(255,255,255,0.9);font-size:16px;line-height:1.7;">${content.body}</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0;">
-      ${products
-        .map(
-          (p) => `
-        <div style="background:#14213D;border-radius:10px;overflow:hidden;text-align:center;">
-          <img src="${p.image}" alt="${p.name}" style="width:100%;height:120px;object-fit:cover;">
-          <div style="padding:10px;">
-            <p style="font-size:12px;color:rgba(255,255,255,0.9);margin:0 0 4px;font-weight:600;">${p.name}</p>
-            <p style="color:#FCA311;font-size:13px;font-weight:700;margin:0;">₦${p.price?.toLocaleString()}</p>
-          </div>
-        </div>
-      `,
-        )
-        .join("")}
-    </div>
-    <div style="text-align:center;margin-top:24px;">
-      <a href="${siteUrl()}/products?category=${topCategory}"
-         style="background:#FCA311;color:#000;padding:14px 32px;border-radius:30px;text-decoration:none;font-weight:bold;display:inline-block;">
-        Shop Now →
-      </a>
-    </div>
-  </div>
-  <div style="padding:16px;text-align:center;border-top:1px solid #14213D;">
-    <p style="font-size:11px;color:rgba(255,255,255,0.3);">
-      You're receiving this because you're a Gracia Fab member.
-      <a href="${unsubscribeUrl(user._id)}" style="color:rgba(255,255,255,0.5);">Unsubscribe</a>
-    </p>
-  </div>
-</div>`;
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #FBF3E7; table-layout: fixed; margin: 0; padding: 0;">
+  <tr>
+    <td align="center" style="padding: 24px 12px 36px 12px; background-color: #FBF3E7;">
+      <!--[if (gte mso 9)|(IE)]>
+      <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
+      <tr>
+      <td align="center" valign="top" width="600">
+      <![endif]-->
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; border: 1px solid #EEDCBE; overflow: hidden; text-align: left;">
+        <tr>
+          <td align="center" style="padding: 28px 24px 20px 24px; background-color: #FAF4EB; border-bottom: 1px solid #F0E2D0;">
+            <a href="${siteUrl()}" target="_blank" style="text-decoration: none;">
+              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: normal; letter-spacing: 3px; color: #7A2432; text-transform: uppercase; display: inline-block;">GRACIA FAB</span>
+            </a>
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8E3B14; margin-top: 5px;">Your Beauty Update</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 32px 32px 28px 32px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #241310;">
+            <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #3A241E;">${escapeHtml(content.body)}</p>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0 0 24px 0;">
+              <tr>
+                ${products
+                  .map(
+                    (p) => `
+                  <td width="33%" align="center" valign="top" style="padding: 0 6px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #FAF4EB; border: 1px solid #EEDCBE; border-radius: 6px; overflow: hidden; text-align: center;">
+                      <tr>
+                        <td align="center" style="padding: 0; background-color: #F5E7D2;">
+                          <img src="${p.image}" alt="${escapeHtml(p.name)}" width="170" height="130" style="display: block; width: 100%; max-width: 170px; height: 130px; object-fit: cover; border: 0;" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding: 10px 8px;">
+                          <p style="margin: 0 0 4px 0; font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; color: #241310; line-height: 1.3;">${escapeHtml(p.name)}</p>
+                          <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; font-weight: bold; color: #7A2432;">₦${p.price?.toLocaleString()}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                `,
+                  )
+                  .join("")}
+              </tr>
+            </table>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 28px auto 0 auto;">
+              <tr>
+                <td align="center" bgcolor="#7A2432" style="border-radius: 6px; background-color: #7A2432;">
+                  <a href="${siteUrl()}/products?category=${encodeURIComponent(topCategory)}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; color: #FFFFFF; text-decoration: none; border-radius: 6px; background-color: #7A2432; letter-spacing: 0.5px;">
+                    Shop Now &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding: 24px 24px 28px 24px; background-color: #FAF4EB; border-top: 1px solid #F0E2D0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: #6E4F45;">
+            <p style="margin: 0 0 4px 0; font-weight: 600; color: #52362F;">Gracia Fab &middot; Umuahia, Abia State, Nigeria</p>
+            <p style="margin: 0 0 8px 0; font-size: 12px; color: #6E4F45;">
+              You&#39;re receiving this because you&#39;re a Gracia Fab member.
+              <a href="${unsubscribeUrl(user._id)}" style="color: #7A2432; text-decoration: underline;">Unsubscribe</a>
+            </p>
+            <p style="margin: 0; font-size: 12px;">
+              <a href="${siteUrl()}" target="_blank" style="color: #7A2432; text-decoration: underline;">${siteHost()}</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+      <!--[if (gte mso 9)|(IE)]>
+      </td>
+      </tr>
+      </table>
+      <![endif]-->
+    </td>
+  </tr>
+</table>`;
 
         // Queue the email
         await addToQueue(emailQueue, "marketing-email", {

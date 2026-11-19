@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Redesign customer emails (HTML/table layout/brand palette) | server/services/emailService.js, server/controllers/marketingController.js | 19 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 
