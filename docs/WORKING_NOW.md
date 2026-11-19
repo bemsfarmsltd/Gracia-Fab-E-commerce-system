@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Claude Code | Responsive audit across 15 devices (measuring only; Antigravity fixes styling) | docs/RESPONSIVE_AUDIT.md (new), no app code | 19 Nov |
 
 ## Open questions
 
