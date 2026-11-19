@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| — | nothing in progress | — | — |
+| Claude Code | Email deliverability (plain-text part, subjects, preview script) | server/services/emailService.js (sendEmail + subjects only), server/utils/htmlToText.js, server/scripts/previewEmails.js | 19 Nov |
 
 ## Open questions
 
