@@ -9,9 +9,10 @@ const escapeHtml = (s) =>
 // Sends over HTTPS via Resend's API rather than raw SMTP — Render (and most
 // PaaS hosts) block outbound SMTP ports (25/465/587) to prevent spam relay
 // abuse, so a direct nodemailer/Gmail connection can never succeed there.
-// Falls back to onboarding@resend.dev, which works without verifying a
-// custom domain — fine for getting started, swap in a verified domain's
-// address via RESEND_FROM_EMAIL once one exists.
+// RESEND_FROM_EMAIL is the sender on the verified graciafab.com domain
+// (e.g. "Gracia Fab <orders@graciafab.com>"); without it, Resend's test sender
+// onboarding@resend.dev is used. graciafab.com has no inbox, so replies only
+// reach someone when RESEND_REPLY_TO is set to a real mailbox.
 let resend = null;
 
 const getClient = () => {
@@ -36,7 +37,16 @@ export const sendEmail = async ({ to, subject, html, headers }) => {
 
   const from = process.env.RESEND_FROM_EMAIL || "Gracia Fab Beauty <onboarding@resend.dev>";
 
-  const { error } = await client.emails.send({ from, to, subject, html, ...(headers ? { headers } : {}) });
+  const replyTo = process.env.RESEND_REPLY_TO?.trim();
+
+  const { error } = await client.emails.send({
+    from,
+    to,
+    subject,
+    html,
+    ...(replyTo ? { replyTo } : {}),
+    ...(headers ? { headers } : {}),
+  });
 
   if (error) {
     logger.error({ err: error, to }, "Email failed");
@@ -132,7 +142,7 @@ export const emailTemplates = {
           <p>Hi <strong style="color: #FCA311;">${escapeHtml(name)}</strong>,</p>
           <p>Your Gracia Fab order <strong>#${orderId}</strong> has been cancelled.</p>
           ${refundAmount ? `<p>A refund of <strong style="color: #FCA311;">₦${refundAmount.toLocaleString()}</strong> will be sent to your original payment method. We'll email you when it's on its way.</p>` : ""}
-          <p>If you have any questions, just reply to this email or message us on WhatsApp.</p>
+          <p>If you have any questions, ${process.env.RESEND_REPLY_TO?.trim() ? "just reply to this email or " : ""}message us on WhatsApp.</p>
           <div style="text-align: center; margin-top: 24px;">
             <a href="${siteUrl()}/my-orders"
                style="background: #FCA311; color: #000; padding: 14px 32px; border-radius: 30px; text-decoration: none; font-weight: bold; display: inline-block;">
