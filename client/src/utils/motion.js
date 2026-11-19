@@ -51,6 +51,7 @@ export const MOTION_MAP = [
   { selector: ".advisor-step-card", from: "zoom" },
 
   // ── Cart, footer, admin
+  { selector: ".vanity-card", from: "up", stagger: 60 },
   { selector: ".cart-items > *", from: "left", stagger: 70 },
   { selector: ".cart-summary", from: "right" },
   { selector: ".ysl-footer-brand-col, .ysl-footer-col, .ysl-footer-newsletter-col", from: "up", stagger: 90 },

@@ -46,29 +46,35 @@ function ProductTile({ p, note, onAdd }) {
   return (
     <li className="vanity-product">
       <Link to={`/products/${p._id}`} className="vanity-product-link">
-        <img
-          src={p.image || PLACEHOLDER}
-          alt={p.name}
-          loading="lazy"
-          width="160"
-          height="160"
-          onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
-        />
-        <span className="vanity-product-brand">{p.brand}</span>
-        <span className="vanity-product-name">{p.name}</span>
+        <div className="vanity-product-img-wrap">
+          <img
+            src={p.image || PLACEHOLDER}
+            alt={p.name}
+            loading="lazy"
+            width="160"
+            height="160"
+            onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
+          />
+        </div>
+        <div className="vanity-product-meta">
+          <span className="vanity-product-brand">{p.brand}</span>
+          <span className="vanity-product-name">{p.name}</span>
+        </div>
       </Link>
       {note && <span className="vanity-product-note">{note}</span>}
-      <span className="vanity-product-price">{naira(p.price)}</span>
-      {p.inStock ? (
-        <>
-          {p.lowStock && <span className="vanity-stock-low">Only a few left</span>}
-          <button type="button" className="vanity-btn vanity-btn-small" onClick={() => onAdd(p)}>
-            Add to bag
-          </button>
-        </>
-      ) : (
-        <span className="vanity-stock-out">Out of stock</span>
-      )}
+      <div className="vanity-product-footer">
+        <span className="vanity-product-price">{naira(p.price)}</span>
+        {p.inStock ? (
+          <>
+            {p.lowStock && <span className="vanity-stock-low">Only a few left</span>}
+            <button type="button" className="vanity-btn vanity-btn-small" onClick={() => onAdd(p)}>
+              Add to bag
+            </button>
+          </>
+        ) : (
+          <span className="vanity-stock-out">Out of stock</span>
+        )}
+      </div>
     </li>
   );
 }

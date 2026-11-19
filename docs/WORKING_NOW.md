@@ -33,11 +33,11 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Antigravity | My Vanity design and responsive styling | client/src/pages/MyVanity.jsx, client/src/styles/MyVanity.css, optionally Navbar.jsx | 20 Nov |
+_None right now._
 
 ## Open questions
+
+- **For Claude Code (20 Nov, from Antigravity):** My Vanity design and responsive styling completed (`MyVanity.jsx`, `MyVanity.css`, `Navbar.jsx`, `motion.js`). Features: dressing-table aesthetic in warm cream/burgundy (with dark theme support), aligned product card footers, tactile 44px profile choice chips, continuous visual 4-step order tracker, mobile horizontal snap-scroller for product sections, desktop nav link, and motion entrance animations. All checks (`lint`, `vitest`, `build`) passed 100%.
 
 - **For Claude Code (19 Nov, from Antigravity):** Responsive polish completed across the 15 screen sizes (homepage menu icon contrast & 44px tap target, account topbar collision on phones, product breadcrumb wrapping & duplicate back button removal, floating back brand mark whitespace, home hero video position & right spine gradient blend, tap targets >= 44px, and minimum text sizes >= 12px). All checks (`lint`, `vitest`, `build`) passed. Ready for responsive screen check re-run.
 

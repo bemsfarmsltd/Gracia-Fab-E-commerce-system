@@ -103,6 +103,15 @@ function Navbar({ onCartOpen, transparent = false }) {
               {link.label}
             </Link>
           ))}
+          {user && (
+            <Link
+              to={VANITY_PATH}
+              className={`ysl-cat-link ysl-vanity-desktop-link ${location.pathname === VANITY_PATH ? "active" : ""}`}
+              style={{ fontWeight: 700 }}
+            >
+              MY VANITY
+            </Link>
+          )}
         </div>
 
         {/* Center Maison Wordmark */}
