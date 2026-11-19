@@ -17,7 +17,7 @@ cd server && npm run dev      # :5000 (nodemon)
 cd server && npm run seed     # reseed products from server/data/products.js
 ```
 
-Before you call something done, run what CI runs (`.github/workflows/ci.yml`, Node 20):
+Before you call something done, run what CI runs (`.github/workflows/ci.yml`, Node 22 with npm 10):
 
 ```bash
 cd client && npm run lint && npm test && npm run build
@@ -33,6 +33,7 @@ cd server && npm test
 - Server logging uses `server/utils/logger.js` (pino), not `console.*`. The one-off CLI scripts (`setAdmin.js`, `seeder.js`, …) are the exception.
 - Request bodies are validated with zod via `middleware/validate.js` and the schemas in `server/validators/`.
 - CSS uses the tokens defined in `client/src/index.css`. Never reference an undefined CSS variable; it fails silently and has caused invisible-text bugs before.
+- After changing dependencies, check the lockfile with npm 10 (what CI uses): `npx npm@10 ci --dry-run`. npm 11 can write lockfiles that npm 10 rejects; fix with `npx npm@10 install`.
 - Env vars are documented in `server/.env.example` and `client/.env.example`. Never commit `.env`.
 
 ## Content rules

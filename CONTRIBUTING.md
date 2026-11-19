@@ -2,7 +2,7 @@
 
 ## Local setup
 
-Requires Node.js 20+, a MongoDB connection string, and (optionally) Redis for background jobs.
+Requires Node.js 22.12+ (the test runner needs it; CI uses Node 22), a MongoDB connection string, and (optionally) Redis for background jobs.
 
 ```bash
 git clone <repo-url>
