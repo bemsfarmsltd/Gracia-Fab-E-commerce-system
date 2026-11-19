@@ -122,18 +122,20 @@ export function startMotion(root = document) {
   document.documentElement.classList.add("motion-ready");
   scan();
 
-  let scheduled = false;
+  let frame = 0;
   const mutations = new MutationObserver(() => {
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
       scan();
     });
   });
   mutations.observe(root.body || root, { childList: true, subtree: true });
 
   return () => {
+    // Cancel a scan that's still queued, so nothing runs after cleanup.
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
     mutations.disconnect();
     reveal.disconnect();
     document.documentElement.classList.remove("motion-ready");

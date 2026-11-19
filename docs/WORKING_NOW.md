@@ -35,7 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Dependency upgrades: vite-plugin-pwa 2, vitest 5 (client + server) | client/package.json, client/vite.config.js, server/package.json, lockfiles, test config | 19 Nov |
+| — | nothing in progress | — | — |
 
 ## Open questions
 

@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const send = vi.fn(async () => ({ error: null }));
-vi.mock("resend", () => ({ Resend: vi.fn(() => ({ emails: { send } })) }));
+// A class, because the code calls `new Resend(...)` (Vitest 4+ won't `new` an arrow mock).
+vi.mock("resend", () => ({
+  Resend: class {
+    emails = { send };
+  },
+}));
 
 const load = async () => {
   vi.resetModules();
