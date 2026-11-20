@@ -118,3 +118,11 @@ Vercel URL.
 Push to `staging` → Render and Vercel both redeploy staging automatically,
 gated by the same CI (`.github/workflows/ci.yml`) that already runs on
 `main`. When staging looks good, open a PR from `staging` into `main`.
+
+## Keeping the API awake
+
+`.github/workflows/keep-awake.yml` pings `https://gracia-fab.onrender.com/health` every 10 minutes so the free Render instance doesn't fall asleep (the first visitor would otherwise wait ~30 s, and the 10:00 marketing job could miss its slot). It costs nothing because the repo is public. If the API stays unhealthy after three tries the run fails and GitHub emails whoever last changed the schedule.
+
+- One always-on free service uses ~744 of the workspace's 750 free hours a month. **Don't add a ping for a staging service on the same free workspace**; it would run out of hours. Staging can sleep.
+- If the API moves to a paid Render instance (which never sleeps), delete the workflow.
+- GitHub pauses scheduled workflows after 60 days without commits. Re-enable it under Actions → "Keep API awake".
