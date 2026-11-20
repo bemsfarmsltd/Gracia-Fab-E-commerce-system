@@ -126,3 +126,16 @@ gated by the same CI (`.github/workflows/ci.yml`) that already runs on
 - One always-on free service uses ~744 of the workspace's 750 free hours a month. **Don't add a ping for a staging service on the same free workspace**; it would run out of hours. Staging can sleep.
 - If the API moves to a paid Render instance (which never sleeps), delete the workflow.
 - GitHub pauses scheduled workflows after 60 days without commits. Re-enable it under Actions → "Keep API awake".
+
+## Crash alerts (Sentry)
+
+The server and website report crashes to Sentry, but only once a DSN is set. Without one nothing is loaded or sent.
+
+1. Create a free account at sentry.io (the free Developer plan allows about 5,000 errors a month). Pick the EU or US data region when asked; it can't be changed later.
+2. Create two projects: **Node.js / Express** named `gracia-fab-server`, and **React** named `gracia-fab-web`. Skip the setup wizards; the code is already in place.
+3. Copy each project's DSN (Settings → Client Keys (DSN)):
+   - Render → gracia-fab → Environment: `SENTRY_DSN` = the server DSN. Save (Render restarts).
+   - Vercel → Settings → Environment Variables: `VITE_SENTRY_DSN` = the web DSN, type **Config** (it's public by design), Production. Redeploy.
+4. In each project, Alerts → keep the default "new issue" email alert (or add one), so a new kind of crash emails you.
+
+What's reported: every 500 from the API, failed email/WhatsApp/points jobs, failed scheduled jobs, uncaught server errors, and page crashes in the browser. What's never sent: request bodies (passwords, login codes, addresses), cookies, auth headers, IP addresses, email addresses and secret link parameters (`server/utils/monitoring.js`, `client/src/utils/monitoring.js`).

@@ -8,6 +8,10 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { BeautyProfileProvider } from "./context/BeautyProfileContext.jsx";
 import { ToastProvider } from "./components/Toast";
+import { initMonitoring } from "./utils/monitoring";
+
+// Crash alerts (only when VITE_SENTRY_DSN is set; loads in the background).
+initMonitoring();
 
 // Auto-refresh when a new Service Worker deployment is activated so mobile and
 // desktop browsers immediately display the latest version instead of serving stale cache.

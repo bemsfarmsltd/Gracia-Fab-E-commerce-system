@@ -88,7 +88,9 @@ export default defineConfig({
         // Don't pre-download product photos or the large logo on install:
         // that was ~4.5 MB in the background for every first-time visitor.
         // They're cached when actually viewed (runtimeCaching below).
-        globIgnores: ["**/images/products/**", "**/logo.png"],
+        // Also skip the crash-alert code (Sentry): it only loads when
+        // VITE_SENTRY_DSN is set and isn't needed offline.
+        globIgnores: ["**/images/products/**", "**/logo.png", "**/assets/sentryLoader-*.js"],
         runtimeCaching: [
           {
             // Product photos shipped with the site (client/public/images/products).

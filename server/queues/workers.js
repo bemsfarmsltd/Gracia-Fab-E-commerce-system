@@ -10,6 +10,7 @@ import { sendEmail } from "../services/emailService.js";
 // Loyalty controller
 import { awardPoints } from "../controllers/loyaltyController.js";
 import logger from "../utils/logger.js";
+import { captureError } from "../utils/monitoring.js";
 
 let workers = [];
 
@@ -43,9 +44,10 @@ export const startWorkers = () => {
   whatsappWorker.on("completed", (job) =>
     logger.info({ jobId: job.id }, "WhatsApp job sent successfully"),
   );
-  whatsappWorker.on("failed", (job, err) =>
-    logger.error({ err, jobId: job?.id }, "WhatsApp job failed"),
-  );
+  whatsappWorker.on("failed", (job, err) => {
+    logger.error({ err, jobId: job?.id }, "WhatsApp job failed");
+    captureError(err, { job: "whatsapp", jobName: job?.name });
+  });
 
   // ── Email Worker
   const emailWorker = new Worker(
@@ -61,9 +63,10 @@ export const startWorkers = () => {
   emailWorker.on("completed", (job) =>
     logger.info({ jobId: job.id }, "Email job sent"),
   );
-  emailWorker.on("failed", (job, err) =>
-    logger.error({ err, jobId: job?.id }, "Email job failed"),
-  );
+  emailWorker.on("failed", (job, err) => {
+    logger.error({ err, jobId: job?.id }, "Email job failed");
+    captureError(err, { job: "email", jobName: job?.name });
+  });
 
   // ── Points Worker
   const pointsWorker = new Worker(
@@ -76,9 +79,10 @@ export const startWorkers = () => {
     { connection, concurrency: 10 },
   );
 
-  pointsWorker.on("failed", (job, err) =>
-    logger.error({ err, jobId: job?.id }, "Points job failed"),
-  );
+  pointsWorker.on("failed", (job, err) => {
+    logger.error({ err, jobId: job?.id }, "Points job failed");
+    captureError(err, { job: "points", jobName: job?.name });
+  });
 
   workers = [whatsappWorker, emailWorker, pointsWorker];
   logger.info("Queue workers started (WhatsApp, Email, Points)");

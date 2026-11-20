@@ -33,9 +33,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | Crash alerts (Sentry, off until DSNs are set) | server: utils/monitoring.js, server.js, utils/httpErrors.js, middleware/errorMiddleware.js, queues/workers.js, package files; client: utils/monitoring.js, main.jsx, components/ErrorBoundary.jsx, vercel.json (CSP), package files | 20 Nov |
+_None right now._
 
 ## Open questions
 

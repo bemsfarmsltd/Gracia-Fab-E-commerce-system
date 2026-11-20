@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { reportError } from "../utils/monitoring";
 
 // Last line of defence: if a page throws while rendering, show a way out
 // instead of a blank screen.
@@ -14,6 +15,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error("Page crashed:", error, info?.componentStack);
+    reportError(error, { componentStack: info?.componentStack });
   }
 
   render() {

@@ -1,5 +1,6 @@
 import logger from "../utils/logger.js";
 import { GENERIC_SERVER_ERROR } from "../utils/httpErrors.js";
+import { captureError } from "../utils/monitoring.js";
 
 // Catches every error passed to next() or thrown in a route.
 const errorHandler = (err, req, res, next) => {
@@ -7,6 +8,7 @@ const errorHandler = (err, req, res, next) => {
   logger.error({ err, method: req.method, path: req.path }, "Request error");
 
   const statusCode = err.status || err.statusCode || 500;
+  if (statusCode >= 500) captureError(err, { path: req.route?.path || req.path, method: req.method });
   const isProduction = process.env.NODE_ENV === "production";
 
   // 4xx messages are deliberate ("Route not found", bad JSON, ...). 5xx

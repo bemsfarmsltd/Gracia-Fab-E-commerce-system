@@ -1,5 +1,6 @@
 import "dotenv/config";
 import dns from "dns";
+import { initMonitoring, captureError } from "./utils/monitoring.js";
 import connectDB from "./config/db.js";
 import { startWorkers } from "./queues/workers.js";
 import cron from "node-cron";
@@ -15,12 +16,20 @@ import logger from "./utils/logger.js";
 // outbound connection this process makes (Mongo, SMTP, any future API call).
 dns.setDefaultResultOrder("ipv4first");
 
+// Crash alerts (only when SENTRY_DSN is set). Before anything else starts.
+await initMonitoring();
+
 connectDB();
 startWorkers();
 
 cron.schedule("0 10 * * *", async () => {
   logger.info("Running daily marketing email job");
-  await sendMarketingEmails();
+  try {
+    await sendMarketingEmails();
+  } catch (err) {
+    logger.error({ err }, "Daily marketing email job failed");
+    captureError(err, { job: "marketing-emails" });
+  }
 });
 
 // Hourly rather than daily: Render's free plan sleeps when idle, so a single
@@ -30,6 +39,7 @@ cron.schedule("15 * * * *", async () => {
     await expireUnpaidOrders();
   } catch (err) {
     logger.error({ err }, "Unpaid-order cleanup failed");
+    captureError(err, { job: "unpaid-order-cleanup" });
   }
 });
 
