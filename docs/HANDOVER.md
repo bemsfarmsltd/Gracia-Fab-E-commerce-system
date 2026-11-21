@@ -65,6 +65,13 @@ is needed: everything runs in the browser.
   (the refund itself is sent from the Monnify dashboard).
 - [ ] Note who at the company receives Monnify settlement and dispute emails.
 
+## Repository move (COO request, 21 Nov)
+
+- [x] Project pushed to https://github.com/bemsfarmsltd/Gracia-Fab-E-commerce-system with full history and all branches; CI passes there on main.
+- [ ] Vercel → Project → Settings → Git: disconnect, then connect the new repository (approve access from the bemsfarmsltd account).
+- [ ] Render → Service → Settings → Repository: switch to the new repository, branch main.
+- [ ] Push a test change and confirm both redeploy, then archive dark-fury22/gracia-fab (Settings → Archive).
+
 ## Still open for Claude Code before Thursday
 
 - Stricter website security policy (CSP enforce), tested page by page first.
