@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Antigravity | New Shop by Category images with Gemini | client/public/images/categories/, client/src/pages/Home.jsx, client/src/styles/YslHome.css | 21 Nov |
 
 ## Open questions
 
