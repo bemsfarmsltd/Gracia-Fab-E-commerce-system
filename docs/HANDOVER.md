@@ -68,9 +68,10 @@ is needed: everything runs in the browser.
 ## Repository move (COO request, 21 Nov)
 
 - [x] Project pushed to https://github.com/bemsfarmsltd/Gracia-Fab-E-commerce-system with full history and all branches; CI passes there on main.
-- [ ] Vercel → Project → Settings → Git: disconnect, then connect the new repository (approve access from the bemsfarmsltd account).
-- [ ] Render → Service → Settings → Repository: switch to the new repository, branch main.
-- [ ] Push a test change and confirm both redeploy, then archive dark-fury22/gracia-fab (Settings → Archive).
+- [x] Vercel deploys from the new repository (verified 21 Nov: commit d227994 live within a minute).
+- [x] Render deploys from the new repository (verified 21 Nov: /health reports d227994).
+- [ ] Archive dark-fury22/gracia-fab (Settings → Archive this repository) so it is read-only and its keep-awake job stops.
+- [ ] Change the Vercel and bemsfarmsltd GitHub passwords (they were shared in chat) and turn on two-factor authentication for bemsfarmsltd.
 
 ## Still open for Claude Code before Thursday
 
