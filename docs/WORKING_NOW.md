@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Claude Code | Homepage truth pass: real catalogue products/photos, remove invented products, club and claims (content only, then a design brief for Antigravity) | client/src/pages/Home.jsx (+ its test), docs/HOMEPAGE_BRIEF.md | 21 Nov |
 
 ## Open questions
 
