@@ -1144,7 +1144,7 @@ function Dashboard({ onCartOpen }) {
                           <option value="curly">Curly (3A, 3B, 3C)</option>
                           <option value="wavy">Wavy Hair</option>
                           <option value="straight">Straight Hair</option>
-                          <option value="wigs">Raw Virgin Wigs & Units</option>
+                          <option value="wigs">Wigs</option>
                         </select>
                       </div>
 

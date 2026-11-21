@@ -305,12 +305,12 @@ function AiConciergeChat({ onCartOpen }) {
             <div className="ysl-chat-intro-view">
               <div className="ysl-chat-hero-img-wrap">
                 <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=85"
-                  alt="Gracia Fab AI Beauty Consultation"
+                  src="/logo.png"
+                  alt="Gracia Fab"
                   className="ysl-chat-hero-img"
                 />
                 <div className="ysl-chat-hero-badge">
-                  <span>✦ 24/7 AI BEAUTY ADVISOR</span>
+                  <span>✦ GRACIA FAB ASSISTANT</span>
                 </div>
               </div>
 
@@ -362,13 +362,13 @@ function AiConciergeChat({ onCartOpen }) {
                                 <img
                                   src={
                                     prod.image ||
-                                    "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200&auto=format&fit=crop&q=80"
+                                    "/product-placeholder.svg"
                                   }
                                   alt={prod.name}
                                   className="ysl-chat-prod-img"
                                   onError={(e) => {
                                     e.target.src =
-                                      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200&auto=format&fit=crop&q=80";
+                                      "/product-placeholder.svg";
                                   }}
                                 />
                               </Link>
