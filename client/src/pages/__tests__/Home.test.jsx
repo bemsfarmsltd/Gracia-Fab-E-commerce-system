@@ -19,6 +19,8 @@ const CATALOG = [
   P({ _id: "b1", name: "Bridal Glow Kit", category: "bridal", price: 38000, image: "https://res.cloudinary.com/x/bridal.jpg", createdAt: "2026-09-01", stock: 0, isInStock: false }),
 ];
 
+let VOUCHERS = [{ code: "GLOW05", discountLabel: "30% OFF", conditionLabel: "Min spend ₦30,000 · Ends 10 Dec 2026" }];
+
 function renderHome(props = {}) {
   return render(
     <HelmetProvider>
@@ -41,7 +43,11 @@ describe("Home page", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
-    const mockFetch = vi.fn().mockResolvedValue({ ok: true, json: async () => CATALOG });
+    // The catalogue, and one live voucher (as set up in Admin → Vouchers).
+    const mockFetch = vi.fn(async (url) => ({
+      ok: true,
+      json: async () => (String(url).includes("/api/vouchers/public") ? VOUCHERS : CATALOG),
+    }));
     globalThis.fetch = mockFetch;
     window.fetch = mockFetch;
     navigator.mediaDevices = { getUserMedia: vi.fn().mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }) };
@@ -104,7 +110,10 @@ describe("Home page", () => {
   it("shows the real voucher, delivery and loyalty points, and no invented claims", async () => {
     renderHome();
     await screen.findByRole("region", { name: /new in store and featured product/i });
-    expect(screen.getByText("BEAUTY20")).toBeInTheDocument();
+    expect(await screen.findByText("GLOW05", { selector: ".coupon-code" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "30% OFF with code GLOW05" })).toBeInTheDocument();
+    expect(screen.getByText(/Min spend ₦30,000 · Ends 10 Dec 2026. Enter the code at checkout./)).toBeInTheDocument();
+    expect(screen.queryByText("BEAUTY20")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /flat ₦2,500 delivery nationwide/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /earn points on every order/i })).toBeInTheDocument();
     expect(screen.getByText(/100 points takes ₦500 off/i)).toBeInTheDocument();
@@ -128,5 +137,13 @@ describe("Home page", () => {
     await new Promise((r) => setTimeout(r, 20));
     expect(screen.queryByRole("region", { name: /new in store/i })).not.toBeInTheDocument();
     expect(screen.getAllByRole("img").every((i) => !/unsplash/.test(i.getAttribute("src") || ""))).toBe(true);
+  });
+
+  it("doesn't advertise a voucher code when none is live", async () => {
+    VOUCHERS = [];
+    renderHome();
+    expect(await screen.findByRole("heading", { name: /delivered anywhere in nigeria for ₦2,500/i })).toBeInTheDocument();
+    expect(document.querySelector(".coupon-code")).toBeNull();
+    VOUCHERS = [{ code: "GLOW05", discountLabel: "30% OFF", conditionLabel: "Min spend ₦30,000 · Ends 10 Dec 2026" }];
   });
 });

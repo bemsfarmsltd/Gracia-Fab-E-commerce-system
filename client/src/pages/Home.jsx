@@ -77,6 +77,20 @@ function Home({ onCartOpen }) {
     };
   }, []);
 
+  // The live offer, so the homepage never advertises a code that isn't set up
+  // (Admin → Vouchers → "Show on product pages").
+  const [offer, setOffer] = useState(null);
+  useEffect(() => {
+    let active = true;
+    fetch(`${API_URL}/api/vouchers/public`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((list) => active && setOffer((Array.isArray(list) ? list : [])[0] || null))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const store = useMemo(() => {
     const all = (catalog || []).filter((p) => p && p._id && p.name);
     const buyable = all.filter((p) => !isOutOfStock(p)).sort(byNewest);
@@ -400,21 +414,35 @@ function Home({ onCartOpen }) {
           {/* Card 1: Large Featured First-Order Offer */}
           <article className="ysl-promo-card ysl-promo-card-featured">
             <div className="promo-featured-text">
-              <span className="promo-eyebrow">✦ ORDERS OVER ₦25,000</span>
-              <h3 className="promo-title">
-                Save 20% on Orders <br />of ₦25,000+
-              </h3>
-              <p className="promo-desc">
-                Enter the code at checkout on any order of ₦25,000 or more.
-              </p>
-              <div className="promo-coupon-badge">
-                <span className="coupon-label">USE CODE:</span>
-                <span className="coupon-code">BEAUTY20</span>
-              </div>
-              <Link to="/products" className="promo-cta-btn promo-cta-btn-primary">
-                <span>Claim 20% Off</span>
-                <span className="btn-arrow">→</span>
-              </Link>
+              {offer ? (
+                <>
+                  <span className="promo-eyebrow">✦ CURRENT OFFER</span>
+                  <h3 className="promo-title">{offer.discountLabel} with code {offer.code}</h3>
+                  <p className="promo-desc">
+                    {offer.conditionLabel ? `${offer.conditionLabel}. ` : ""}Enter the code at checkout.
+                  </p>
+                  <div className="promo-coupon-badge">
+                    <span className="coupon-label">USE CODE:</span>
+                    <span className="coupon-code">{offer.code}</span>
+                  </div>
+                  <Link to="/products" className="promo-cta-btn promo-cta-btn-primary">
+                    <span>Shop now</span>
+                    <span className="btn-arrow">→</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <span className="promo-eyebrow">✦ SHOP ONLINE</span>
+                  <h3 className="promo-title">Delivered anywhere in Nigeria for ₦2,500</h3>
+                  <p className="promo-desc">
+                    Skincare, hair products, wigs and bridal beauty from our store in Umuahia.
+                  </p>
+                  <Link to="/products" className="promo-cta-btn promo-cta-btn-primary">
+                    <span>Shop now</span>
+                    <span className="btn-arrow">→</span>
+                  </Link>
+                </>
+              )}
             </div>
             <div className="promo-featured-media">
               <img

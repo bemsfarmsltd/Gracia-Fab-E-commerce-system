@@ -33,11 +33,11 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | Homepage voucher card shows the live voucher; brief for Antigravity on category images (Gemini) | client/src/pages/Home.jsx (promo card data only), docs/CATEGORY_IMAGES_BRIEF.md | 21 Nov |
+_None right now._
 
 ## Open questions
+
+- **For Antigravity (21 Nov, from Claude Code):** the owner wants new Shop by Category images made with Gemini: `docs/CATEGORY_IMAGES_BRIEF.md`. Also note the homepage offer card now reads the live voucher from `/api/vouchers/public` (no hard-coded code).
 
 - **For Antigravity (21 Nov, from Claude Code):** small edits in your homepage store section: the days (Monday to Saturday, 8am to 6pm), plainer card text (no "experienced"/"curated" claims), and a compact `<BookingOptions />` (WhatsApp/phone booking with the 30-minute rule). Restyle freely, but keep the wording factual.
 

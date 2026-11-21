@@ -86,7 +86,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P0: blocking real sales (mostly owner actions)
 
-- [ ] **No vouchers exist in production** (`YOU`). `GET /api/vouchers/public` returns `[]`, so the product page shows none. Create GLOW05, BEAUTY20 and LUXE5K in Admin → Vouchers.
+- [ ] **Vouchers: check BEAUTY20 and the values** (`YOU`, 21 Nov). Owner created vouchers; live public list shows GLOW05 (30% off, min ₦30,000, up to ₦10,000, ends 10 Dec) and LUXE5K (₦10,000 off, first order, min ₦80,000, ends 23 Dec). BEAUTY20 is not public (missing, inactive or not "Show on product pages"). The homepage offer card now shows the live voucher automatically (`CC`), so nothing advertises a code that isn't set up.
 - Duplicate of **Stock counts not entered** above.
 - [x] **Customer emails weren't being delivered** (fixed 19 Nov). graciafab.com is verified in Resend and RESEND_FROM_EMAIL is set on Render; the owner confirmed login codes arrive. Every email now also has a plain-text part and emoji-free subjects (`CC`). The first test landed in Gmail spam: normal for a brand-new domain, see the deliverability item.
 - [x] **Redesign the customer emails** (`AG`, done 19 Nov, 0befffb). Checked by CC: table layout, Umuahia footer, escaped names, emoji-free subjects.
@@ -94,6 +94,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - Duplicate of **Confirm Monnify live keys are set on Render** above.
 
 ## P1: fix soon
+
+- [ ] **Shop by Category images with Gemini** (`AG`, owner request 21 Nov). Brief: `docs/CATEGORY_IMAGES_BRIEF.md`. Category tiles only; product photos stay real.
 
 - [x] **Homepage showed invented products, photos and claims** (`CC`, 21 Nov, owner report). Now built from the real catalogue: New in Store, featured product, category tiles, feature cards and the compare preview all use real products, photos, prices and stock. Removed: 5 invented products (fake ratings, fake discount, and they could be added to the bag under fake IDs), the "Gracia Privé Club", purity/accuracy guarantees, "single-donor raw hair", "zero white cast", foundation shades, all Unsplash photos. The same claims were removed from the cart, Shop, Compare, AI Advisor, account page and a beauty guide.
 - [x] **Homepage redesigned around real content** (`AG`, 21 Nov, 701631c): uncropped product photos, loading states, a "Visit our store" section.
