@@ -33,8 +33,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
 | Antigravity | Homepage redesign around real content | client/src/pages/Home.jsx, client/src/styles/YslHome.css | 21 Nov |
+| Claude Code | Real company story: About page, Contact store card, chat assistant facts, AI model settings, business details for search engines | client/src/pages/About.jsx, client/src/pages/Contact.jsx, client/index.html, server/app.js (/api/chat prompt), server/config/ai.js + AI controllers (model names only) | 21 Nov |
 
 ## Open questions
 
