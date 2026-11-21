@@ -33,9 +33,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | MD portal handover prep: admin grant script, admin logo/app shortcut, handover plan | server/scripts/grantAdmin.js, server/package.json, client/src/utils/afterLogin.js (+test), client/vite.config.js (manifest shortcut), docs/HANDOVER.md | 21 Nov |
+_None right now._
 
 ## Open questions
 

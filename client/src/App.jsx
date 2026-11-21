@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import CartDrawer from "./components/CartDrawer";
@@ -22,7 +23,7 @@ import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
 import AiConciergeChat from "./components/AiConciergeChat";
 import { startMotion } from "./utils/motion";
-import { afterLoginPath, homePath } from "./utils/afterLogin";
+import { afterLoginPath, homePath, shouldOpenAdminOnLaunch } from "./utils/afterLogin";
 import "./styles/motion.css";
 
 // Code-split pages. Only the core shopping path (home, shop, product page,
@@ -113,6 +114,23 @@ function PublicOnlyRoute({ children }) {
   return children;
 }
 
+// The installed app opens the admin dashboard for admins (see afterLogin.js).
+function AdminAppLaunch() {
+  const { user } = useAuth() || {};
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    let alreadyOpened = false;
+    try { alreadyOpened = sessionStorage.getItem("adminLaunchDone") === "1"; } catch { /* private mode */ }
+    const standalone = window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    if (shouldOpenAdminOnLaunch({ user, pathname: location.pathname, standalone, alreadyOpened })) {
+      try { sessionStorage.setItem("adminLaunchDone", "1"); } catch { /* private mode */ }
+      navigate("/admin", { replace: true });
+    }
+  }, [user, location.pathname, navigate]);
+  return null;
+}
+
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -123,6 +141,7 @@ function App() {
 
   return (
     <Router>
+      <AdminAppLaunch />
       <CartDrawer isOpen={cartOpen} onClose={closeCart} />
       <ErrorBoundary>
       <Suspense fallback={<PageLoading />}>

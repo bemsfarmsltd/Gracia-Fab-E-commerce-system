@@ -23,7 +23,15 @@ export function afterLoginPath(user, from) {
   return user?.isAdmin ? "/admin" : VANITY_PATH;
 }
 
-// The logo: My Vanity for signed-in customers, the shop homepage otherwise.
+// The logo: the admin dashboard for admins (the MD's portal), My Vanity for
+// signed-in customers, the shop homepage otherwise.
 export function homePath(user) {
+  if (user?.isAdmin) return "/admin";
   return user ? VANITY_PATH : "/";
+}
+
+// The installed app (home-screen icon) opens on "/". For admins it should open
+// their portal instead, once per session, so they can still visit the shop.
+export function shouldOpenAdminOnLaunch({ user, pathname, standalone, alreadyOpened }) {
+  return Boolean(user?.isAdmin && standalone && pathname === "/" && !alreadyOpened);
 }

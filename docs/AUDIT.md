@@ -25,7 +25,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - [x] **Placeholder contact details** (`CC`, fixed 17 Nov). WhatsApp and phone are now +234 803 744 7068 (owner-confirmed) in the footer and contact page; the social links are The Bems Group's Instagram and Facebook (TikTok, X and YouTube removed, since Gracia-Fab has no accounts there); the structured data `sameAs` matches.
 - [x] **Bouncing contact email and non-real store address removed** (`CC`, 17 Nov). `hello@graciafab.com` (the domain doesn't exist) is gone from the footer and contact page, and the "Visit our store: Victoria Island, Lagos" card is removed: the owner confirmed the address isn't real. Structured data now says only `addressCountry: NG`. Customers reach the store by WhatsApp/phone or the contact form (saved to Admin → Messages). LinkedIn skipped (owner's call).
 - [ ] **Add a working contact email when one exists** (`YOU`). Then put it back in `Footer.jsx` and `Contact.jsx`.
-- [ ] **Confirm Monnify live keys are set on Render** (`YOU`). The webhook is live and rejects unsigned requests correctly, but a real ₦100 test payment hasn't been confirmed.
+- [ ] **Confirm Monnify live keys are set on Render** (`YOU`). The webhook is live and rejects unsigned requests correctly, but a real small test payment (cheapest item + ₦2,500 delivery) hasn't been confirmed.
 
 ## P1: trust, legal, SEO
 
@@ -94,6 +94,8 @@ What's left is mostly **data, content and trust** (things a customer would notic
 - Duplicate of **Confirm Monnify live keys are set on Render** above.
 
 ## P1: fix soon
+
+- [ ] **MD handover by Thu 26 Nov** (boss, 21 Nov). Plan and checklists: `docs/HANDOVER.md` (MD admin account via `npm run admin:grant`, install on her devices, stock upload session, her decisions on claims/legal/contact, Monnify close-out with the COO).
 
 - [x] **My Vanity v1** (`CC`, 19 Nov). Private home for signed-in customers at `/my-vanity` (`GET /api/vanity`, `PUT|DELETE /api/vanity/profile`): optional beauty profile, picks from real in-stock products with the real reason, orders on their way, restock reminders, saved routine, wishlist, recently viewed, rewards. Sign-in lands there (or back to where the customer was going, e.g. checkout); the logo goes there when signed in. Also fixed: account/login legal links pointed at the homepage.
 - [x] **Design My Vanity** (`AG`, done 20 Nov, 96b3593).

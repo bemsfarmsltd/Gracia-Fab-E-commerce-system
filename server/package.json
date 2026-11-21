@@ -9,7 +9,8 @@
     "test": "vitest run",
     "stock:zero-uncounted": "node data/zeroUncountedStock.js",
     "catalog:sync": "node data/syncCatalog.js",
-    "email:preview": "node scripts/previewEmails.js"
+    "email:preview": "node scripts/previewEmails.js",
+    "admin:grant": "node scripts/grantAdmin.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
