@@ -8,7 +8,7 @@ const products = [
     category: 'skincare',
     tags: ['brightening', 'vitamin c', 'serum', 'glow'],
     suitableFor: { skinType: ['oily', 'combination', 'normal'], concern: ['dark spots', 'dull skin'] },
-    brand: 'Beauty Formulas', isFeatured: true, rating: 4.5, numReviews: 12
+    brand: 'Beauty Formulas', isFeatured: true
   },
   {
     name: 'Shea Moisture Raw Shea Butter Deep Treatment',
@@ -18,7 +18,7 @@ const products = [
     category: 'skincare',
     tags: ['moisturizer', 'shea butter', 'hydrating'],
     suitableFor: { skinType: ['dry', 'sensitive', 'normal'], concern: ['dryness', 'flakiness'] },
-    brand: 'Shea Moisture', isFeatured: false, rating: 4.8, numReviews: 20
+    brand: 'Shea Moisture', isFeatured: false
   },
   {
     name: 'Oily Skin Toner – Mattifying | Natural Outcome',
@@ -28,7 +28,7 @@ const products = [
     category: 'skincare',
     tags: ['toner', 'oil control', 'niacinamide', 'pores'],
     suitableFor: { skinType: ['oily', 'combination'], concern: ['acne', 'large pores'] },
-    brand: 'Natural Outcome', isFeatured: true, rating: 4.3, numReviews: 8
+    brand: 'Natural Outcome', isFeatured: true
   },
   {
     name: 'Boost Lab Retinol Night Renewal Serum 30ml',
@@ -38,7 +38,7 @@ const products = [
     category: 'skincare',
     tags: ['retinol', 'anti-aging', 'night serum', 'peptides'],
     suitableFor: { skinType: ['normal', 'combination', 'dry'], concern: ['fine lines', 'aging'] },
-    brand: 'Boost Lab', isFeatured: true, rating: 4.7, numReviews: 18
+    brand: 'Boost Lab', isFeatured: true
   },
   {
     name: 'Rose Water Hydrating Face & Body Mist',
@@ -48,7 +48,7 @@ const products = [
     category: 'skincare',
     tags: ['face mist', 'rose water', 'hydrating', 'setting spray'],
     suitableFor: { skinType: ['all', 'sensitive', 'dry'], concern: ['dryness', 'dullness'] },
-    brand: 'Saltylicious', isFeatured: false, rating: 4.6, numReviews: 14
+    brand: 'Saltylicious', isFeatured: false
   },
   {
     name: 'Amaterasun Brightening Sunscreen SPF 50',
@@ -58,7 +58,7 @@ const products = [
     category: 'skincare',
     tags: ['sunscreen', 'spf50', 'brightening', 'protection'],
     suitableFor: { skinType: ['all'], concern: ['sun damage', 'dark spots'] },
-    brand: 'Amaterasun', isFeatured: true, rating: 4.9, numReviews: 35
+    brand: 'Amaterasun', isFeatured: true
   },
   // ───── HAIRCARE ─────
   {
@@ -69,7 +69,7 @@ const products = [
     category: 'haircare',
     tags: ['curly hair', 'curl cream', 'frizz control'],
     suitableFor: { hairType: ['curly', 'coily'], concern: ['frizz', 'dryness'] },
-    brand: 'CURL UP', isFeatured: true, rating: 4.7, numReviews: 15
+    brand: 'CURL UP', isFeatured: true
   },
   {
     name: 'Artnaturals Organic Rosemary & Castor Hair Growth Oil',
@@ -79,7 +79,7 @@ const products = [
     category: 'haircare',
     tags: ['hair growth', 'scalp oil', 'castor oil', 'rosemary'],
     suitableFor: { hairType: ['coily', 'curly', 'straight', 'wavy'], concern: ['hair loss', 'dandruff'] },
-    brand: 'Artnaturals', isFeatured: false, rating: 4.6, numReviews: 25
+    brand: 'Artnaturals', isFeatured: false
   },
   {
     name: 'PROTEIN REPAIR HAIR MASK - Baor',
@@ -89,7 +89,7 @@ const products = [
     category: 'haircare',
     tags: ['hair mask', 'protein', 'keratin', 'repair'],
     suitableFor: { hairType: ['straight', 'wavy', 'curly', 'coily'], concern: ['breakage', 'damage'] },
-    brand: 'Baor', isFeatured: true, rating: 4.9, numReviews: 32
+    brand: 'Baor', isFeatured: true
   },
   {
     name: 'Nevitaly Leave-in, moisturizing spray',
@@ -99,7 +99,7 @@ const products = [
     category: 'haircare',
     tags: ['leave-in', 'detangler', 'heat protection', 'moisture'],
     suitableFor: { hairType: ['all', 'curly', 'coily', 'wavy'], concern: ['tangles', 'dryness'] },
-    brand: 'Nevitaly', isFeatured: false, rating: 4.4, numReviews: 19
+    brand: 'Nevitaly', isFeatured: false
   },
   // ───── SKINCARE (NEW — real photos pending) ─────
   {
@@ -695,7 +695,7 @@ const products = [
     category: 'wig',
     tags: ['lace front', 'body wave', 'natural hair', 'long wig'],
     suitableFor: { concern: ['oval face', 'heart face', 'long length'] },
-    brand: 'karLami', isFeatured: true, rating: 4.9, numReviews: 30
+    brand: 'karLami', isFeatured: true
   },
   {
     name: 'ANNISOUL 10Inch Short Curly Afro Wigs',
@@ -705,7 +705,7 @@ const products = [
     category: 'wig',
     tags: ['afro', 'short wig', 'kinky', 'natural'],
     suitableFor: { concern: ['round face', 'square face', 'short length'] },
-    brand: 'ANNISOUL', isFeatured: false, rating: 4.4, numReviews: 18
+    brand: 'ANNISOUL', isFeatured: false
   },
   {
     name: 'Brazilian Straight Bob Lace Wig With Bangs',
@@ -715,7 +715,7 @@ const products = [
     category: 'wig',
     tags: ['bob', 'straight', 'lace closure', 'sleek'],
     suitableFor: { concern: ['all face shapes', 'professional look'] },
-    brand: 'Remy Hair', isFeatured: true, rating: 4.8, numReviews: 22
+    brand: 'Remy Hair', isFeatured: true
   },
   {
     name: 'Loose Deep Wave Wig 13x6 HD Lace Front Human Hair Wig With Pre-plucked',
@@ -725,7 +725,7 @@ const products = [
     category: 'wig',
     tags: ['deep wave', 'closure wig', 'natural', 'wavy'],
     suitableFor: { concern: ['oval face', 'long face', 'long length'] },
-    brand: 'WestKiss', isFeatured: false, rating: 4.6, numReviews: 15
+    brand: 'WestKiss', isFeatured: false
   },
   // ───── BRIDAL ─────
   {
@@ -736,7 +736,7 @@ const products = [
     category: 'bridal',
     tags: ['bridal', 'wedding', 'skincare set', 'glow'],
     suitableFor: { skinType: ['all'], concern: ['wedding prep', 'glow'] },
-    brand: 'VLCC', isFeatured: true, rating: 5.0, numReviews: 10
+    brand: 'VLCC', isFeatured: true
   },
   {
     name: 'Black Straight Virgin Brazilian Hair Full Lace Wig',
@@ -746,7 +746,7 @@ const products = [
     category: 'bridal',
     tags: ['bridal wig', 'wedding hair', 'frontal', 'silky straight'],
     suitableFor: { concern: ['all face shapes', 'wedding'] },
-    brand: 'RiRi Hair', isFeatured: true, rating: 4.9, numReviews: 7
+    brand: 'RiRi Hair', isFeatured: true
   },
   {
     name: 'Glamorous Beauty Bridal Kit: Glowy Wedding Makeup Set',
@@ -756,7 +756,7 @@ const products = [
     category: 'bridal',
     tags: ['bridal makeup', 'wedding', 'makeup bundle', 'full glam'],
     suitableFor: { skinType: ['all'], concern: ['wedding', 'full glam'] },
-    brand: 'Charlotte Tilbury', isFeatured: true, rating: 4.8, numReviews: 13
+    brand: 'Charlotte Tilbury', isFeatured: true
   },
   {
     name: 'Aroma Magic 7 step Bridal Glow Facial Kit',
@@ -766,7 +766,7 @@ const products = [
     category: 'bridal',
     tags: ['facial', 'pre-wedding', 'brightening', 'glow'],
     suitableFor: { skinType: ['all'], concern: ['brightening', 'wedding prep'] },
-    brand: 'Aroma Magic', isFeatured: false, rating: 4.7, numReviews: 9
+    brand: 'Aroma Magic', isFeatured: false
   },
   {
     name: 'Mr and Mrs Engraved Perfume 30ml Refillable Black & Clear Bottle Gif',
@@ -776,7 +776,7 @@ const products = [
     category: 'bridal',
     tags: ['perfume', 'bridal', 'gift set', 'fragrance'],
     suitableFor: { concern: ['wedding', 'gift', 'special occasion'] },
-    brand: 'Etsy', isFeatured: false, rating: 4.9, numReviews: 11
+    brand: 'Etsy', isFeatured: false
   }
 ]
 

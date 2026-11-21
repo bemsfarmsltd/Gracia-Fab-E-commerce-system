@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Products from "../Products";
@@ -45,8 +45,8 @@ const MOCK_CATALOG = [
     category: "haircare",
     brand: "Artnaturals",
     price: 5900,
-    rating: 4.6,
-    numReviews: 18,
+    rating: 0,
+    numReviews: 0,
     description: "Organic hair growth oil infused with peppermint.",
     image: "https://example.com/oil.jpg",
     isFeatured: false,
@@ -214,5 +214,13 @@ describe("Products Catalog Page (GLOWIFY Inspired Architecture)", () => {
       expect(screen.getByText("Raw Virgin HD Glueless Wig")).toBeInTheDocument();
     });
   });
-});
 
+  it("shows stars only for products with real reviews", async () => {
+    renderProducts();
+    const oil = (await screen.findByText("Nourishing Castor Scalp Oil")).closest("article, .glow-product-card, li, div[class*='card']");
+    expect(within(oil).getByText("No reviews yet")).toBeInTheDocument();
+    expect(within(oil).queryByText(/★/)).not.toBeInTheDocument();
+    expect(screen.queryByText("4.8")).toBeInTheDocument(); // prod-1 has 24 real reviews
+    expect(screen.queryByText(/(16)/)).not.toBeInTheDocument();
+  });
+});

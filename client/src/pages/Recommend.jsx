@@ -9,59 +9,11 @@ import { useToast } from "../hooks/useToast";
 import { useBeautyProfile } from "../hooks/useBeautyProfile";
 import { AFRICAN_UNDERTONES } from "../utils/africanUndertones";
 import API_URL from "../config";
+import { isOutOfStock, stockLabel } from "../utils/stock";
+import { buildRecommendRequest, fetchMatches } from "../utils/recommend";
 import "../styles/Recommend.css";
 
-// ── Default Curated 4-Step Routine ──
-const DEFAULT_ROUTINE = [
-  {
-    _id: "prod-cleanser-1",
-    step: "Step 01 / Cleanse",
-    name: "Hydrating Face Cleanser",
-    category: "skincare",
-    price: 18000,
-    rating: 4.8,
-    reviewsCount: 1240,
-    image:
-      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=80",
-    benefit: "Gently purifies without stripping natural moisture",
-  },
-  {
-    _id: "prod-toner-2",
-    step: "Step 02 / Tone",
-    name: "Glow Balancing Toner",
-    category: "skincare",
-    price: 16500,
-    rating: 4.7,
-    reviewsCount: 980,
-    image:
-      "https://images.unsplash.com/photo-1608248597359-5776d6342111?w=500&auto=format&fit=crop&q=80",
-    benefit: "Refines pores and restores skin pH balance",
-  },
-  {
-    _id: "prod-moisturizer-3",
-    step: "Step 03 / Hydrate",
-    name: "Radiance Rich Moisturizer",
-    category: "skincare",
-    price: 24000,
-    rating: 4.8,
-    reviewsCount: 1520,
-    image:
-      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=80",
-    benefit: "Deep nourishing hydration with barrier protection",
-  },
-  {
-    _id: "prod-spf-4",
-    step: "Step 04 / Protect",
-    name: "Daily Invisible SPF 50+",
-    category: "skincare",
-    price: 20000,
-    rating: 4.9,
-    reviewsCount: 720,
-    image:
-      "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&auto=format&fit=crop&q=80",
-    benefit: "Daily sun protection",
-  },
-];
+const PLACEHOLDER = "/product-placeholder.svg";
 
 const SKIN_TYPES = [
   "Combination Skin",
@@ -116,7 +68,9 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
   );
 
   // Routine & Cart
-  const [routineItems, setRoutineItems] = useState(DEFAULT_ROUTINE);
+  // Products the server matched to these answers (null until asked).
+  const [matches, setMatches] = useState(null);
+  const [matchStatus, setMatchStatus] = useState(initialStep === 5 ? "loading" : "idle");
   const [wishlist, setWishlist] = useState({});
 
   // Chat State inside Results view
@@ -125,7 +79,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
     {
       sender: "ai",
       time: "11:24 AM",
-      text: "Hello beautiful! ✨ I've curated this ritual for your exact profile. What questions can I answer about your ingredients?",
+      text: "Hello! ✨ Ask me anything about these products or your routine.",
     },
   ]);
   const [chatInput, setChatInput] = useState("");
@@ -133,48 +87,52 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
 
   const containerRef = useRef(null);
 
-  // Auto-fetch products to enrich routine if live API is available
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchProducts() {
-      try {
-        const res = await fetch(`${API_URL}/api/products?limit=8`);
-        if (res.ok) {
-          const data = await res.json();
-          const prods = Array.isArray(data) ? data : data.products || [];
-          if (prods.length >= 4 && isMounted) {
-            const mapped = DEFAULT_ROUTINE.map((item, idx) => {
-              const live = prods[idx];
-              if (!live) return item;
-              return {
-                ...item,
-                _id: live._id || item._id,
-                name: live.name || item.name,
-                price: live.price || item.price,
-                image: live.image || item.image,
-                rating: live.rating || item.rating,
-              };
-            });
-            setRoutineItems(mapped);
-          }
-        }
-      } catch {
-        // Fallback to DEFAULT_ROUTINE
-      }
-    }
-    fetchProducts();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const scrollToTop = () => {
     if (containerRef.current && typeof containerRef.current.scrollIntoView === "function") {
       containerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
+  const currentAnswers = () =>
+    buildRecommendRequest({
+      goal: selectedGoal,
+      skinType: selectedSkinType,
+      hairType: selectedHairType,
+      concerns: selectedConcerns,
+      toneName: (AFRICAN_UNDERTONES[selectedToneKey] || {}).name,
+      profile,
+    });
+
+  const loadMatches = () => {
+    setMatchStatus("loading");
+    fetchMatches(currentAnswers())
+      .then((items) => {
+        setMatches(items);
+        setMatchStatus(items.length ? "ready" : "empty");
+      })
+      .catch(() => setMatchStatus("error"));
+  };
+
+  // Opened straight on the results (e.g. from a saved link): ask once.
+  useEffect(() => {
+    if (initialStep !== 5) return undefined;
+    let active = true;
+    fetchMatches(currentAnswers())
+      .then((items) => {
+        if (!active) return;
+        setMatches(items);
+        setMatchStatus(items.length ? "ready" : "empty");
+      })
+      .catch(() => active && setMatchStatus("error"));
+    return () => {
+      active = false;
+    };
+    // Only on first render; later visits to step 5 go through loadMatches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleNextStep = () => {
+    if (currentStep === 4) loadMatches();
     setCurrentStep((prev) => Math.min(prev + 1, 5));
     scrollToTop();
   };
@@ -200,7 +158,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
   };
 
   const handleAddToCart = (product) => {
-    if (!product) return;
+    if (!product || isOutOfStock(product)) return;
     addToCart({
       _id: product._id,
       name: product.name,
@@ -211,8 +169,10 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
     if (onCartOpen) onCartOpen();
   };
 
+  const buyableMatches = (matches || []).filter((p) => !isOutOfStock(p));
   const handleAddEntireRoutine = () => {
-    routineItems.forEach((item) => {
+    if (buyableMatches.length === 0) return;
+    buyableMatches.forEach((item) => {
       addToCart({
         _id: item._id,
         name: item.name,
@@ -220,9 +180,9 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
         image: item.image,
       });
     });
-    const total = routineItems.reduce((acc, c) => acc + (c.price || 0), 0);
+    const total = buyableMatches.reduce((acc, c) => acc + (c.price || 0), 0);
     addToast(
-      `Added complete 4-step routine (₦${total.toLocaleString()}) to your bag! 🌟`,
+      `Added ${buyableMatches.length} matched product${buyableMatches.length === 1 ? "" : "s"} (₦${total.toLocaleString()}) to your bag`,
       "cart"
     );
     if (onCartOpen) onCartOpen();
@@ -264,7 +224,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
         {
           sender: "ai",
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          text: data.reply || "For your skin type, hydration and gentle exfoliation keep your glow balanced! ✨",
+          text: data.reply || "Sorry, I didn't get an answer just now. Please try asking again.",
         },
       ]);
     } catch {
@@ -273,7 +233,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
         {
           sender: "ai",
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          text: "For melanin-rich skin in the Nigerian climate, layering light hydration beneath a non-comedogenic SPF 50+ prevents midday oiliness while protecting against dark spots ✨",
+          text: "Sorry, I couldn't reach the AI Advisor just now. Please try again in a moment.",
         },
       ]);
     } finally {
@@ -281,7 +241,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
     }
   };
 
-  const totalRoutinePrice = routineItems.reduce((acc, c) => acc + (c.price || 0), 0);
+  const totalRoutinePrice = buyableMatches.reduce((acc, c) => acc + (c.price || 0), 0);
   const activeTone = AFRICAN_UNDERTONES[selectedToneKey] || AFRICAN_UNDERTONES["warm-golden"];
 
   return (
@@ -635,8 +595,8 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
         {currentStep === 5 && (
           <section className="advisor-step-card ritual-reveal-card">
             <div className="reveal-header">
-              <span className="reveal-sparkle-badge">✦ YOUR BESPOKE GRACIA FAB RITUAL</span>
-              <h2 className="reveal-title">Crafted for your skin, crown &amp; climate</h2>
+              <span className="reveal-sparkle-badge">✦ YOUR GRACIA FAB MATCHES</span>
+              <h2 className="reveal-title">Picked from our shelves for your answers</h2>
               <div className="reveal-summary-pill">
                 <span>{selectedSkinType}</span>
                 <span className="pill-divider">•</span>
@@ -646,99 +606,113 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
               </div>
             </div>
 
-            {/* 4-Step Routine Products Row */}
-            <div className="routine-showcase-container">
+            {/* Products the server matched to the answers */}
+            <div className="routine-showcase-container" aria-live="polite">
               <div className="routine-card-header">
                 <div>
                   <h3 className="routine-title">
-                    <span className="routine-sparkle">✦</span> 4-Step Daily Ritual
+                    <span className="routine-sparkle">✦</span> Your matched products
                   </h3>
                   <p className="routine-subtitle">
-                    A simple routine for healthy, radiant skin.
+                    {matchStatus === "ready"
+                      ? "Each one comes with why it suits you and a tip for using it."
+                      : "Based on your skin, hair, concerns and undertone."}
                   </p>
                 </div>
                 <div className="routine-actions-top">
-                  <button
-                    type="button"
-                    className="add-all-routine-btn"
-                    onClick={handleAddEntireRoutine}
-                  >
-                    + Add All ({totalRoutinePrice.toLocaleString()} NGN)
-                  </button>
-                  <button
-                    type="button"
-                    className="view-full-routine-link"
-                    onClick={() => setCurrentStep(2)}
-                  >
+                  {buyableMatches.length > 0 && (
+                    <button type="button" className="add-all-routine-btn" onClick={handleAddEntireRoutine}>
+                      + Add all in stock ({totalRoutinePrice.toLocaleString()} NGN)
+                    </button>
+                  )}
+                  <button type="button" className="view-full-routine-link" onClick={() => setCurrentStep(2)}>
                     Refine Answers ↺
                   </button>
                 </div>
               </div>
 
-              <div className="routine-products-row">
-                {routineItems.map((prod) => (
-                  <div key={prod._id} className="routine-prod-card">
-                    <div className="routine-prod-img-wrap">
-                      <button
-                        type="button"
-                        className={`routine-wishlist-heart ${wishlist[prod._id] ? "active" : ""}`}
-                        onClick={() => toggleWishlist(prod._id)}
-                        aria-label="Add to wishlist"
-                      >
-                        {wishlist[prod._id] ? "❤️" : "♡"}
-                      </button>
-                      <Link to={`/products/${prod._id}`}>
-                        <img src={prod.image} alt={prod.name} className="routine-prod-img" />
-                      </Link>
-                    </div>
+              {matchStatus === "loading" && (
+                <p className="routine-subtitle" role="status">Matching products from our shelves…</p>
+              )}
+              {matchStatus === "error" && (
+                <div role="alert">
+                  <p className="routine-subtitle">We couldn't get your matches right now.</p>
+                  <button type="button" className="view-full-routine-link" onClick={loadMatches}>
+                    Try again
+                  </button>
+                </div>
+              )}
+              {matchStatus === "empty" && (
+                <p className="routine-subtitle">
+                  We couldn't find a good match in stock right now. <Link to="/products">Browse the shop</Link> or try different answers.
+                </p>
+              )}
 
-                    <div className="routine-prod-info">
-                      <span className="routine-step-tag">{prod.step}</span>
-                      <Link to={`/products/${prod._id}`} className="routine-prod-title">
-                        {prod.name}
-                      </Link>
+              {matchStatus === "ready" && (
+                <div className="routine-products-row">
+                  {matches.map((prod) => {
+                    const out = isOutOfStock(prod);
+                    return (
+                      <div key={prod._id} className="routine-prod-card">
+                        <div className="routine-prod-img-wrap">
+                          <button
+                            type="button"
+                            className={`routine-wishlist-heart ${wishlist[prod._id] ? "active" : ""}`}
+                            onClick={() => toggleWishlist(prod._id)}
+                            aria-label="Add to wishlist"
+                          >
+                            {wishlist[prod._id] ? "❤️" : "♡"}
+                          </button>
+                          <Link to={`/products/${prod._id}`}>
+                            <img
+                              src={prod.image || PLACEHOLDER}
+                              alt={prod.name}
+                              className="routine-prod-img"
+                              onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
+                            />
+                          </Link>
+                        </div>
 
-                      <div className="routine-rating-row">
-                        <span className="star-icon">★</span>
-                        <span className="rating-val">{prod.rating}</span>
-                        <span className="review-count">
-                          ({prod.reviewsCount ? `${(prod.reviewsCount / 1000).toFixed(1)}k` : "1.2k"})
-                        </span>
+                        <div className="routine-prod-info">
+                          <span className="routine-step-tag">{prod.brand || prod.category}</span>
+                          <Link to={`/products/${prod._id}`} className="routine-prod-title">
+                            {prod.name}
+                          </Link>
+                          {prod.reason && <p className="routine-subtitle">{prod.reason}</p>}
+                          {prod.tip && <p className="routine-subtitle"><strong>Tip:</strong> {prod.tip}</p>}
+                          <div className="routine-rating-row">
+                            <span className="review-count">{stockLabel(prod)}</span>
+                          </div>
+                          <div className="routine-price-val">₦{Number(prod.price).toLocaleString()}</div>
+                          <button
+                            type="button"
+                            className="routine-add-btn"
+                            onClick={() => handleAddToCart(prod)}
+                            disabled={out}
+                          >
+                            {out ? "Out of stock" : "Add to Cart ↗"}
+                          </button>
+                        </div>
                       </div>
-
-                      <div className="routine-price-val">
-                        ₦{Number(prod.price).toLocaleString()}
-                      </div>
-
-                      <button
-                        type="button"
-                        className="routine-add-btn"
-                        onClick={() => handleAddToCart(prod)}
-                      >
-                        Add to Cart ↗
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Bottom Actions Suite */}
             <div className="reveal-bottom-actions">
-              <button
-                type="button"
-                className="btn-add-entire-ritual"
-                onClick={handleAddEntireRoutine}
-              >
-                + Add Complete Ritual to Bag (₦{totalRoutinePrice.toLocaleString()})
-              </button>
-
+              {buyableMatches.length > 0 && (
+                <button type="button" className="btn-add-entire-ritual" onClick={handleAddEntireRoutine}>
+                  + Add all in stock to Bag (₦{totalRoutinePrice.toLocaleString()})
+                </button>
+              )}
               <Link to="/products" className="btn-browse-matched-catalog">
-                Explore All Matched Products in Shop →
+                Explore the shop →
               </Link>
             </div>
 
-            {/* Collapsible Ask AI Advisor */}
+                        {/* Collapsible Ask AI Advisor */}
             <div className="reveal-chat-accordion">
               <button
                 type="button"

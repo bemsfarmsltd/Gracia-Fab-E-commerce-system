@@ -1,6 +1,7 @@
 import Groq from 'groq-sdk'
 import Product from '../models/Product.js'
 import logger from '../utils/logger.js'
+import { sendServerError } from '../utils/httpErrors.js'
 
 // Initialize lazily so dotenv loads first
 let groqClient = null
@@ -10,22 +11,33 @@ const getGroq = () => {
   }
   return groqClient
 }
+// Answers arrive as labels ("Oily Skin", "4C Coily & Tight Curls"); the
+// catalogue uses single words ("oily", "coily"). Match on whole words.
+const STOP_WORDS = new Set(['and', 'the', 'for', 'with', 'skin', 'hair', 'tight', 'care'])
+const words = (text) =>
+  String(text || '').toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !STOP_WORDS.has(w))
+const mentions = (answer, value) => {
+  const v = String(value || '').toLowerCase()
+  return v && v !== 'all' && words(answer).some((w) => v.split(/\s+/).includes(w))
+}
+
 // Scoring engine as fallback
 const scoreProduct = (product, userProfile) => {
   let score = 0
-  const { skinType, skinConcerns, hairType, hairConcerns, lookingFor, budget, occasion } = userProfile
+  const { skinType, skinConcerns, hairType, hairConcerns, budget, occasion } = userProfile
+  const lookingFor = String(userProfile.lookingFor || '').toLowerCase()
 
   if (lookingFor?.includes('skincare') && product.category === 'skincare') score += 40
   if (lookingFor?.includes('haircare') && product.category === 'haircare') score += 40
   if (lookingFor?.includes('wig') && product.category === 'wig') score += 40
   if (lookingFor?.includes('bridal') && product.category === 'bridal') score += 40
   if (lookingFor?.includes('everything')) score += 15
-  if (skinType && product.suitableFor?.skinType?.includes(skinType)) score += 25
+  if (skinType && product.suitableFor?.skinType?.some((v) => mentions(skinType, v))) score += 25
   if (skinType && product.suitableFor?.skinType?.includes('all')) score += 15
-  if (hairType && product.suitableFor?.hairType?.includes(hairType)) score += 25
+  if (hairType && product.suitableFor?.hairType?.some((v) => mentions(hairType, v))) score += 25
 
   if (skinConcerns) {
-    const concerns = skinConcerns.toLowerCase().split(/[,\s]+/)
+    const concerns = words(skinConcerns)
     concerns.forEach(concern => {
       if (product.tags?.some(t => t.toLowerCase().includes(concern))) score += 15
       if (product.suitableFor?.concern?.some(c => c.toLowerCase().includes(concern))) score += 10
@@ -33,7 +45,7 @@ const scoreProduct = (product, userProfile) => {
   }
 
   if (hairConcerns) {
-    const concerns = hairConcerns.toLowerCase().split(/[,\s]+/)
+    const concerns = words(hairConcerns)
     concerns.forEach(concern => {
       if (product.tags?.some(t => t.toLowerCase().includes(concern))) score += 15
       if (product.suitableFor?.concern?.some(c => c.toLowerCase().includes(concern))) score += 10
@@ -52,23 +64,27 @@ const scoreProduct = (product, userProfile) => {
   }
 
   if (product.isFeatured) score += 10
-  if (product?.rating >= 4.5) score += 10
   return score
 }
 
+// The reason states only what actually matched (no invented popularity or results).
 const generateReason = (product, userProfile) => {
   const { skinType, hairType, skinConcerns, hairConcerns, occasion } = userProfile
-  if (product.category === 'skincare') {
-    if (skinConcerns) return `This is ideal for your ${skinType || ''} skin — expertly formulated to address ${skinConcerns}. Many users with similar skin profiles have seen remarkable results.`
-    return `A top pick for your ${skinType || 'skin'} type. Gentle, effective and loved by thousands of Gracia Fab customers.`
-  }
-  if (product.category === 'haircare') {
-    if (hairConcerns) return `Specially suited for ${hairType || ''} hair dealing with ${hairConcerns}. This product deeply nourishes and tackles your specific concerns.`
-    return `A top pick for ${hairType || 'your'} hair type. Lightweight, effective and perfect for everyday use.`
-  }
-  if (product.category === 'wig') return `This stunning wig beautifully complements your style and is perfect for ${occasion || 'any occasion'}.`
-  if (product.category === 'bridal') return `An absolute must-have for your special day! Curated to make you look breathtaking from the moment you walk in.`
-  return `A highly rated product loved by thousands of Gracia Fab customers with a profile just like yours!`
+  const sf = product.suitableFor || {}
+  const parts = []
+  const skin = (sf.skinType || []).find((v) => mentions(skinType, v))
+  if (skin) parts.push(`Suited to ${skin} skin.`)
+  else if ((sf.skinType || []).includes('all') && product.category === 'skincare') parts.push('Suits all skin types.')
+  const hair = (sf.hairType || []).find((v) => mentions(hairType, v))
+  if (hair) parts.push(`Made for ${hair} hair.`)
+  const asked = [...words(skinConcerns), ...words(hairConcerns)]
+  const listed = [...(sf.concern || []), ...(product.tags || [])].map((t) => String(t).toLowerCase())
+  const hits = [...new Set(listed.filter((t) => asked.some((w) => t.split(/\s+/).includes(w))))].slice(0, 2)
+  if (hits.length) parts.push(`Its listing mentions ${hits.join(' and ')}.`)
+  if (product.category === 'bridal' && /wedding|bridal/i.test(String(occasion || ''))) parts.push('Chosen for your wedding.')
+  if (parts.length) return parts.join(' ')
+  const label = { skincare: 'skincare', haircare: 'haircare', wig: 'wig', bridal: 'bridal' }[product.category] || 'beauty'
+  return `A ${label} product from our shelves that fits what you told us.`
 }
 
 const generateTip = (product) => {
@@ -108,7 +124,17 @@ export const getRecommendations = async (req, res) => {
   const { skinType, skinConcerns, hairType, hairConcerns, lookingFor, budget, occasion } = req.body
 
   try {
-    const allProducts = await Product.find({})
+    const everything = await Product.find({})
+    const inStock = (p) => Number(p.stock) > 0 && p.isInStock !== false
+    const buyable = everything.filter(inStock)
+    // Recommend what customers can actually buy; only widen to the whole
+    // catalogue when fewer than 3 products are in stock.
+    const allProducts = buyable.length >= 3
+      ? buyable
+      : [...buyable, ...everything.filter((p) => !inStock(p))]
+    if (allProducts.length === 0) {
+      return res.json({ success: true, recommendations: [], source: 'none' })
+    }
 
     const productList = allProducts.map(p => ({
       id: p._id,
@@ -118,7 +144,7 @@ export const getRecommendations = async (req, res) => {
       brand: p.brand,
       tags: p.tags,
       suitableFor: p.suitableFor,
-      description: p.description.substring(0, 120)
+      description: String(p.description || '').substring(0, 120)
     }))
 
     const prompt = `You are Gracia Fab AI, an expert beauty advisor specializing in skincare, haircare, wigs and bridal beauty for African women.
@@ -135,7 +161,7 @@ A user has shared their beauty profile:
 Available products:
 ${JSON.stringify(productList, null, 2)}
 
-Recommend the 3 most suitable products from the list above based on the user profile.
+Recommend the 3 most suitable products from the list above based on the user profile. Base each reason only on the product data above (category, tags, suitableFor, description). Do not mention popularity, reviews, ratings, customer results, guarantees or medical claims.
 
 Respond ONLY with a valid JSON object matching this structure:
 {
@@ -190,16 +216,19 @@ Respond ONLY with a valid JSON object matching this structure:
       return res.json({ success: true, recommendations: results, source: 'rule-based' })
     }
 
-    // Fetch full product details for AI recommendations
-    const results = await Promise.all(
-      recommendations.map(async (rec) => {
-        const product = await Product.findById(rec.productId)
-        if (!product) return null
-        return { product, reason: rec.reason, tip: rec.tip }
+    // Keep only picks that are real candidates (the AI can invent or repeat IDs).
+    const byId = new Map(allProducts.map((p) => [String(p._id), p]))
+    const seen = new Set()
+    const validResults = recommendations
+      .map((rec) => {
+        const id = String(rec.productId || '')
+        const product = byId.get(id)
+        if (!product || seen.has(id)) return null
+        seen.add(id)
+        return { product, reason: String(rec.reason || '').slice(0, 400), tip: String(rec.tip || '').slice(0, 300) }
       })
-    )
-
-    const validResults = results.filter(Boolean)
+      .filter(Boolean)
+      .slice(0, 3)
 
     // If AI returned bad IDs, fall back
     if (validResults.length === 0) {
@@ -222,7 +251,6 @@ Respond ONLY with a valid JSON object matching this structure:
     res.json({ success: true, recommendations: validResults, source: 'groq-ai' })
 
   } catch (error) {
-    logger.error({ err: error }, 'Recommendation error')
-    res.status(500).json({ message: 'Failed to get recommendations' })
+    return sendServerError(res, error, 'Recommendation error', 'We could not get your recommendations right now. Please try again.')
   }
 }

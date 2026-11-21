@@ -989,13 +989,19 @@ function Products({ onCartOpen }) {
 
                       {/* Rating Row */}
                       <div className="card-rating-row">
-                        <span className="card-stars-gold">
-                          {"★".repeat(Math.round(product.rating || 5))}
-                        </span>
-                        <span className="card-rating-val">{product.rating || "4.8"}</span>
-                        <span className="card-reviews-count">
-                          ({product.numReviews || product.reviewsCount || 16})
-                        </span>
+                        {Number(product.numReviews) > 0 ? (
+                          <>
+                            <span className="card-stars-gold">
+                              {"★".repeat(Math.round(product.rating))}
+                            </span>
+                            <span className="card-rating-val">{Number(product.rating).toFixed(1)}</span>
+                            <span className="card-reviews-count">
+                              ({product.numReviews})
+                            </span>
+                          </>
+                        ) : (
+                          <span className="card-reviews-count">No reviews yet</span>
+                        )}
                       </div>
 
                       {/* Price Row */}
@@ -1060,13 +1066,19 @@ function Products({ onCartOpen }) {
                       <p className="list-card-desc">{product.description}</p>
 
                       <div className="card-rating-row">
-                        <span className="card-stars-gold">
-                          {"★".repeat(Math.round(product.rating || 5))}
-                        </span>
-                        <span className="card-rating-val">{product.rating || "4.8"}</span>
-                        <span className="card-reviews-count">
-                          ({product.numReviews || product.reviewsCount || 16} reviews)
-                        </span>
+                        {Number(product.numReviews) > 0 ? (
+                          <>
+                            <span className="card-stars-gold">
+                              {"★".repeat(Math.round(product.rating))}
+                            </span>
+                            <span className="card-rating-val">{Number(product.rating).toFixed(1)}</span>
+                            <span className="card-reviews-count">
+                              ({product.numReviews} reviews)
+                            </span>
+                          </>
+                        ) : (
+                          <span className="card-reviews-count">No reviews yet</span>
+                        )}
                       </div>
                     </div>
 

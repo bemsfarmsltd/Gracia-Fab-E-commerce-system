@@ -33,9 +33,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | Real AI Advisor results (use /api/recommend); ratings only from real reviews | client/src/pages/Recommend.jsx (logic, not styling), server recommend + review/product rating code, product cards rating display | 21 Nov |
+_None right now._
 | Antigravity | Homepage redesign around real content | client/src/pages/Home.jsx, client/src/styles/YslHome.css | 21 Nov |
 
 ## Open questions

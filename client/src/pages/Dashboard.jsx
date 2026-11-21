@@ -1324,9 +1324,11 @@ function Dashboard({ onCartOpen }) {
                           </Link>
                         </h4>
                         <p className="step-card-instruction">{stepItem.instruction}</p>
-                        <div className="step-card-rating">
-                          ★ {stepItem.product?.rating || 4.5} · ({stepItem.product?.reviews ?? 0} reviews)
-                        </div>
+                        {Number(stepItem.product?.numReviews) > 0 && (
+                          <div className="step-card-rating">
+                            ★ {Number(stepItem.product.rating).toFixed(1)} · ({stepItem.product.numReviews} reviews)
+                          </div>
+                        )}
                       </div>
 
                       <div className="step-card-action-col">

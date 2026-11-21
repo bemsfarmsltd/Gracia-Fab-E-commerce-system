@@ -1,6 +1,7 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
 import { sendServerError } from "../utils/httpErrors.js";
+import { recalculateProductRating } from "../services/ratings.js";
 import Order from "../models/Order.js";
 
 // @route POST /api/reviews/:productId
@@ -37,15 +38,8 @@ export const addReview = async (req, res) => {
       verified: !!hasPurchased,
     });
 
-    // Update product rating
-    const reviews = await Review.find({ product: productId });
-    const avgRating =
-      reviews.reduce((a, r) => a + r.rating, 0) / reviews.length;
-
-    await Product.findByIdAndUpdate(productId, {
-      rating: Math.round(avgRating * 10) / 10,
-      numReviews: reviews.length,
-    });
+    // The product's rating comes only from its real reviews.
+    await recalculateProductRating(productId);
 
     res.status(201).json(review);
   } catch (error) {
@@ -82,6 +76,7 @@ export const deleteReview = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
     await review.deleteOne();
+    await recalculateProductRating(review.product);
     res.json({ message: "Review deleted" });
   } catch (error) {
     return sendServerError(res, error, "reviewController error");
