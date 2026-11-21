@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import process from "node:process";
 
 // The public site address: VITE_SITE_URL on Vercel (https://graciafab.com once
 // the domain is connected). Fills %SITE_URL% in index.html and writes
@@ -24,7 +25,11 @@ function siteUrlPlugin() {
     configResolved(config) {
       site = (config.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
     },
-    transformIndexHtml: (html) => html.replaceAll("%SITE_URL%", site),
+    // %APP_VERSION%: the deployed commit (Vercel sets VERCEL_GIT_COMMIT_SHA at build).
+    transformIndexHtml: (html) =>
+      html
+        .replaceAll("%SITE_URL%", site)
+        .replaceAll("%APP_VERSION%", (process.env.VERCEL_GIT_COMMIT_SHA || "dev").slice(0, 7)),
     configureServer(server) {
       server.middlewares.use("/robots.txt", (_req, res) => {
         res.setHeader("Content-Type", "text/plain");

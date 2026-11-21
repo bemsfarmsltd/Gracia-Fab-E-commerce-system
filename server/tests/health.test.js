@@ -9,5 +9,6 @@ describe("GET /health", () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe("healthy");
     expect(typeof res.body.uptime).toBe("number");
+    expect(res.body.version).toMatch(/^(dev|[0-9a-f]{7})$/);
   });
 });

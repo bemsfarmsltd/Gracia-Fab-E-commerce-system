@@ -399,6 +399,8 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: Math.floor(process.uptime()),
     environment: process.env.NODE_ENV,
+    // Deployed commit (Render sets RENDER_GIT_COMMIT), to confirm what is live.
+    version: (process.env.RENDER_GIT_COMMIT || "dev").slice(0, 7),
   });
 });
 
