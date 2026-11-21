@@ -215,8 +215,8 @@ app.post(
 );
 
 // ── Content-Security-Policy violation reports from the website (client/vercel.json
-// sends them here while the CSP is in Report-Only mode). Logged so we can see
-// what an enforced policy would block before turning it on. Browsers send
+// enforces the CSP since 21 Nov 2026 and sends every block here). Logged so a
+// missing legitimate source shows up in the Render logs. Browsers send
 // these as application/csp-report (or reports+json), which the global JSON
 // parser below ignores, so this route parses them itself.
 app.post(
@@ -238,7 +238,7 @@ app.post(
             source: r["source-file"] || r.sourceFile,
           },
         },
-        "CSP violation (report-only)",
+        "CSP violation (blocked)",
       );
     }
     res.status(204).end();
