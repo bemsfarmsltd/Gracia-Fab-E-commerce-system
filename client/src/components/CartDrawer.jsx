@@ -98,7 +98,7 @@ function CartDrawer({ isOpen, onClose }) {
               <span className="drawer-empty-icon">🛍️</span>
               <h3>Your bag is empty</h3>
               <p>
-                Discover personalized skincare, 100% raw human hair wigs, and beauty rituals tailored to your skin &amp; hair.
+                Browse skincare, haircare, wigs and bridal beauty, or let the AI Advisor suggest products for your skin and hair.
               </p>
               <div className="drawer-empty-actions">
                 <button

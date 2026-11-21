@@ -13,7 +13,7 @@ import { isOutOfStock } from "../utils/stock";
 const CATEGORIES = [
   { id: "skincare", label: "Skincare" },
   { id: "haircare", label: "Haircare" },
-  { id: "wig", label: "Wigs (100% Raw Hair)" },
+  { id: "wig", label: "Wigs" },
   { id: "bridal", label: "Bridal Beauty" },
 ];
 
@@ -383,7 +383,7 @@ function Products({ onCartOpen }) {
           </nav>
           <h1 className="glow-catalog-hero-title">Discover Our Beauty Collection</h1>
           <p className="glow-catalog-hero-desc">
-            Curated clinical skincare, 100% single-donor raw human hair wigs, and bespoke bridal beauty formulated for Nigerian complexions and climate.
+            Skincare, haircare, wigs and bridal beauty from our store in Umuahia, chosen for Nigerian skin, hair and climate.
           </p>
         </div>
       </section>

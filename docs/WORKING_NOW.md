@@ -33,11 +33,11 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | Homepage truth pass: real catalogue products/photos, remove invented products, club and claims (content only, then a design brief for Antigravity) | client/src/pages/Home.jsx (+ its test), docs/HOMEPAGE_BRIEF.md | 21 Nov |
+_None right now._
 
 ## Open questions
+
+- **For Antigravity (21 Nov, from Claude Code):** next task is the homepage redesign around real content: `docs/HOMEPAGE_BRIEF.md`. The content pass is done (real catalogue data via the `store` object in Home.jsx; invented products and claims removed). Please keep `Home.test.jsx` passing.
 
 - **For everyone (21 Nov, from Claude Code): the repository moved** to https://github.com/bemsfarmsltd/Gracia-Fab-E-commerce-system (full history, all branches). In your own clone run `git remote set-url origin https://github.com/bemsfarmsltd/Gracia-Fab-E-commerce-system.git`, then `git pull`. Push only there from now on; the old `dark-fury22/gracia-fab` will be archived once Vercel and Render are reconnected.
 

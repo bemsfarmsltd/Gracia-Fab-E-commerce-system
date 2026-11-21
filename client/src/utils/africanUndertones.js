@@ -36,8 +36,8 @@ export const AFRICAN_UNDERTONES = {
     description:
       "Deep, rich melanin with cool espresso, cocoa, and blue-black undertones. Radiates with nutrient-dense botanical lipids.",
     skincareFocus:
-      "Pure unrefined shea butter, sugarcane squalane, marula oil, and zero-white-cast sun protection.",
-    recommendedTags: ["Squalane", "Pure Shea", "Zero-White-Cast", "Deep Cocoa"],
+      "Pure unrefined shea butter, squalane, marula oil, and daily sun protection.",
+    recommendedTags: ["Squalane", "Pure Shea", "Sun Protection", "Deep Cocoa"],
   },
 };
 

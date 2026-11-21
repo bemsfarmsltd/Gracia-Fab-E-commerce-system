@@ -54,7 +54,7 @@ const SKIN_TONES = [
     emoji: "🌹",
     hex: "#8B5E3C",
     undertone: "Rich Bronze / Warm Mahogany",
-    description: "Deep melanin complexion — prone to surface ashiness and PIH marks. Thrives on squalane, unrefined shea butter, gentle retinoids, and zero-white-cast SPF.",
+    description: "Deep melanin complexion — prone to surface ashiness and PIH marks. Thrives on squalane, unrefined shea butter, gentle retinoids, and daily SPF.",
   },
   {
     id: "rich",
@@ -126,7 +126,7 @@ const getRoutineSteps = (skinType) => {
           type: "Brightening Sunscreen SPF 50",
           badge: "STEP 04 / PROTECT",
           timing: "Morning · Daily",
-          instruction: "Broad-spectrum SPF 50 protection that leaves zero white cast on melanin skin.",
+          instruction: "Apply broad-spectrum SPF as the last morning step, and reapply when outdoors.",
           product: {
             _id: "prod-amaterasun-spf",
             name: "Amaterasun Brightening Sunscreen SPF 50",
@@ -278,7 +278,7 @@ const getRoutineSteps = (skinType) => {
           type: "Brightening Sunscreen SPF 50",
           badge: "STEP 04 / PROTECT",
           timing: "Morning · Daily",
-          instruction: "Nourishing broad-spectrum sunscreen with zero white cast.",
+          instruction: "Finish with a broad-spectrum sunscreen every morning.",
           product: {
             _id: "prod-amaterasun-spf",
             name: "Amaterasun Brightening Sunscreen SPF 50",

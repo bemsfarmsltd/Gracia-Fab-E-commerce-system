@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Home from "../Home";
@@ -8,25 +8,15 @@ import { ToastProvider } from "../../components/Toast";
 import { BeautyProfileProvider } from "../../context/BeautyProfileContext";
 import { AuthContext } from "../../hooks/useAuth";
 
-const MOCK_PRODUCTS = [
-  {
-    _id: "prod-cleanser-1",
-    name: "Hydrating Face Cleanser",
-    category: "skincare",
-    price: 18000,
-    rating: 4.8,
-    reviewsCount: 1200,
-    image: "https://example.com/cleanser.jpg",
-  },
-  {
-    _id: "prod-toner-2",
-    name: "Glow Balancing Toner",
-    category: "skincare",
-    price: 16500,
-    rating: 4.7,
-    reviewsCount: 980,
-    image: "https://example.com/toner.jpg",
-  },
+// A small catalogue like the live one: real-looking products with stock,
+// dates, brands and photos.
+const P = (o) => ({ description: "A product we stock.", brand: "Brand", stock: 10, isInStock: true, suitableFor: {}, ...o });
+const CATALOG = [
+  P({ _id: "w1", name: "Body Wave Lace Wig", category: "wig", price: 85000, image: "https://res.cloudinary.com/x/wig.jpg", createdAt: "2026-11-10", description: "Body wave lace closure wig." }),
+  P({ _id: "s1", name: "Glowing Serum 2% Vitamin C", category: "skincare", price: 8500, image: "https://res.cloudinary.com/x/serum.jpg", createdAt: "2026-11-12", stock: 3, suitableFor: { skinType: ["dry", "normal"] } }),
+  P({ _id: "s2", name: "Shea Body Lotion", category: "skincare", price: 6000, image: "/images/products/lotion.jpg", createdAt: "2026-11-01", suitableFor: { skinType: ["all"] } }),
+  P({ _id: "h1", name: "Curl Defining Cream", category: "haircare", price: 7800, image: "https://res.cloudinary.com/x/curl.jpg", createdAt: "2026-10-01" }),
+  P({ _id: "b1", name: "Bridal Glow Kit", category: "bridal", price: 38000, image: "https://res.cloudinary.com/x/bridal.jpg", createdAt: "2026-09-01", stock: 0, isInStock: false }),
 ];
 
 function renderHome(props = {}) {
@@ -47,89 +37,96 @@ function renderHome(props = {}) {
   );
 }
 
-describe("Home Page Flagship Editorial", () => {
+describe("Home page", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => MOCK_PRODUCTS,
-    });
+    localStorage.clear();
+    const mockFetch = vi.fn().mockResolvedValue({ ok: true, json: async () => CATALOG });
     globalThis.fetch = mockFetch;
     window.fetch = mockFetch;
-
-    const mockTrack = { stop: vi.fn() };
-    const mockStream = { getTracks: () => [mockTrack] };
-    navigator.mediaDevices = {
-      getUserMedia: vi.fn().mockResolvedValue(mockStream),
-    };
+    navigator.mediaDevices = { getUserMedia: vi.fn().mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }) };
+    // jsdom has no video playback; the hero video calls play().catch(...).
+    window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
   });
 
-  it("renders the hero headline and action buttons", () => {
+  it("keeps the hero and its actions", () => {
     renderHome();
-
     expect(screen.getByRole("heading", { name: /beauty, matched to you/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /shop the collection/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /consult ai advisor/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /live undertone scan/i })).toBeInTheDocument();
   });
 
-  it("does not render the removed trust strip", () => {
-    renderHome();
-
-    expect(screen.queryByText("Personalized Recommendations")).not.toBeInTheDocument();
-    expect(screen.queryByText("African Undertone Scanner")).not.toBeInTheDocument();
-  });
-
-  it("renders the African Complexion & Undertone Showcase section", () => {
-    renderHome();
-
-    expect(screen.getByText(/formulated for african complexions/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Warm Golden").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Rich Neutral").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Deep Espresso").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /launch live undertone camera/i })).toBeInTheDocument();
-  });
-
-  it("renders the Formulation Comparator spotlight section with table preview", () => {
-    renderHome();
-
-    expect(screen.getByText(/compare formulations/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /launch formulation comparator/i })).toBeInTheDocument();
-    expect(screen.getByText("Ceramides + Hyaluronic")).toBeInTheDocument();
-    expect(screen.getByText("Niacinamide 5% + Glycolic")).toBeInTheDocument();
-  });
-
-  it("opens the live camera detector modal when clicking live scan button", () => {
-    renderHome();
-
-    const scanBtn = screen.getByRole("button", { name: /live undertone scan/i });
-    fireEvent.click(scanBtn);
-
-    expect(screen.getByText(/african melanin & undertone analysis/i)).toBeInTheDocument();
-  });
-
-  it("renders new arrivals and adds an item to bag on quick-add click", () => {
+  it("shows real products from the catalogue in New in Store, in stock first", async () => {
     const onCartOpen = vi.fn();
     renderHome({ onCartOpen });
 
-    expect(screen.getByText("Clarifying Herbal Cleansing Oil")).toBeInTheDocument();
-
-    const addButtons = screen.getAllByRole("button", { name: /add.*to bag/i });
-    expect(addButtons.length).toBeGreaterThan(0);
-
-    fireEvent.click(addButtons[0]);
+    const section = await screen.findByRole("region", { name: /new in store and featured product/i });
+    // Newest in-stock first (the wig is featured separately), sold-out last.
+    const names = within(section).getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
+    expect(names.slice(0, 4)).toEqual(["Glowing Serum 2% Vitamin C", "Shea Body Lotion", "Curl Defining Cream", "Bridal Glow Kit"]);
+    expect(within(section).getByText("In stock · only 3 left")).toBeInTheDocument();
+    expect(within(section).getByText("Out of stock")).toBeInTheDocument();
+    // Sold-out products can't be added; in-stock ones can.
+    expect(within(section).queryByRole("button", { name: "Add Bridal Glow Kit to bag" })).not.toBeInTheDocument();
+    fireEvent.click(within(section).getByRole("button", { name: "Add Shea Body Lotion to bag" }));
     expect(onCartOpen).toHaveBeenCalled();
   });
 
-  it("renders promotional editorial banners and 4-pillar perks strip", () => {
+  it("features a real in-stock product with no invented discount or reviews", async () => {
     renderHome();
+    const section = await screen.findByRole("region", { name: /new in store and featured product/i });
+    expect(within(section).getByText("Body wave lace closure wig.")).toBeInTheDocument();
+    expect(within(section).getByText("₦85,000")).toBeInTheDocument();
+    expect(within(section).getByRole("link", { name: /see product details/i })).toHaveAttribute("href", "/products/w1");
+    expect(screen.queryByText(/save ₦|verified reviews|★/i)).not.toBeInTheDocument();
+  });
 
-    expect(screen.getByText(/save 20% on your/i)).toBeInTheDocument();
+  it("uses real product photos for the category tiles and cards", async () => {
+    renderHome();
+    await screen.findByRole("region", { name: /new in store and featured product/i });
+    const imgs = screen.getAllByRole("img").map((i) => i.getAttribute("src"));
+    expect(imgs).toContain("https://res.cloudinary.com/x/wig.jpg");
+    expect(imgs).toContain("https://res.cloudinary.com/x/curl.jpg");
+    // Bridal is sold out but still has a real photo.
+    expect(imgs).toContain("https://res.cloudinary.com/x/bridal.jpg");
+    expect(imgs.some((src) => /unsplash/.test(src || ""))).toBe(false);
+  });
+
+  it("compares two real skincare products", async () => {
+    renderHome();
+    const table = await screen.findByLabelText(/example comparison of two products we stock/i);
+    expect(within(table).getByText("Glowing Serum 2% Vitamin C")).toBeInTheDocument();
+    expect(within(table).getByText("Shea Body Lotion")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /compare products/i })).toHaveAttribute("href", "/compare");
+  });
+
+  it("shows the real voucher, delivery and loyalty points, and no invented claims", async () => {
+    renderHome();
+    await screen.findByRole("region", { name: /new in store and featured product/i });
     expect(screen.getByText("BEAUTY20")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /flat ₦2,500 delivery nationwide/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /exclusive vip member discounts/i })).toBeInTheDocument();
-    expect(screen.getByText("14-Day Purity Guarantee")).toBeInTheDocument();
-    expect(screen.getByText("Melanin-First Formulations")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /earn points on every order/i })).toBeInTheDocument();
+    expect(screen.getByText(/100 points takes ₦500 off/i)).toBeInTheDocument();
+    for (const claim of [/single-donor/i, /white cast/i, /privé/i, /purity guarantee/i, /accuracy guarantee/i, /matched foundation/i, /14-day/i, /cash back/i]) {
+      expect(screen.queryByText(claim)).not.toBeInTheDocument();
+    }
+  });
+
+  it("explains undertones and opens the camera scan", () => {
+    renderHome();
+    expect(screen.getByRole("heading", { name: /find your undertone/i })).toBeInTheDocument();
+    expect(screen.getAllByText("Warm Golden").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: /launch live undertone camera/i }));
+    expect(screen.getByText(/african melanin & undertone analysis/i)).toBeInTheDocument();
+  });
+
+  it("still renders the page if the catalogue can't load", async () => {
+    window.fetch = globalThis.fetch = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
+    renderHome();
+    expect(screen.getByRole("heading", { name: /beauty, matched to you/i })).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByRole("region", { name: /new in store/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("img").every((i) => !/unsplash/.test(i.getAttribute("src") || ""))).toBe(true);
   });
 });

@@ -140,7 +140,7 @@ const LANDING_PAGES = {
     title: "Skincare Routine for Dark Skin in Nigeria (2026)",
     h1: "Best Skincare Routine for Dark Skin in Nigeria",
     description:
-      "A dermatologist-approved skincare routine formulated for melanin-rich skin in Nigeria. Address hyperpigmentation, uneven tone, and dryness.",
+      "A simple skincare routine for melanin-rich skin in Nigeria, for hyperpigmentation, uneven tone and dryness.",
     keywords:
       "skincare dark skin Nigeria, melanin skincare Nigeria, hyperpigmentation treatment Nigeria",
     category: "skincare",

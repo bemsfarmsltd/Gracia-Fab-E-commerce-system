@@ -59,7 +59,7 @@ const DEFAULT_ROUTINE = [
     reviewsCount: 720,
     image:
       "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&auto=format&fit=crop&q=80",
-    benefit: "Zero white cast formula for melanin-rich skin",
+    benefit: "Daily sun protection",
   },
 ];
 
@@ -83,7 +83,7 @@ const CLIMATE_CONCERNS = [
   { id: "hyper", label: "Hyperpigmentation & Dark Spots", icon: "☀️" },
   { id: "oil", label: "Midday Shine & Humidity", icon: "💧" },
   { id: "dry", label: "Harmattan Dryness & Flaking", icon: "🍂" },
-  { id: "sun", label: "Sun Protection (Zero White Cast)", icon: "🛡️" },
+  { id: "sun", label: "Sun Protection", icon: "🛡️" },
   { id: "edges", label: "Edge Protection & Lace Tension", icon: "🌸" },
   { id: "pores", label: "Enlarged Pores & Texture", icon: "✨" },
 ];
@@ -109,7 +109,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
   );
   const [selectedConcerns, setSelectedConcerns] = useState([
     "Hyperpigmentation & Dark Spots",
-    "Sun Protection (Zero White Cast)",
+    "Sun Protection",
   ]);
   const [selectedToneKey, setSelectedToneKey] = useState(
     profile.skinTone?.key || "warm-golden"
@@ -569,7 +569,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
               <span className="step-eyebrow">✦ STEP 04 / UNDERTONE HARMONY</span>
               <h2 className="step-question-heading">Calibrate your exact African undertone</h2>
               <p className="step-question-sub">
-                Ensures seamless shade pairing, zero white cast, and radiant pigment harmony.
+                Helps us suggest products and shades that suit your skin tone.
               </p>
             </div>
 

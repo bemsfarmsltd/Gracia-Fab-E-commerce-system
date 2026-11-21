@@ -52,7 +52,7 @@ function inferFinishAndTexture(prod) {
   else if (text.includes("toner") || text.includes("mist")) texture = "Refreshing Water / Mist";
   else if (text.includes("cream") || text.includes("butter")) texture = "Rich Nourishing Cream";
   else if (text.includes("sunscreen") || text.includes("spf")) texture = "Fluid Invisible Lotion";
-  else if (text.includes("wig") || text.includes("hair")) texture = "100% Raw Virgin Strands";
+  else if (text.includes("wig") || text.includes("hair")) texture = "Hair / Wig (see product details)";
 
   if (text.includes("matte") || text.includes("oil control")) finish = "Non-Greasy Matte";
   else if (text.includes("glow") || text.includes("brightening")) finish = "Dewy Radiant Glow";
@@ -106,7 +106,7 @@ function generateAiVerdict(prod) {
     return "🏆 Best for: 24-hr barrier repair, deeply replenishing parched or sensitive skin";
   }
   if (text.includes("sunscreen") || text.includes("spf")) {
-    return "🏆 Best for: Invisible broad-spectrum protection with zero white cast under Nigerian sun";
+    return "🏆 Best for: Daily sun protection under the Nigerian sun";
   }
   if (text.includes("wig") || text.includes("bone straight")) {
     return "🏆 Best for: Glueless everyday luxury with effortless comb-through styling";

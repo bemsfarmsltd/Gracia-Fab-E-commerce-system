@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -8,121 +8,91 @@ import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import { AFRICAN_UNDERTONES } from "../utils/africanUndertones";
 import HeroVideo from "../components/HeroVideo";
+import API_URL from "../config";
+import { isOutOfStock, stockLabel } from "../utils/stock";
 import "../styles/YslHome.css";
 
 
-// Real Gracia Fab community/UGC photos — no per-photo handles attributed,
-// Grounded in what the store actually does today — delivery fee, payment
-// rails and the wig-purity guarantee are pulled from Checkout and About,
-// not invented, so this never promises something the site doesn't do.
+// Only what the store actually does today. Claims the owner hasn't confirmed
+// (hair origin, sunscreen finish, guarantees) stay out until she does.
 const FAQ_ITEMS = [
   {
     q: "How does the AI Beauty Advisor work?",
-    a: "Answer a few quick questions about your skin, hair and goals in our AI Advisor — no account needed — and get matched products plus a personalised routine in seconds.",
+    a: "Answer a few quick questions about your skin, hair and goals (no account needed) and the Advisor suggests products from our shelves, with a routine to go with them.",
   },
   {
-    q: "How does the Live Undertone Camera Scanner work?",
-    a: "Our live camera scanner uses your camera to measure dermatological Individual Typology Angle (ITA) values and identify whether you have a Warm Golden, Rich Neutral, or Deep Espresso undertone in real time, with 100% on-device privacy.",
+    q: "How does the undertone scan work?",
+    a: "It uses your phone or laptop camera, or a photo you choose, to estimate whether your undertone is Warm Golden, Rich Neutral or Deep Espresso. It runs on your device and the photo isn't saved.",
   },
   {
-    q: "Can I compare multiple skincare formulations side-by-side?",
-    a: "Yes! Use our Formulation Comparator at /compare to inspect active ingredients (like Niacinamide, Vitamin C, Retinol, and Squalane), skin suitability, texture, finish, and prices side-by-side.",
+    q: "Can I compare products side by side?",
+    a: "Yes. The Compare page puts up to three products next to each other: key ingredients from their descriptions, the skin types they suit, texture and price.",
   },
   {
     q: "Do I need an account to shop?",
-    a: "No — you can browse, use the AI Advisor, and add items to your bag as a guest. You'll only need to sign in when you're ready to check out, so we can process and track your order.",
+    a: "No. You can browse, use the AI tools and fill your bag as a guest. You sign in at checkout, so we can process and track your order.",
   },
   {
     q: "Where do you deliver, and how much does it cost?",
-    a: "We deliver nationwide across Nigeria for a flat ₦2,500 delivery fee, dispatched from our store in Umuahia, Abia State.",
+    a: "Anywhere in Nigeria for a flat ₦2,500, sent from our store in Umuahia, Abia State.",
   },
   {
     q: "How can I pay?",
-    a: "Checkout is secured by Monnify — you can pay by card, bank transfer, or USSD.",
+    a: "Checkout is secured by Monnify: card, bank transfer or USSD.",
   },
   {
-    q: "Are your wigs genuine human hair?",
-    a: "Yes — every wig is 100% single-donor raw hair, inspected through a 14-point check in Umuahia and backed by our money-back purity guarantee.",
+    q: "What hair are your wigs made from?",
+    a: "Each wig's product page describes its hair, length and lace. If you'd like more detail before buying, message us on WhatsApp from the link at the bottom of the page.",
   },
   {
     q: "Is my selfie safe when I use Skin Analysis?",
-    a: "Your photo is analyzed directly in your browser or sent for that single instant consultation, never stored or shared.",
+    a: "Your photo is sent securely to our AI provider for that one analysis. We don't save it.",
   },
 ];
 
-// ── New In Store Items (Phase 3 Inspiration) ──
-const NEW_IN_STORE_ITEMS = [
-  {
-    _id: "new-prod-1",
-    name: "Clarifying Herbal Cleansing Oil",
-    category: "skincare",
-    price: 16000,
-    rating: 4.8,
-    reviewsCount: 310,
-    image:
-      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=80",
-    tag: "First Cleanse · Oil-to-Milk",
-  },
-  {
-    _id: "new-prod-2",
-    name: "Niacinamide 10% + Zinc Serum",
-    category: "skincare",
-    price: 21500,
-    rating: 4.9,
-    reviewsCount: 490,
-    image:
-      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=80",
-    tag: "Texture & Pore Minimizer",
-  },
-  {
-    _id: "new-prod-3",
-    name: "Velvet Melanin Lip Elixir",
-    category: "makeup",
-    price: 12500,
-    rating: 4.9,
-    reviewsCount: 620,
-    image:
-      "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500&auto=format&fit=crop&q=80",
-    tag: "Non-Sticky · Shea Infused",
-  },
-  {
-    _id: "new-prod-4",
-    name: "Lace Melting Edge Mousse",
-    category: "haircare",
-    price: 14000,
-    rating: 4.8,
-    reviewsCount: 280,
-    image:
-      "https://images.unsplash.com/photo-1608248597359-5776d6342111?w=500&auto=format&fit=crop&q=80",
-    tag: "Alcohol-Free · Fast Drying",
-  },
-];
-
-const SPOTLIGHT_HERO_PRODUCT = {
-  _id: "spotlight-wig-hero",
-  name: "100% Raw Virgin Glueless HD Melt Wig",
-  category: "haircare",
-  price: 98000,
-  originalPrice: 125000,
-  rating: 5.0,
-  reviewsCount: 520,
-  image:
-    "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=800&auto=format&fit=crop&q=80",
-  tag: "Editor's Spotlight of the Week",
-  description:
-    "Single-donor unprocessed raw human hair with ultra-thin Swiss HD lace. Pre-plucked hairline that melts invisibly into all melanin undertones without glue or tension.",
-  variants: ['18" Natural Black', '22" Natural Black', '26" Natural Black'],
-};
+const PLACEHOLDER = "/product-placeholder.svg";
+const CATEGORY_LABELS = { skincare: "Skincare", haircare: "Haircare", wig: "Wigs", bridal: "Bridal" };
+const byNewest = (a, b) => String(b.createdAt || b._id).localeCompare(String(a.createdAt || a._id));
 
 function Home({ onCartOpen }) {
   const { addToCart } = useCart();
   const { addToast } = useToast();
   const [openFaq, setOpenFaq] = useState(null);
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
-  const [selectedSpotlightVariant, setSelectedSpotlightVariant] = useState('22" Natural Black');
+  // The real catalogue, so every product, photo and price here is one we sell.
+  const [catalog, setCatalog] = useState(null);
   const faqSectionRef = useRef(null);
   const location = useLocation();
 
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${API_URL}/api/products`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => active && setCatalog(Array.isArray(data) ? data : data.products || []))
+      .catch(() => active && setCatalog([]));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const store = useMemo(() => {
+    const all = (catalog || []).filter((p) => p && p._id && p.name);
+    const buyable = all.filter((p) => !isOutOfStock(p)).sort(byNewest);
+    const rest = all.filter((p) => isOutOfStock(p)).sort(byNewest);
+    const spotlight =
+      buyable.find((p) => p.category === "wig") || buyable.find((p) => p.category === "bridal") || buyable[0] || null;
+    const newIn = [...buyable.filter((p) => p !== spotlight), ...rest].slice(0, 4);
+    const inCategory = (cat) => all.filter((p) => p.category === cat);
+    const photoFor = (cat) => {
+      const list = inCategory(cat);
+      return (list.find((p) => !isOutOfStock(p) && p.image) || list.find((p) => p.image))?.image || PLACEHOLDER;
+    };
+    const count = (cat) => inCategory(cat).length;
+    const skincare = inCategory("skincare").sort((a, b) => Number(isOutOfStock(a)) - Number(isOutOfStock(b)));
+    const compare = skincare.filter((p) => (p.suitableFor?.skinType || []).length).slice(0, 2);
+    return { loaded: catalog !== null, all, spotlight, newIn, photoFor, count, compare };
+  }, [catalog]);
 
   const handleAddToCart = (product, e) => {
     if (e) {
@@ -222,102 +192,100 @@ function Home({ onCartOpen }) {
       </section>
 
       {/* ── SECTION: LUXURY ASSURANCE & CERTIFICATIONS RIBBON (Phase 1) ── */}
-      <div className="ysl-assurance-ribbon" role="region" aria-label="Brand assurances">
+      <div className="ysl-assurance-ribbon" role="region" aria-label="Shopping with Gracia Fab">
         <div className="ysl-ribbon-track">
           <div className="ysl-ribbon-group">
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> 100% SINGLE-DONOR RAW HAIR</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> ZERO WHITE CAST MELANIN SPF</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MADE FOR THE NIGERIAN CLIMATE</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MONNIFY SECURED CHECKOUT</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> SHIPS FROM UMUAHIA, ABIA STATE</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> FLAT ₦2,500 NATIONWIDE DELIVERY</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> AI UNDERTONE ACCURACY GUARANTEE</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MONNIFY SECURED CHECKOUT</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> CARD · TRANSFER · USSD</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> AI BEAUTY ADVISOR</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> EARN POINTS ON EVERY ORDER</span>
           </div>
           <div className="ysl-ribbon-group" aria-hidden="true">
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> 100% SINGLE-DONOR RAW HAIR</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> ZERO WHITE CAST MELANIN SPF</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MADE FOR THE NIGERIAN CLIMATE</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MONNIFY SECURED CHECKOUT</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> SHIPS FROM UMUAHIA, ABIA STATE</span>
             <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> FLAT ₦2,500 NATIONWIDE DELIVERY</span>
-            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> AI UNDERTONE ACCURACY GUARANTEE</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> MONNIFY SECURED CHECKOUT</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> CARD · TRANSFER · USSD</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> AI BEAUTY ADVISOR</span>
+            <span className="ribbon-item"><span className="ribbon-sparkle">✦</span> EARN POINTS ON EVERY ORDER</span>
           </div>
         </div>
       </div>
 
-      {/* ── SECTION: 3-CARD EDITORIAL CAMPAIGN TRIAD (Phase 1) ── */}
-      <section className="ysl-campaign-triad-section" aria-label="Signature beauty pillars">
+      {/* ── SECTION: WHAT WE SELL (real product photos from the catalogue) ── */}
+      <section className="ysl-campaign-triad-section" aria-label="What Gracia Fab sells">
         <div className="ysl-triad-header">
-          <span className="ysl-triad-eyebrow">✦ SIGNATURE EDITORIALS</span>
-          <h2 className="ysl-triad-heading">Curated for Melanin Radiance</h2>
+          <span className="ysl-triad-eyebrow">✦ WHAT WE SELL</span>
+          <h2 className="ysl-triad-heading">Skincare, Hair &amp; Bridal Beauty</h2>
           <p className="ysl-triad-sub">
-            Three pillars of Gracia Fab: targeted skin hydration, single-donor raw hair, and bespoke AI shade matching.
+            Products we stock at our store in Umuahia, delivered anywhere in Nigeria.
           </p>
         </div>
 
         <div className="ysl-triad-grid">
-          {/* Card 1: Melanin Skincare */}
           <article className="ysl-triad-card">
             <div className="triad-card-media">
               <img
-                src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&auto=format&fit=crop&q=80"
-                alt="Radiant Melanin Skincare"
+                src={store.photoFor("skincare")}
+                alt="Skincare at Gracia Fab"
                 loading="lazy"
                 className="triad-card-img"
+                onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
               />
-              <span className="triad-card-badge">01 / SKINCARE</span>
+              <span className="triad-card-badge">SKINCARE</span>
             </div>
             <div className="triad-card-content">
-              <h3 className="triad-card-title">Get Radiant, Balanced Skin</h3>
+              <h3 className="triad-card-title">Skincare for Nigerian Weather</h3>
               <p className="triad-card-desc">
-                Barrier-restoring hydration infused with niacinamide and ceramides to resist midday humidity and shine.
+                Cleansers, serums, body lotions, oils and sunscreens for everyday care in heat, humidity and Harmattan.
               </p>
-              <Link to="/products" className="triad-card-link">
-                <span>Explore Skincare</span>
+              <Link to="/products?category=skincare" className="triad-card-link">
+                <span>Shop skincare{store.count("skincare") ? ` (${store.count("skincare")})` : ""}</span>
                 <span className="triad-arrow">→</span>
               </Link>
             </div>
           </article>
-
-          {/* Card 2: 100% Raw Glueless Wigs */}
           <article className="ysl-triad-card">
             <div className="triad-card-media">
               <img
-                src="https://images.unsplash.com/photo-1560869713-7d0a29430803?w=800&auto=format&fit=crop&q=80"
-                alt="100% Raw Glueless Wigs"
+                src={store.photoFor("wig")}
+                alt="Wigs at Gracia Fab"
                 loading="lazy"
                 className="triad-card-img"
+                onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
               />
-              <span className="triad-card-badge">02 / COUTURE HAIR</span>
+              <span className="triad-card-badge">HAIR &amp; WIGS</span>
             </div>
             <div className="triad-card-content">
-              <h3 className="triad-card-title">100% Raw Glueless Lace</h3>
+              <h3 className="triad-card-title">Haircare and Wigs</h3>
               <p className="triad-card-desc">
-                Single-donor virgin hair with pre-plucked HD Swiss lace that protects delicate hairlines and melts invisibly.
+                Haircare for curly, coily and relaxed hair, and ready-to-wear wigs.
               </p>
-              <Link to="/products" className="triad-card-link">
-                <span>Shop Raw Hair</span>
+              <Link to="/products?category=wig" className="triad-card-link">
+                <span>Shop wigs{store.count("wig") ? ` (${store.count("wig")})` : ""}</span>
                 <span className="triad-arrow">→</span>
               </Link>
             </div>
           </article>
-
-          {/* Card 3: AI Undertone Calibration */}
           <article className="ysl-triad-card">
             <div className="triad-card-media">
               <img
-                src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?w=800&auto=format&fit=crop&q=80"
-                alt="AI Undertone Calibration"
+                src={store.photoFor("bridal")}
+                alt="Bridal beauty at Gracia Fab"
                 loading="lazy"
                 className="triad-card-img"
+                onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
               />
-              <span className="triad-card-badge">03 / AI ADVISOR</span>
+              <span className="triad-card-badge">BRIDAL</span>
             </div>
             <div className="triad-card-content">
-              <h3 className="triad-card-title">Calibrate Your Undertone</h3>
+              <h3 className="triad-card-title">Bridal Beauty</h3>
               <p className="triad-card-desc">
-                Snap a quick selfie for instant melanin matching — tailored for Warm Golden, Rich Neutral, and Deep Espresso tones.
+                Bridal skincare and makeup sets for the big day, plus a free wedding countdown in My Vanity.
               </p>
-              <Link to="/recommend" className="triad-card-link triad-card-link-gold">
-                <span>Start AI Consultation</span>
+              <Link to="/products?category=bridal" className="triad-card-link">
+                <span>Shop bridal{store.count("bridal") ? ` (${store.count("bridal")})` : ""}</span>
                 <span className="triad-arrow">→</span>
               </Link>
             </div>
@@ -326,118 +294,104 @@ function Home({ onCartOpen }) {
       </section>
 
 
-      {/* ── SECTION: NEW IN STORE (Phase 3 Split Feature) ── */}
-      <section className="ysl-new-store-section" aria-label="New arrivals and editor's spotlight">
+      {/* ── SECTION: NEW IN STORE (newest real products, in stock first) ── */}
+      {store.newIn.length > 0 && (
+      <section className="ysl-new-store-section" aria-label="New in store and featured product">
         <div className="ysl-new-store-header">
           <div>
-            <span className="ysl-new-store-eyebrow">✦ FRESH ARRIVALS</span>
+            <span className="ysl-new-store-eyebrow">✦ NEW IN STORE</span>
             <h2 className="ysl-new-store-title">
               New in Store <span className="ysl-new-store-star">✦</span>
             </h2>
-            <p className="ysl-new-store-sub">Just landed at our Umuahia store</p>
+            <p className="ysl-new-store-sub">Our latest products, in stock first</p>
           </div>
           <Link to="/products" className="ysl-new-store-view-all">
-            <span>View All Arrivals</span>
+            <span>View all products</span>
             <span className="arrow">→</span>
           </Link>
         </div>
 
         <div className="ysl-new-store-split">
-          {/* Left: 4-Item Grid */}
           <div className="ysl-new-items-grid">
-            {NEW_IN_STORE_ITEMS.map((item) => (
-              <article key={item._id} className="ysl-new-item-card">
-                <div className="new-item-media">
-                  <img src={item.image} alt={item.name} loading="lazy" />
-                  <button
-                    type="button"
-                    className="new-item-quick-add"
-                    onClick={(e) => handleAddToCart(item, e)}
-                    aria-label={`Add ${item.name} to bag`}
-                  >
-                    🛍️
-                  </button>
-                </div>
-                <div className="new-item-info">
-                  <span className="new-item-tag">{item.tag}</span>
-                  <h3 className="new-item-name">{item.name}</h3>
-                  <div className="new-item-meta">
-                    <span className="new-item-rating">★ {item.rating}</span>
-                    <span className="new-item-price">₦{item.price.toLocaleString()}</span>
+            {store.newIn.map((item) => {
+              const out = isOutOfStock(item);
+              return (
+                <article key={item._id} className="ysl-new-item-card">
+                  <Link to={`/products/${item._id}`} className="new-item-media">
+                    <img
+                      src={item.image || PLACEHOLDER}
+                      alt={item.name}
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
+                    />
+                  </Link>
+                  {!out && (
+                    <button
+                      type="button"
+                      className="new-item-quick-add"
+                      onClick={(e) => handleAddToCart(item, e)}
+                      aria-label={`Add ${item.name} to bag`}
+                    >
+                      🛍️
+                    </button>
+                  )}
+                  <div className="new-item-info">
+                    <span className="new-item-tag">{item.brand || CATEGORY_LABELS[item.category] || "Gracia Fab"}</span>
+                    <h3 className="new-item-name">
+                      <Link to={`/products/${item._id}`}>{item.name}</Link>
+                    </h3>
+                    <div className="new-item-meta">
+                      <span className="new-item-rating">{stockLabel(item)}</span>
+                      <span className="new-item-price">₦{Number(item.price).toLocaleString()}</span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
 
-          {/* Right: Featured Hero Spotlight */}
-          <article className="ysl-new-spotlight-card">
-            <span className="spotlight-top-badge">✦ {SPOTLIGHT_HERO_PRODUCT.tag}</span>
-            <div className="spotlight-media-wrap">
-              <img
-                src={SPOTLIGHT_HERO_PRODUCT.image}
-                alt={SPOTLIGHT_HERO_PRODUCT.name}
-                loading="lazy"
-                className="spotlight-img"
-              />
-              <span className="spotlight-purity-pill">100% Single Donor Purity</span>
-            </div>
+          {store.spotlight && (
+            <article className="ysl-new-spotlight-card">
+              <span className="spotlight-top-badge">✦ Featured · {CATEGORY_LABELS[store.spotlight.category] || "In stock"}</span>
+              <Link to={`/products/${store.spotlight._id}`} className="spotlight-media-wrap">
+                <img
+                  src={store.spotlight.image || PLACEHOLDER}
+                  alt={store.spotlight.name}
+                  loading="lazy"
+                  className="spotlight-img"
+                  onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
+                />
+              </Link>
 
-            <div className="spotlight-content">
-              <div className="spotlight-rating">
-                <span className="stars" aria-hidden="true">★★★★★</span>
-                <span className="rating-text">5.0 (520 verified reviews)</span>
-              </div>
+              <div className="spotlight-content">
+                <h3 className="spotlight-title">{store.spotlight.name}</h3>
+                {store.spotlight.brand && <p className="spotlight-desc"><strong>{store.spotlight.brand}</strong></p>}
+                <p className="spotlight-desc">{store.spotlight.description}</p>
 
-              <h3 className="spotlight-title">{SPOTLIGHT_HERO_PRODUCT.name}</h3>
-              <p className="spotlight-desc">{SPOTLIGHT_HERO_PRODUCT.description}</p>
-
-              <div className="spotlight-price-row">
-                <span className="spotlight-price">₦{SPOTLIGHT_HERO_PRODUCT.price.toLocaleString()}</span>
-                <span className="spotlight-orig-price">₦{SPOTLIGHT_HERO_PRODUCT.originalPrice.toLocaleString()}</span>
-                <span className="spotlight-save-pill">Save ₦27,000</span>
-              </div>
-
-              {/* Variant selector chips */}
-              <div className="spotlight-variants-wrap">
-                <span className="variant-label">Select Length &amp; Cap:</span>
-                <div className="variant-chips">
-                  {SPOTLIGHT_HERO_PRODUCT.variants.map((v) => (
-                    <button
-                      key={v}
-                      type="button"
-                      className={`variant-chip-btn ${selectedSpotlightVariant === v ? "active" : ""}`}
-                      onClick={() => setSelectedSpotlightVariant(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
+                <div className="spotlight-price-row">
+                  <span className="spotlight-price">₦{Number(store.spotlight.price).toLocaleString()}</span>
+                  <span className="spotlight-save-pill">{stockLabel(store.spotlight)}</span>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                className="spotlight-add-btn"
-                onClick={(e) =>
-                  handleAddToCart(
-                    {
-                      _id: SPOTLIGHT_HERO_PRODUCT._id,
-                      name: `${SPOTLIGHT_HERO_PRODUCT.name} (${selectedSpotlightVariant})`,
-                      price: SPOTLIGHT_HERO_PRODUCT.price,
-                      image: SPOTLIGHT_HERO_PRODUCT.image,
-                    },
-                    e
-                  )
-                }
-                aria-label={`Add ${SPOTLIGHT_HERO_PRODUCT.name} to bag`}
-              >
-                <span>Add Spotlight Item to Bag</span>
-                <span className="btn-icon">🛍️</span>
-              </button>
-            </div>
-          </article>
+                <button
+                  type="button"
+                  className="spotlight-add-btn"
+                  onClick={(e) => handleAddToCart(store.spotlight, e)}
+                  aria-label={`Add ${store.spotlight.name} to bag`}
+                >
+                  <span>Add to Bag</span>
+                  <span className="btn-icon">🛍️</span>
+                </button>
+                <Link to={`/products/${store.spotlight._id}`} className="ysl-new-store-view-all">
+                  <span>See product details</span>
+                  <span className="arrow">→</span>
+                </Link>
+              </div>
+            </article>
+          )}
         </div>
       </section>
+      )}
 
       {/* ── SECTION: PROMOTIONAL EDITORIAL BANNERS & PERKS (Phase 4 Inspiration) ── */}
       <section className="ysl-promo-banners-section" aria-label="Exclusive offers and brand perks">
@@ -447,10 +401,10 @@ function Home({ onCartOpen }) {
             <div className="promo-featured-text">
               <span className="promo-eyebrow">✦ ORDERS OVER ₦25,000</span>
               <h3 className="promo-title">
-                Save 20% on Your <br />Bespoke Glow
+                Save 20% on Orders <br />of ₦25,000+
               </h3>
               <p className="promo-desc">
-                Experience Nigerian climate-proof skincare, zero-white-cast SPF, and 100% single-donor raw hair.
+                Enter the code at checkout on any order of ₦25,000 or more.
               </p>
               <div className="promo-coupon-badge">
                 <span className="coupon-label">USE CODE:</span>
@@ -463,9 +417,10 @@ function Home({ onCartOpen }) {
             </div>
             <div className="promo-featured-media">
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80"
-                alt="Radiant Melanin Skin Model"
+                src={store.spotlight?.image || store.photoFor("skincare")}
+                alt={store.spotlight?.name || "Skincare at Gracia Fab"}
                 loading="lazy"
+                onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
               />
               <div className="promo-media-glow" aria-hidden="true" />
             </div>
@@ -476,7 +431,7 @@ function Home({ onCartOpen }) {
             {/* Card 2: Delivery (flat ₦2,500) */}
             <article className="ysl-promo-card ysl-promo-card-delivery">
               <div className="promo-card-content">
-                <span className="promo-eyebrow">✦ FAST NATIONWIDE DISPATCH</span>
+                <span className="promo-eyebrow">✦ NATIONWIDE DELIVERY</span>
                 <h3 className="promo-card-heading">Flat ₦2,500 Delivery Nationwide</h3>
                 <p className="promo-card-desc">
                   Shipped from our store in Umuahia, Abia State, door-to-door to all 36 states and the FCT.
@@ -492,58 +447,55 @@ function Home({ onCartOpen }) {
               </div>
             </article>
 
-            {/* Card 3: VIP Club & Empties Rewards */}
+            {/* Card 3: the real loyalty points */}
             <article className="ysl-promo-card ysl-promo-card-vip">
               <div className="promo-card-content">
-                <span className="promo-eyebrow">✦ GRACIA PRIVÉ CLUB</span>
-                <h3 className="promo-card-heading">Exclusive VIP Member Discounts</h3>
+                <span className="promo-eyebrow">✦ GRACIA FAB REWARDS</span>
+                <h3 className="promo-card-heading">Earn Points on Every Order</h3>
                 <p className="promo-card-desc">
-                  Earn 10% beauty credits on every completed routine. Return empty jars for salon refills &amp; gifts.
+                  Get 1 point for every ₦100 you spend. Every 100 points takes ₦500 off a future order.
                 </p>
-                <Link to="/dashboard" className="promo-card-link promo-card-link-gold">
-                  <span>Join Gracia Privé</span>
+                <Link to="/my-vanity" className="promo-card-link promo-card-link-gold">
+                  <span>See my points</span>
                   <span className="arrow">→</span>
                 </Link>
               </div>
               <div className="promo-card-visual" aria-hidden="true">
                 <span className="promo-visual-icon">✨</span>
-                <span className="promo-visual-pill">10% Cash Back</span>
+                <span className="promo-visual-pill">100 pts = ₦500</span>
               </div>
             </article>
           </div>
         </div>
 
         {/* 4-Pillar Perks Strip directly beneath */}
-        <div className="ysl-promo-perks-strip" role="region" aria-label="Core service perks">
+        <div className="ysl-promo-perks-strip" role="region" aria-label="Why shop with us">
           <div className="promo-perk-item">
             <span className="promo-perk-icon" aria-hidden="true">🚚</span>
             <div className="promo-perk-text">
               <strong>Flat ₦2,500 delivery</strong>
-              <span>Nationwide, shipped from Umuahia</span>
+              <span>Anywhere in Nigeria, sent from Umuahia</span>
             </div>
           </div>
-
           <div className="promo-perk-item">
-            <span className="promo-perk-icon" aria-hidden="true">🛡️</span>
+            <span className="promo-perk-icon" aria-hidden="true">🔒</span>
             <div className="promo-perk-text">
-              <strong>14-Day Purity Guarantee</strong>
-              <span>100% single-donor raw hair &amp; tested formulas</span>
+              <strong>Secure payment</strong>
+              <span>Card, bank transfer or USSD through Monnify</span>
             </div>
           </div>
-
           <div className="promo-perk-item">
-            <span className="promo-perk-icon" aria-hidden="true">🌿</span>
+            <span className="promo-perk-icon" aria-hidden="true">📦</span>
             <div className="promo-perk-text">
-              <strong>Melanin-First Formulations</strong>
-              <span>Zero white cast, non-comedogenic &amp; clean</span>
+              <strong>Real photos, live stock</strong>
+              <span>See what's in stock before you order</span>
             </div>
           </div>
-
           <div className="promo-perk-item">
             <span className="promo-perk-icon" aria-hidden="true">💬</span>
             <div className="promo-perk-text">
-              <strong>24/7 AI Concierge Support</strong>
-              <span>Instant routines tailored to your climate</span>
+              <strong>AI beauty help</strong>
+              <span>Advisor, undertone scan and chat, any time</span>
             </div>
           </div>
         </div>
@@ -554,10 +506,10 @@ function Home({ onCartOpen }) {
         <div className="ysl-undertone-header">
           <span className="ysl-undertone-eyebrow">✦ MELANIN-FIRST BEAUTY</span>
           <h2 className="ysl-undertone-title">
-            Formulated for African Complexions <em>✦</em>
+            Find Your Undertone <em>✦</em>
           </h2>
           <p className="ysl-undertone-desc">
-            Every formula and shade in Gracia Fab is calibrated for melanin-rich skin in the Nigerian climate — from hot, humid afternoons to dry Harmattan seasons.
+            Knowing your undertone makes choosing skincare and colour easier. These are the three undertones our scan looks for.
           </p>
         </div>
 
@@ -573,10 +525,6 @@ function Home({ onCartOpen }) {
               <div className="ysl-undertone-card-body">
                 <h3 className="ysl-undertone-card-title">{tone.name}</h3>
                 <p className="ysl-undertone-card-desc">{tone.description}</p>
-                <div className="ysl-undertone-card-foundation">
-                  <span className="match-label">Matched Foundation:</span>
-                  <strong>{tone.foundation}</strong>
-                </div>
               </div>
             </div>
           ))}
@@ -585,7 +533,7 @@ function Home({ onCartOpen }) {
         <div className="ysl-undertone-cta-banner">
           <div className="ysl-undertone-cta-text">
             <h3>Unsure of your exact undertone?</h3>
-            <p>Scan your skin in real time with our on-device AI camera — private, instantaneous, and zero white cast guaranteed.</p>
+            <p>Use your camera or a photo to find yours. It runs on your device and the photo isn't saved.</p>
           </div>
           <button
             type="button"
@@ -602,17 +550,17 @@ function Home({ onCartOpen }) {
       <section className="ysl-comparator-showcase-section">
         <div className="ysl-comparator-inner">
           <div className="ysl-comparator-text-col">
-            <span className="ysl-comparator-pill">✦ SMART BEAUTY SCIENCE</span>
+            <span className="ysl-comparator-pill">✦ COMPARE BEFORE YOU BUY</span>
             <h2 className="ysl-comparator-title">
-              Compare Formulations <em>Side-by-Side</em>
+              Compare Products <em>Side-by-Side</em>
             </h2>
             <p className="ysl-comparator-desc">
-              Don't guess what your skin needs. Compare active ingredients (Niacinamide, Vitamin C, Retinol, Squalane), skin suitability, textures, and prices before you decide.
+              Put up to three products next to each other and see their key ingredients, the skin types they suit, texture and price.
             </p>
             <div className="ysl-comparator-perks">
               <div className="perk-item">
                 <span className="perk-check">✓</span>
-                <span>Active ingredient breakdown &amp; concentrations</span>
+                <span>Key ingredients picked out of each description</span>
               </div>
               <div className="perk-item">
                 <span className="perk-check">✓</span>
@@ -620,43 +568,50 @@ function Home({ onCartOpen }) {
               </div>
               <div className="perk-item">
                 <span className="perk-check">✓</span>
-                <span>Direct side-by-side Naira pricing &amp; 1-click add to bag</span>
+                <span>Prices side by side, with live stock</span>
               </div>
             </div>
             <Link to="/compare" className="ysl-comparator-btn">
-              Launch Formulation Comparator ⇄
+              Compare products ⇄
             </Link>
           </div>
 
-          <div className="ysl-comparator-preview-col">
-            <div className="comparator-mini-table">
-              <div className="mini-table-header">
-                <div className="mini-col-head">Metric</div>
-                <div className="mini-col-head">Hydrating Cleanser</div>
-                <div className="mini-col-head">Glow Toner</div>
-              </div>
-              <div className="mini-table-row">
-                <span className="mini-label">Actives</span>
-                <span className="mini-val">Ceramides + Hyaluronic</span>
-                <span className="mini-val">Niacinamide 5% + Glycolic</span>
-              </div>
-              <div className="mini-table-row">
-                <span className="mini-label">Skin Type</span>
-                <span className="mini-val">All / Sensitive</span>
-                <span className="mini-val">Oily / Combination</span>
-              </div>
-              <div className="mini-table-row">
-                <span className="mini-label">Finish</span>
-                <span className="mini-val">Dewy &amp; Soothing</span>
-                <span className="mini-val">Velvet Matte &amp; Clear</span>
-              </div>
-              <div className="mini-table-row price-row">
-                <span className="mini-label">Price</span>
-                <span className="mini-val">₦18,000</span>
-                <span className="mini-val">₦16,500</span>
+          {store.compare.length === 2 && (
+            <div className="ysl-comparator-preview-col">
+              <div className="comparator-mini-table" aria-label="Example comparison of two products we stock">
+                <div className="mini-table-header">
+                  <div className="mini-col-head">Example</div>
+                  {store.compare.map((p) => (
+                    <div key={p._id} className="mini-col-head">{p.name}</div>
+                  ))}
+                </div>
+                <div className="mini-table-row">
+                  <span className="mini-label">Brand</span>
+                  {store.compare.map((p) => (
+                    <span key={p._id} className="mini-val">{p.brand || "—"}</span>
+                  ))}
+                </div>
+                <div className="mini-table-row">
+                  <span className="mini-label">Skin type</span>
+                  {store.compare.map((p) => (
+                    <span key={p._id} className="mini-val">{(p.suitableFor?.skinType || []).join(", ")}</span>
+                  ))}
+                </div>
+                <div className="mini-table-row">
+                  <span className="mini-label">Stock</span>
+                  {store.compare.map((p) => (
+                    <span key={p._id} className="mini-val">{stockLabel(p)}</span>
+                  ))}
+                </div>
+                <div className="mini-table-row price-row">
+                  <span className="mini-label">Price</span>
+                  {store.compare.map((p) => (
+                    <span key={p._id} className="mini-val">₦{Number(p.price).toLocaleString()}</span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -674,7 +629,9 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=skincare" className="ysl-shopcat-card">
                 <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "3 / 4" }}>
                   <img
-                    src="https://res.cloudinary.com/dyzkjerez/image/upload/v1789578054/poses_6_mnz88i.webp"
+                    src={store.photoFor("skincare")}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
                     alt="Skincare"
                   />
                 </div>
@@ -684,7 +641,9 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=wig" className="ysl-shopcat-card">
                 <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "3 / 4.2" }}>
                   <img
-                    src="https://res.cloudinary.com/dyzkjerez/image/upload/v1789578101/poses_9_yt9tda.webp"
+                    src={store.photoFor("wig")}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
                     alt="Wigs"
                   />
                 </div>
@@ -696,7 +655,9 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=haircare" className="ysl-shopcat-card">
                 <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "4 / 3.3" }}>
                   <img
-                    src="https://res.cloudinary.com/dyzkjerez/image/upload/v1789578027/poses_5_lyj445.avif"
+                    src={store.photoFor("haircare")}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
                     alt="Haircare"
                   />
                 </div>
@@ -706,7 +667,9 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=bridal" className="ysl-shopcat-card">
                 <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "4 / 3.6" }}>
                   <img
-                    src="https://res.cloudinary.com/dyzkjerez/image/upload/v1789578081/poses_8_wjpags.jpg"
+                    src={store.photoFor("bridal")}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
                     alt="Bridal"
                   />
                 </div>
@@ -723,11 +686,11 @@ function Home({ onCartOpen }) {
         <div className="ysl-commitment-watermark" aria-hidden="true">GRACIA FAB</div>
 
         <div className="ysl-commitment-content">
-          <h2 className="ysl-commitment-title">Our Commitment</h2>
+          <h2 className="ysl-commitment-title">Shopping with Gracia Fab</h2>
           <p className="ysl-commitment-sub">
-            We prioritize safe formulations and genuine quality in every product we curate.
+            A beauty store in Umuahia, Abia State, selling skincare, haircare, wigs and bridal beauty.
             <br />
-            Beauty you can trust, made for Nigerian skin, hair and climate.
+            Order online and we deliver anywhere in Nigeria.
           </p>
 
           <div className="ysl-commitment-badges">
@@ -738,7 +701,7 @@ function Home({ onCartOpen }) {
                   <path d="M9 12l2 2 4-4" />
                 </svg>
               </span>
-              <span className="ysl-commitment-label">Gentle &amp; Safe</span>
+              <span className="ysl-commitment-label">Real Product Photos</span>
             </div>
 
             <div className="ysl-commitment-badge">
@@ -748,7 +711,7 @@ function Home({ onCartOpen }) {
                   <path d="M5 19c3.5-3.5 7-7 12-12" />
                 </svg>
               </span>
-              <span className="ysl-commitment-label">Premium Quality</span>
+              <span className="ysl-commitment-label">Live Stock</span>
             </div>
 
             <div className="ysl-commitment-badge">
@@ -757,7 +720,7 @@ function Home({ onCartOpen }) {
                   <path d="M6 3h12M6 21h12M7 3c0 5 3 7 5 8-2 1-5 3-5 8M17 3c0 5-3 7-5 8 2 1 5 3 5 8" />
                 </svg>
               </span>
-              <span className="ysl-commitment-label">Made to Last</span>
+              <span className="ysl-commitment-label">Delivered Nationwide</span>
             </div>
           </div>
         </div>
