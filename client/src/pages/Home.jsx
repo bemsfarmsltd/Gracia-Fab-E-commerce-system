@@ -658,10 +658,10 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=skincare" className="ysl-shopcat-card">
                 <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "3 / 4" }}>
                   <img
-                    src={store.photoFor("skincare")}
+                    src="/images/categories/skincare.webp"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
-                    alt="Skincare"
+                    alt="Skincare jars and droppers on a cream surface"
                   />
                 </div>
                 <span className="ysl-shopcat-label">Skincare</span>
@@ -670,10 +670,10 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=wig" className="ysl-shopcat-card">
                 <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "3 / 4.2" }}>
                   <img
-                    src={store.photoFor("wig")}
+                    src="/images/categories/wigs.webp"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
-                    alt="Wigs"
+                    alt="Lustrous styled lace wig on a minimalist stand"
                   />
                 </div>
                 <span className="ysl-shopcat-label">Wigs</span>
@@ -684,10 +684,10 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=haircare" className="ysl-shopcat-card">
                 <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "4 / 3.3" }}>
                   <img
-                    src={store.photoFor("haircare")}
+                    src="/images/categories/haircare.webp"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
-                    alt="Haircare"
+                    alt="Haircare bottles and silk scarf on a warm cream surface"
                   />
                 </div>
                 <span className="ysl-shopcat-label">Haircare</span>
@@ -696,10 +696,10 @@ function Home({ onCartOpen }) {
               <Link to="/products?category=bridal" className="ysl-shopcat-card">
                 <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "4 / 3.6" }}>
                   <img
-                    src={store.photoFor("bridal")}
+                    src="/images/categories/bridal.webp"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
-                    alt="Bridal"
+                    alt="Bridal makeup brushes and delicate veil accessories"
                   />
                 </div>
                 <span className="ysl-shopcat-label">Bridal</span>
