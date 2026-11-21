@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { emailQueue, addToQueue } from "../queues/index.js";
 import { emailTemplates, sendEmail } from "../services/emailService.js";
@@ -6,12 +5,7 @@ import { generateOtpCode, hashOtpCode, otpExpiryDate, OTP_MAX_ATTEMPTS } from ".
 import logger from "../utils/logger.js";
 import { sendServerError } from "../utils/httpErrors.js";
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
-};
+import generateToken from "../utils/generateToken.js";
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -265,4 +259,19 @@ export const updateUserProfile = async (req, res) => {
   } catch (error) {
     return sendServerError(res, error, "authController error");
   }
+};
+
+// @desc    Renew the session: a fresh 7-day token for a still-valid one, plus
+//          the account's current details (so e.g. a new admin role shows up
+//          without signing in again). The website calls this quietly.
+// @route   POST /api/auth/refresh
+export const refreshSession = (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    _id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    isAdmin: req.user.isAdmin,
+    token: generateToken(req.user._id),
+  });
 };

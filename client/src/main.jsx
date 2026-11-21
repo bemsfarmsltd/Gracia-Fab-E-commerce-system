@@ -20,9 +20,13 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
     reg.update().catch(() => {});
   });
 
+  // Only reload when a new version replaces one that was already running.
+  // On a first visit the worker takes control for the first time; reloading
+  // then just flickers the page and jumps the visitor back to the top.
+  const hadController = Boolean(navigator.serviceWorker.controller);
   let refreshing = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!refreshing) {
+    if (hadController && !refreshing) {
       refreshing = true;
       window.location.reload();
     }

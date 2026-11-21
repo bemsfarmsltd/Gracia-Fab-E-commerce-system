@@ -120,7 +120,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 ## P2: hardening and housekeeping
 
 - [x] **Unpaid orders pile up** (`CC`). Pending orders are never cleaned up. Auto-cancel unpaid orders after 48 hours (stock isn't held, so it's just tidying admin and reports). Done 17 Nov (CC): `services/orderCleanup.js` runs hourly from `server.js`. If a payment was started, it asks Monnify first and marks the order paid if the customer did pay; it sends no message to the customer.
-- [ ] **30-day logins kept in browser storage** (`CC`). Shorten to around 7 days with silent renewal, ideally after the CSP is enforced.
+- [x] **Logins shortened to 7 days with silent renewal** (`CC`, 21 Nov). Tokens last 7 days (`server/utils/generateToken.js`); the website renews them through `POST /api/auth/refresh` once a day while in use, clears expired sessions on load, and signs out if renewal is refused (e.g. after a password change). Renewal also picks up account changes such as a new admin role. Also fixed: a first visit no longer reloads the page when offline mode installs.
 - [x] **CORS allows `localhost` in production** (`CC`). Only add the localhost origins when `NODE_ENV !== "production"`. Done 17 Nov (CC): needs `NODE_ENV=production` on Render, which also turns on the generic 500 messages.
 - Duplicate of **The API takes about 34 seconds to wake up** above.
 - [x] **Admin route tests** (`CC`). Stats, product CRUD, order status and the user list are still untested (stock, vouchers and uploads are covered). Done 17 Nov (CC): `tests/admin.test.js`. This also found that the user list sent login-code hashes to the browser; now fixed.

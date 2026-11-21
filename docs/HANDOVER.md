@@ -75,5 +75,5 @@ is needed: everything runs in the browser.
 
 ## Still open for Claude Code before Thursday
 
-- Stricter website security policy (CSP enforce), tested page by page first.
-- Shorter login sessions with silent renewal, after the CSP.
+- [x] Stricter website security policy (CSP) enforced, 21 Nov.
+- [x] Logins last 7 days and renew quietly while in use, 21 Nov. Tell the MD: if she doesn't open the portal for a week, she signs in again with the emailed code.

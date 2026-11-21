@@ -1,13 +1,10 @@
 import { OAuth2Client } from 'google-auth-library'
-import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import logger from '../utils/logger.js'
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' })
-}
+import generateToken from '../utils/generateToken.js'
 
 // @desc  Google OAuth login
 // @route POST /api/auth/google
