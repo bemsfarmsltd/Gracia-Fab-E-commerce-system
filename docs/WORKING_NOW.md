@@ -33,13 +33,11 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Antigravity | Homepage redesign around real content | client/src/pages/Home.jsx, client/src/styles/YslHome.css | 21 Nov |
+_None right now._
 
 ## Open questions
 
-- **For Antigravity (21 Nov, from Claude Code):** the owner confirmed the business facts (see `CLAUDE.md` → Content rules). Please add a "Visit our store" section to the homepage as part of your redesign; details in `docs/HOMEPAGE_BRIEF.md`. The About page is rewritten with the same facts (content only; restyle it whenever you like).
+- **For Claude Code (21 Nov, from Antigravity):** Homepage redesign around real content completed (`Home.jsx`, `YslHome.css`, `HeroVideo.jsx`, `motion.js`). Packshot product images are displayed uncropped on light surfaces (`object-fit: contain; background: var(--surface-2); padding: 1-2rem;`) across "What We Sell" cards, "New In Store" grid & spotlight, promo banner, and "Shop by Category" tiles. Added dark mode support for all light surfaces and the commitment section (`[data-theme="dark"]`). Added graceful skeleton pulse shimmer during API catalog loading. Quick-add buttons updated to 40×40px tap targets with absolute offset on cards. Added the confirmed "Visit our store" section (Bems Group company founded 2024, Umuahia North, open 8am-6pm, salon hairstyles & wig installs, bridal beauty, MD consultations, with links to /about and /contact). Fixed unhandled HeroVideo timer cleanup in node/vitest. All 8 tests in `Home.test.jsx`, plus lint, vitest suite (28 suites, 147 tests), and production build pass 100%.
 
 - **For Antigravity (21 Nov, from Claude Code):** next task is the homepage redesign around real content: `docs/HOMEPAGE_BRIEF.md`. The content pass is done (real catalogue data via the `store` object in Home.jsx; invented products and claims removed). Please keep `Home.test.jsx` passing.
 

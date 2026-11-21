@@ -225,7 +225,7 @@ function Home({ onCartOpen }) {
 
         <div className="ysl-triad-grid">
           <article className="ysl-triad-card">
-            <div className="triad-card-media">
+            <div className={`triad-card-media ${!store.loaded ? "is-loading" : ""}`}>
               <img
                 src={store.photoFor("skincare")}
                 alt="Skincare at Gracia Fab"
@@ -247,7 +247,7 @@ function Home({ onCartOpen }) {
             </div>
           </article>
           <article className="ysl-triad-card">
-            <div className="triad-card-media">
+            <div className={`triad-card-media ${!store.loaded ? "is-loading" : ""}`}>
               <img
                 src={store.photoFor("wig")}
                 alt="Wigs at Gracia Fab"
@@ -269,7 +269,7 @@ function Home({ onCartOpen }) {
             </div>
           </article>
           <article className="ysl-triad-card">
-            <div className="triad-card-media">
+            <div className={`triad-card-media ${!store.loaded ? "is-loading" : ""}`}>
               <img
                 src={store.photoFor("bridal")}
                 alt="Bridal beauty at Gracia Fab"
@@ -627,7 +627,7 @@ function Home({ onCartOpen }) {
           <div className="ysl-shopcat-grid">
             <div className="ysl-shopcat-col offset">
               <Link to="/products?category=skincare" className="ysl-shopcat-card">
-                <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "3 / 4" }}>
+                <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "3 / 4" }}>
                   <img
                     src={store.photoFor("skincare")}
                     loading="lazy"
@@ -639,7 +639,7 @@ function Home({ onCartOpen }) {
               </Link>
 
               <Link to="/products?category=wig" className="ysl-shopcat-card">
-                <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "3 / 4.2" }}>
+                <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "3 / 4.2" }}>
                   <img
                     src={store.photoFor("wig")}
                     loading="lazy"
@@ -653,7 +653,7 @@ function Home({ onCartOpen }) {
 
             <div className="ysl-shopcat-col">
               <Link to="/products?category=haircare" className="ysl-shopcat-card">
-                <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "4 / 3.3" }}>
+                <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "4 / 3.3" }}>
                   <img
                     src={store.photoFor("haircare")}
                     loading="lazy"
@@ -665,7 +665,7 @@ function Home({ onCartOpen }) {
               </Link>
 
               <Link to="/products?category=bridal" className="ysl-shopcat-card">
-                <div className="ysl-shopcat-img-wrap" style={{ aspectRatio: "4 / 3.6" }}>
+                <div className={`ysl-shopcat-img-wrap ${!store.loaded ? "is-loading" : ""}`} style={{ aspectRatio: "4 / 3.6" }}>
                   <img
                     src={store.photoFor("bridal")}
                     loading="lazy"
@@ -722,6 +722,71 @@ function Home({ onCartOpen }) {
               </span>
               <span className="ysl-commitment-label">Delivered Nationwide</span>
             </div>
+          </div>
+
+          <div className="ysl-commitment-about-prompt">
+            <Link to="/about" className="ysl-commitment-about-link">
+              <span>Read our story &amp; visit our store</span>
+              <span className="arrow">→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION: VISIT OUR STORE ── */}
+      <section className="ysl-store-section" aria-label="Visit our store in Umuahia">
+        <div className="ysl-store-inner">
+          <div className="ysl-store-header">
+            <span className="ysl-store-eyebrow">✦ PHYSICAL STORE &amp; SALON</span>
+            <h2 className="ysl-store-title">Visit Our Store in Umuahia</h2>
+            <p className="ysl-store-sub">
+              A Bems Group company, founded in 2024. Located in Umuahia North, Abia State. Open 8:00 AM – 6:00 PM.
+            </p>
+          </div>
+
+          <div className="ysl-store-grid">
+            <div className="ysl-store-card">
+              <span className="store-card-icon" aria-hidden="true">✨</span>
+              <h3 className="store-card-heading">Beauty &amp; Skincare</h3>
+              <p className="store-card-text">
+                Browse our curated skincare, haircare, body care and ready-to-wear wigs in person.
+              </p>
+            </div>
+
+            <div className="ysl-store-card">
+              <span className="store-card-icon" aria-hidden="true">💇‍♀️</span>
+              <h3 className="store-card-heading">Hair Salon</h3>
+              <p className="store-card-text">
+                Professional hairstyles and wig installs by experienced in-house stylists.
+              </p>
+            </div>
+
+            <div className="ysl-store-card">
+              <span className="store-card-icon" aria-hidden="true">👰</span>
+              <h3 className="store-card-heading">Bridal Beauty</h3>
+              <p className="store-card-text">
+                Bridal beauty preparation, wedding makeup sessions and bridal accessories.
+              </p>
+            </div>
+
+            <div className="ysl-store-card">
+              <span className="store-card-icon" aria-hidden="true">💬</span>
+              <h3 className="store-card-heading">Consultations</h3>
+              <p className="store-card-text">
+                Personalized beauty consultations and routine guidance directly with our MD.
+              </p>
+            </div>
+          </div>
+
+          <div className="ysl-store-cta-row">
+            <Link to="/about" className="ysl-store-btn ysl-store-btn-primary">
+              <span>Read About Gracia Fab</span>
+              <span className="arrow">→</span>
+            </Link>
+            <Link to="/contact" className="ysl-store-btn ysl-store-btn-secondary">
+              <span>Contact &amp; Location Details</span>
+              <span className="arrow">→</span>
+            </Link>
           </div>
         </div>
       </section>

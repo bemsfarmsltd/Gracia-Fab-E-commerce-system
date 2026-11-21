@@ -30,6 +30,8 @@ export const MOTION_MAP = [
   { selector: ".product-card", from: "mix", stagger: 70 },
   { selector: ".promo-perk-item, .perk-item", from: "up", stagger: 80 },
   { selector: ".ysl-commitment-badge", from: "zoom", stagger: 100 },
+  { selector: ".ysl-store-card", from: "mix", stagger: 80 },
+  { selector: ".ysl-store-section", from: "up" },
   { selector: ".ysl-undertone-card", from: "mix", stagger: 80 },
   { selector: ".ysl-undertone-showcase-section, .ysl-comparator-showcase-section", from: "up" },
   { selector: ".ysl-faq-section", from: "up" },

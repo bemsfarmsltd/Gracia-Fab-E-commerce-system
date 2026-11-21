@@ -26,7 +26,8 @@ function shouldSkipVideo() {
 }
 
 function pickSource() {
-  const narrow = window.matchMedia?.("(max-width: 768px)").matches;
+  if (typeof window === "undefined") return HERO_VIDEO_DESKTOP;
+  const narrow = window.matchMedia?.("(max-width: 768px)")?.matches;
   return narrow ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP;
 }
 
@@ -40,16 +41,27 @@ function HeroVideo({ className }) {
     const start = () => {
       // The idle callback can be postponed indefinitely on a busy page (seen
       // on a throttled connection), so give it a deadline.
-      const schedule = window.requestIdleCallback
-        ? (cb) => window.requestIdleCallback(cb, { timeout: 1500 })
-        : (cb) => setTimeout(cb, 200);
-      idleHandle = schedule(() => setSrc(pickSource()));
+      if (typeof window !== "undefined" && window.requestIdleCallback) {
+        const id = window.requestIdleCallback(() => setSrc(pickSource()), { timeout: 1500 });
+        idleHandle = { type: "idle", id };
+      } else {
+        const id = setTimeout(() => setSrc(pickSource()), 200);
+        idleHandle = { type: "timeout", id };
+      }
     };
-    if (document.readyState === "complete") start();
-    else window.addEventListener("load", start, { once: true });
+    if (typeof window !== "undefined") {
+      if (document.readyState === "complete") start();
+      else window.addEventListener("load", start, { once: true });
+    }
     return () => {
-      window.removeEventListener("load", start);
-      if (idleHandle && window.cancelIdleCallback) window.cancelIdleCallback(idleHandle);
+      if (typeof window !== "undefined") window.removeEventListener("load", start);
+      if (idleHandle) {
+        if (idleHandle.type === "idle" && typeof window !== "undefined" && window.cancelIdleCallback) {
+          window.cancelIdleCallback(idleHandle.id);
+        } else if (idleHandle.type === "timeout") {
+          clearTimeout(idleHandle.id);
+        }
+      }
     };
   }, []);
 
