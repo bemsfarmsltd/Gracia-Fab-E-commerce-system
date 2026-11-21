@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Claude Code | First-visit reload fix; 7-day logins with silent renewal | client/src/main.jsx, client/src/context/AuthContext.jsx, server/utils/generateToken*, server/middleware/authMiddleware.js, server/routes/authRoutes.js, server/controllers/authController.js | 21 Nov |
 
 ## Open questions
 
