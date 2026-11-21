@@ -6,6 +6,8 @@ import "../styles/About.css";
 import SEO from "../components/SEO";
 import API_URL from "../config";
 import { isOutOfStock } from "../utils/stock";
+import { STORE } from "../utils/storeInfo";
+import BookingOptions from "../components/BookingOptions";
 
 // Everything on this page comes from the owner (21 Nov 2026): Gracia Fab is a
 // Bems Group company, founded in 2024 as a store in Umuahia North, now
@@ -81,8 +83,8 @@ function About({ onCartOpen }) {
                   <span>Our shop, Abia State</span>
                 </div>
                 <div className="craft-metric-item">
-                  <strong>8am – 6pm</strong>
-                  <span>Store hours</span>
+                  <strong>Mon–Sat</strong>
+                  <span>8am – 6pm</span>
                 </div>
               </div>
             </div>
@@ -140,8 +142,10 @@ function About({ onCartOpen }) {
                 <span className="craft-pillars-italic">Visit us in Umuahia.</span>
               </h2>
               <p className="craft-pillars-sub">
-                Open 8am to 6pm in Umuahia North, Abia State.
+                Open {STORE.hours} in Umuahia North, Abia State. Book the salon, bridal
+                makeup or a consultation on WhatsApp or by phone.
               </p>
+              <BookingOptions />
             </div>
 
             <div className="craft-pillars-right">
@@ -272,7 +276,7 @@ function About({ onCartOpen }) {
               or come and see us.
             </h2>
             <p className="craft-final-sub">
-              Gracia Fab · Umuahia North, Abia State · Open 8am to 6pm
+              Gracia Fab · Umuahia North, Abia State · Open {STORE.hours}
             </p>
 
             <div className="craft-final-buttons">

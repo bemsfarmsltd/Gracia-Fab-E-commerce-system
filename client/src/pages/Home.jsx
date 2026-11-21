@@ -8,6 +8,7 @@ import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import { AFRICAN_UNDERTONES } from "../utils/africanUndertones";
 import HeroVideo from "../components/HeroVideo";
+import BookingOptions from "../components/BookingOptions";
 import API_URL from "../config";
 import { isOutOfStock, stockLabel } from "../utils/stock";
 import "../styles/YslHome.css";
@@ -740,7 +741,7 @@ function Home({ onCartOpen }) {
             <span className="ysl-store-eyebrow">✦ PHYSICAL STORE &amp; SALON</span>
             <h2 className="ysl-store-title">Visit Our Store in Umuahia</h2>
             <p className="ysl-store-sub">
-              A Bems Group company, founded in 2024. Located in Umuahia North, Abia State. Open 8:00 AM – 6:00 PM.
+              A Bems Group company, founded in 2024. Located in Umuahia North, Abia State. Open Monday to Saturday, 8am to 6pm.
             </p>
           </div>
 
@@ -749,7 +750,7 @@ function Home({ onCartOpen }) {
               <span className="store-card-icon" aria-hidden="true">✨</span>
               <h3 className="store-card-heading">Beauty &amp; Skincare</h3>
               <p className="store-card-text">
-                Browse our curated skincare, haircare, body care and ready-to-wear wigs in person.
+                Browse our skincare, haircare, body care and wigs in person.
               </p>
             </div>
 
@@ -757,7 +758,7 @@ function Home({ onCartOpen }) {
               <span className="store-card-icon" aria-hidden="true">💇‍♀️</span>
               <h3 className="store-card-heading">Hair Salon</h3>
               <p className="store-card-text">
-                Professional hairstyles and wig installs by experienced in-house stylists.
+                Hairstyles and wig installs in our salon.
               </p>
             </div>
 
@@ -765,7 +766,7 @@ function Home({ onCartOpen }) {
               <span className="store-card-icon" aria-hidden="true">👰</span>
               <h3 className="store-card-heading">Bridal Beauty</h3>
               <p className="store-card-text">
-                Bridal beauty preparation, wedding makeup sessions and bridal accessories.
+                Bridal makeup by our staff, and bridal accessories.
               </p>
             </div>
 
@@ -773,10 +774,12 @@ function Home({ onCartOpen }) {
               <span className="store-card-icon" aria-hidden="true">💬</span>
               <h3 className="store-card-heading">Consultations</h3>
               <p className="store-card-text">
-                Personalized beauty consultations and routine guidance directly with our MD.
+                Talk to our MD about problems with your skin, hair or wig.
               </p>
             </div>
           </div>
+
+          <BookingOptions compact />
 
           <div className="ysl-store-cta-row">
             <Link to="/about" className="ysl-store-btn ysl-store-btn-primary">

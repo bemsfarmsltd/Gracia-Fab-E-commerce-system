@@ -14,13 +14,18 @@ const QUICK_PROMPTS = [
 ];
 
 // Offline answers (used when the AI can't be reached). Facts only from the
-// owner: store in Umuahia North, open 8am-6pm, salon, wig installs, bridal
+// owner: store in Umuahia North, open Mon-Sat 8am-6pm, salon, wig installs, bridal
 // makeup and accessories, consultations with the MD. Order matters: the first
 // matching entry answers.
 const KNOWLEDGE_BASE = [
   {
+    keywords: ["book", "booking", "appointment", "reserve", "schedule"],
+    reply: "You can book a hairstyle, wig install, bridal makeup or a consultation with our MD on **WhatsApp** or by phone on **0803 744 7068**. If we haven't replied on WhatsApp within 30 minutes, please call. We're open **Monday to Saturday, 8am to 6pm**.",
+    link: { text: "Book an appointment →", url: "/contact" },
+  },
+  {
     keywords: ["store", "shop", "visit", "open", "hours", "close", "salon", "hairstyle", "braid", "install", "makeup", "make-up", "consult", "located", "location", "address", "where are you"],
-    reply: "Our store is in **Umuahia North, Umuahia, Abia State**, open **8am to 6pm**. In store we sell beauty, skin and hair products, do hairstyles and wig installs in our salon, offer bridal makeup and accessories, and our MD gives consultations on skin, hair and wig problems.",
+    reply: "Our store is in **Umuahia North, Umuahia, Abia State**, open **Monday to Saturday, 8am to 6pm**. In store we sell beauty, skin and hair products, do hairstyles and wig installs in our salon, offer bridal makeup and accessories, and our MD gives consultations on skin, hair and wig problems.",
     link: { text: "About our store →", url: "/about" },
   },
   {
@@ -177,7 +182,7 @@ function AiConciergeChat({ onCartOpen }) {
       if (!match) {
         match = {
           reply:
-            "I can help with skincare, hair products, wigs, bridal beauty, delivery and our store in Umuahia (open 8am to 6pm). Try asking about one of those, or message us on WhatsApp from the link at the bottom of the page.",
+            "I can help with skincare, hair products, wigs, bridal beauty, delivery and our store in Umuahia (open Monday to Saturday, 8am to 6pm). Try asking about one of those, or message us on WhatsApp from the link at the bottom of the page.",
         };
       }
 

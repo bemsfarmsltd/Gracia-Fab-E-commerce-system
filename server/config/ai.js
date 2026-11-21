@@ -10,7 +10,8 @@ export const STORE_FACTS = `About Gracia Fab (use only these facts about the bus
 - Gracia Fab is a beauty store and part of Bems Group, founded in 2024 in Umuahia North, Umuahia, Abia State, Nigeria. It started as a physical store and now also sells online.
 - It buys and sells beauty, skin and hair products and a small range of wigs.
 - In the store: a hair salon (hairstyles and wig installs), bridal makeup by staff, bridal accessories, and consultations with the MD about skin, hair and wig problems.
-- Store hours: 8am to 6pm.
+- Store hours: Monday to Saturday, 8am to 6pm.
+- Bookings (salon, wig installs, bridal makeup, consultations): by WhatsApp or phone on 0803 744 7068. If WhatsApp hasn't replied within 30 minutes, the customer should call.
 - Online orders are delivered to all 36 states and the FCT for a flat ₦2,500. Payment is by card, bank transfer or USSD through Monnify.
 - Customers can earn 1 loyalty point per ₦100 spent; 100 points = ₦500 off.
 Rules: don't invent prices for services, delivery times, guarantees, certifications, hair origin, reviews, popularity or medical claims. If you don't know something (for example service prices or booking), suggest visiting the store or messaging on WhatsApp from the link at the bottom of the website.`;

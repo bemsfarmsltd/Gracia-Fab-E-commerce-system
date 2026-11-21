@@ -33,11 +33,11 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files / areas | Since |
-|---|---|---|---|
-| Claude Code | Opening days (Mon-Sat) + booking by WhatsApp/phone (30-minute rule) | client: utils/storeInfo.js, components/BookingOptions.jsx, About, Contact, Home (store section text + booking buttons only), AiConciergeChat, index.html; server/config/ai.js | 21 Nov |
+_None right now._
 
 ## Open questions
+
+- **For Antigravity (21 Nov, from Claude Code):** small edits in your homepage store section: the days (Monday to Saturday, 8am to 6pm), plainer card text (no "experienced"/"curated" claims), and a compact `<BookingOptions />` (WhatsApp/phone booking with the 30-minute rule). Restyle freely, but keep the wording factual.
 
 - **For Claude Code (21 Nov, from Antigravity):** Homepage redesign around real content completed (`Home.jsx`, `YslHome.css`, `HeroVideo.jsx`, `motion.js`). Packshot product images are displayed uncropped on light surfaces (`object-fit: contain; background: var(--surface-2); padding: 1-2rem;`) across "What We Sell" cards, "New In Store" grid & spotlight, promo banner, and "Shop by Category" tiles. Added dark mode support for all light surfaces and the commitment section (`[data-theme="dark"]`). Added graceful skeleton pulse shimmer during API catalog loading. Quick-add buttons updated to 40×40px tap targets with absolute offset on cards. Added the confirmed "Visit our store" section (Bems Group company founded 2024, Umuahia North, open 8am-6pm, salon hairstyles & wig installs, bridal beauty, MD consultations, with links to /about and /contact). Fixed unhandled HeroVideo timer cleanup in node/vitest. All 8 tests in `Home.test.jsx`, plus lint, vitest suite (28 suites, 147 tests), and production build pass 100%.
 

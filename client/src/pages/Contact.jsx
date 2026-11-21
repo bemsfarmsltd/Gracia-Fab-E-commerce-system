@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import SEO from "../components/SEO";
 import API_URL from "../config";
+import BookingOptions from "../components/BookingOptions";
 import "../styles/Contact.css";
 
 function Contact({ onCartOpen }) {
@@ -164,9 +165,18 @@ function Contact({ onCartOpen }) {
                 <span className="contact-info-icon" aria-hidden="true">📍</span>
                 <div>
                   <h3>Our Store</h3>
-                  <p>Umuahia North, Umuahia, Abia State, Nigeria · Open 8am to 6pm.</p>
+                  <p>Umuahia North, Umuahia, Abia State, Nigeria · Open Monday to Saturday, 8am to 6pm.</p>
                   <p>Beauty, skin and hair products, a hair salon (hairstyles and wig installs), bridal makeup and accessories, and consultations with our MD.</p>
                   <p>Delivering online orders to all 36 states and the FCT.</p>
+                </div>
+              </div>
+
+              <div className="contact-info-card">
+                <span className="contact-info-icon" aria-hidden="true">📅</span>
+                <div>
+                  <h3>Book an appointment</h3>
+                  <p>Hairstyles, wig installs, bridal makeup or a consultation with our MD.</p>
+                  <BookingOptions />
                 </div>
               </div>
 
@@ -178,7 +188,7 @@ function Contact({ onCartOpen }) {
                 <span className="contact-info-icon">📞</span>
                 <div>
                   <h3>Call Support</h3>
-                  <p>+234 803 744 7068 · Mon–Sat, 9am–6pm WAT.</p>
+                  <p>+234 803 744 7068 · Mon–Sat, 8am–6pm.</p>
                   <span className="contact-info-action">Tap to call →</span>
                 </div>
               </a>
