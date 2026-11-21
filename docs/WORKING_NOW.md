@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Claude Code | Opening days (Mon-Sat) + booking by WhatsApp/phone (30-minute rule) | client: utils/storeInfo.js, components/BookingOptions.jsx, About, Contact, Home (store section text + booking buttons only), AiConciergeChat, index.html; server/config/ai.js | 21 Nov |
 
 ## Open questions
 
