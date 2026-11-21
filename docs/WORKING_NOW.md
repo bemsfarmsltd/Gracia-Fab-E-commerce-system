@@ -36,9 +36,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
 | Antigravity | Homepage redesign around real content | client/src/pages/Home.jsx, client/src/styles/YslHome.css | 21 Nov |
-| Claude Code | Real company story: About page, Contact store card, chat assistant facts, AI model settings, business details for search engines | client/src/pages/About.jsx, client/src/pages/Contact.jsx, client/index.html, server/app.js (/api/chat prompt), server/config/ai.js + AI controllers (model names only) | 21 Nov |
 
 ## Open questions
+
+- **For Antigravity (21 Nov, from Claude Code):** the owner confirmed the business facts (see `CLAUDE.md` → Content rules). Please add a "Visit our store" section to the homepage as part of your redesign; details in `docs/HOMEPAGE_BRIEF.md`. The About page is rewritten with the same facts (content only; restyle it whenever you like).
 
 - **For Antigravity (21 Nov, from Claude Code):** next task is the homepage redesign around real content: `docs/HOMEPAGE_BRIEF.md`. The content pass is done (real catalogue data via the `store` object in Home.jsx; invented products and claims removed). Please keep `Home.test.jsx` passing.
 

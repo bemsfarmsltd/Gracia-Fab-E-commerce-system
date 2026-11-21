@@ -6,44 +6,54 @@ import API_URL from "../config";
 import "./AiConciergeChat.css";
 
 const QUICK_PROMPTS = [
-  "✨ Recommend skincare for hyperpigmentation",
-  "👑 Best glueless raw wig for beginner",
-  "🌸 How long does delivery take?",
-  "🎨 How do I find my foundation undertone?",
-  "👰🏽 Help me prepare a bridal beauty routine",
+  "✨ Recommend skincare for dark spots",
+  "👑 Which wig suits a beginner?",
+  "🏪 Where is your store and when are you open?",
+  "🌸 How much is delivery?",
+  "👰🏽 Help me prepare for my wedding",
 ];
 
+// Offline answers (used when the AI can't be reached). Facts only from the
+// owner: store in Umuahia North, open 8am-6pm, salon, wig installs, bridal
+// makeup and accessories, consultations with the MD. Order matters: the first
+// matching entry answers.
 const KNOWLEDGE_BASE = [
   {
-    keywords: ["hyperpigmentation", "dark spots", "vitamin c", "serum", "brighten", "even skin"],
-    reply: "For melanin-rich skin facing hyperpigmentation or sun spots in Nigeria's climate, we recommend a Vitamin C or Niacinamide brightening serum — they even out tone without bleaching agents.",
-    link: { text: "Shop Brightening Skincare →", url: "/products?category=skincare" },
+    keywords: ["store", "shop", "visit", "open", "hours", "close", "salon", "hairstyle", "braid", "install", "makeup", "make-up", "consult", "located", "location", "address", "where are you"],
+    reply: "Our store is in **Umuahia North, Umuahia, Abia State**, open **8am to 6pm**. In store we sell beauty, skin and hair products, do hairstyles and wig installs in our salon, offer bridal makeup and accessories, and our MD gives consultations on skin, hair and wig problems.",
+    link: { text: "About our store →", url: "/about" },
   },
   {
-    keywords: ["wig", "hair", "raw", "virgin", "glueless", "beginner", "bone straight", "frontal", "closure"],
-    reply: "For everyday effortless wear, look for our glueless, HD lace raw virgin units with pre-bleached knots — no glue or salon appointment required.",
-    link: { text: "Shop Raw Wigs →", url: "/products?category=wig" },
+    keywords: ["hyperpigmentation", "dark spot", "vitamin c", "serum", "brighten", "even skin", "uneven"],
+    reply: "For dark spots and uneven tone, look at serums with vitamin C or niacinamide, and wear sunscreen every day. The AI Beauty Advisor can suggest products from our shelves for your skin.",
+    link: { text: "Ask the AI Beauty Advisor →", url: "/recommend" },
   },
   {
-    keywords: ["delivery", "shipping", "lagos", "abuja", "umuahia", "abia", "nationwide", "timeline", "dispatch", "monnify", "payment"],
-    reply: "We're based in **Umuahia, Abia State**, and deliver to all 36 states and the FCT for a flat **₦2,500**. Delivery usually takes **2–7 business days** depending on where you are; see our Shipping & Returns page for details.",
+    keywords: ["wig", "frontal", "closure", "glueless", "bone straight", "lace"],
+    reply: "We keep a small range of wigs. Each wig's page describes its hair, length and lace. If you'd like it installed, our salon in Umuahia does wig installs.",
+    link: { text: "See our wigs →", url: "/products?category=wig" },
   },
   {
-    keywords: ["undertone", "shade", "skin tone", "detector", "foundation", "complexion"],
-    reply: "You can use our live **AI Skin Tone Detector** directly with your phone camera! It maps African undertones (Warm Golden, Rich Neutral, Deep Red/Espresso) and gives exact foundation matches.",
-    link: { text: "Launch Skin Tone Detector →", url: "/skin-tone" },
+    keywords: ["delivery", "deliver", "shipping", "ship", "lagos", "abuja", "nationwide", "dispatch", "monnify", "payment", "pay", "how much"],
+    reply: "We deliver to all 36 states and the FCT for a flat **₦2,500**, sent from our store in Umuahia. You can pay by card, bank transfer or USSD through Monnify. Delivery time depends on where you are; see Shipping & Returns.",
+    link: { text: "Shipping & Returns →", url: "/shipping-returns" },
+  },
+  {
+    keywords: ["undertone", "shade", "skin tone", "detector", "complexion"],
+    reply: "Try the **Skin Tone Scan** with your phone camera or a photo. It estimates whether your undertone is Warm Golden, Rich Neutral or Deep Espresso. It runs on your device and doesn't save the photo.",
+    link: { text: "Open the Skin Tone Scan →", url: "/skin-tone" },
   },
   {
     keywords: ["bridal", "wedding", "bride", "glam"],
-    reply: "For your big day, we recommend starting a bridal skincare and beauty routine 4–8 weeks ahead — our AI Beauty Advisor can build one matched to your skin, hair and wedding date.",
-    link: { text: "Build Bridal Routine →", url: "/recommend" },
+    reply: "Start your bridal skincare routine about 6–8 weeks before the wedding; our bridal guide has a timeline. Our staff also do bridal makeup at our Umuahia store, and we sell bridal accessories. Add your wedding date in My Vanity for a countdown.",
+    link: { text: "Read the bridal guide →", url: "/beauty/bridal-skincare-routine-nigeria" },
   },
 ];
 
 const INITIAL_MESSAGES = [
   {
     sender: "ai",
-    text: "Hello! I am your Gracia Fab AI Concierge. How may I assist you with melanin skincare, raw virgin wigs, haircare, or bridal beauty today?",
+    text: "Hello! I'm the Gracia Fab assistant. Ask me about skincare, hair products, wigs, bridal beauty, delivery or our store in Umuahia.",
   },
 ];
 
@@ -167,7 +177,7 @@ function AiConciergeChat({ onCartOpen }) {
       if (!match) {
         match = {
           reply:
-            "Thank you for asking! I can help match you with the right melanin skincare, raw virgin wigs, haircare routines, or bridal beauty formulations. Feel free to ask about hyperpigmentation, glueless wigs, skin tone matching, or delivery timelines.",
+            "I can help with skincare, hair products, wigs, bridal beauty, delivery and our store in Umuahia (open 8am to 6pm). Try asking about one of those, or message us on WhatsApp from the link at the bottom of the page.",
         };
       }
 
@@ -249,7 +259,7 @@ function AiConciergeChat({ onCartOpen }) {
               <span className="ysl-chat-gold-mark">✦</span>
               <div className="ysl-chat-title-group">
                 <span className="ysl-chat-title">AI Beauty Concierge</span>
-                <span className="ysl-chat-subtitle">Gracia Fab Maison</span>
+                <span className="ysl-chat-subtitle">Gracia Fab · Umuahia</span>
               </div>
             </div>
             <div className="ysl-chat-header-actions">
@@ -303,7 +313,7 @@ function AiConciergeChat({ onCartOpen }) {
                 <div className="ysl-chat-intro-text">
                   <h3>Personalized Beauty Concierge</h3>
                   <p className="ysl-chat-disclaimer">
-                    You are speaking with Gracia Fab's AI advisor. Our automated beauty intelligence assists with hyperpigmentation, glueless raw virgin wigs, African undertones, and bridal care. By continuing, you agree to our{" "}
+                    You are speaking with Gracia Fab's AI advisor. It helps with skincare, hair products, wigs, undertones, bridal beauty and questions about our store. By continuing, you agree to our{" "}
                     <Link to="/terms">Terms of Use</Link> and{" "}
                     <Link to="/privacy">Privacy Policy</Link>.
                   </p>

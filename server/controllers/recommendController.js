@@ -2,6 +2,7 @@ import Groq from 'groq-sdk'
 import Product from '../models/Product.js'
 import logger from '../utils/logger.js'
 import { sendServerError } from '../utils/httpErrors.js'
+import { groqModel } from '../config/ai.js'
 
 // Initialize lazily so dotenv loads first
 let groqClient = null
@@ -181,7 +182,7 @@ Respond ONLY with a valid JSON object matching this structure:
     try {
       const completion = await getGroq().chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
-        model: 'llama-3.1-8b-instant',
+        model: groqModel(),
         temperature: 0.7,
         max_tokens: 1024,
         response_format: { type: "json_object" }

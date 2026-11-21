@@ -55,7 +55,7 @@ describe("AiConciergeChat", () => {
     );
 
     expect(
-      screen.getByText(/Hello! I am your Gracia Fab AI Concierge/i)
+      screen.getByText(/Hello! I.m the Gracia Fab assistant/i)
     ).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText(/Ask about skincare, wigs, undertones/i)
@@ -87,7 +87,7 @@ describe("AiConciergeChat", () => {
     // Verify fallback response appears
     await waitFor(() => {
       expect(
-        screen.getByText(/For melanin-rich skin facing hyperpigmentation/i)
+        screen.getByText(/For dark spots and uneven tone/i)
       ).toBeInTheDocument();
     });
   });
@@ -138,5 +138,16 @@ describe("AiConciergeChat", () => {
       screen.getByText(/Added "Radiance Niacinamide Serum" to your bag/i)
     ).toBeInTheDocument();
   });
-});
 
+  it("answers questions about the store with the real facts when offline", async () => {
+    vi.spyOn(window, "fetch").mockRejectedValueOnce(new Error("Network error"));
+    renderAiConciergeChat();
+    fireEvent.click(screen.getByRole("button", { name: /open gracia fab ai concierge chat/i }));
+    fireEvent.click(screen.getByRole("button", { name: /start consultation/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Ask about skincare, wigs, undertones/i), { target: { value: "When are you open? Do you do wig installs?" } });
+    fireEvent.click(screen.getByRole("button", { name: /send message/i }));
+    await waitFor(() => expect(screen.getByText(/8am to 6pm/)).toBeInTheDocument());
+    expect(screen.getByText(/Umuahia North/)).toBeInTheDocument();
+    expect(screen.queryByText(/raw virgin|2–7 business days/i)).not.toBeInTheDocument();
+  });
+});

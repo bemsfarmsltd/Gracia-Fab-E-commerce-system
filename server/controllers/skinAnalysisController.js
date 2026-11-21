@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Product from "../models/Product.js";
 import logger from "../utils/logger.js";
+import { geminiModel } from "../config/ai.js";
 
 let geminiClient = null;
 const getGemini = () => {
@@ -130,7 +131,7 @@ export const analyseSkin = async (req, res) => {
       logger.info({ attempt, maxRetries: MAX_RETRIES }, "Skin analysis attempt");
 
       const model = gemini.getGenerativeModel({
-        model: "gemini-2.0-flash",
+        model: geminiModel(),
         generationConfig: {
           responseMimeType: "application/json",
           responseSchema: skinAnalysisSchema

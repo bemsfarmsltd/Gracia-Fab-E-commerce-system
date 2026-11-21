@@ -4,11 +4,10 @@ import { SITE_URL } from "../config";
 function SEO({ title, description, keywords, image, url, type = "website", schema }) {
   const siteName = "Gracia Fab";
   const defaultDesc =
-    "Gracia Fab is your AI-powered beauty advisor. Get personalized skincare routines, haircare tips, wig styles and bridal beauty recommendations made just for you.";
-  // Brand still from the home page hero video (1200×630, the social-preview
-  // size), not a stock photo.
-  const defaultImage =
-    "https://res.cloudinary.com/dyzkjerez/video/upload/so_0,w_1200,h_630,c_fill,q_auto/v1789284554/Generate_a_high_end_glossy_c_1_arwzb5.jpg";
+    "Gracia Fab is a beauty store in Umuahia, Abia State, selling skincare, hair products, wigs and bridal beauty, now online with delivery across Nigeria for ₦2,500. Our AI tools help you choose.";
+  // The brand logo until real photos of the shop are available (the old
+  // default was a frame from an AI-generated video).
+  const defaultImage = `${SITE_URL}/logo.png`;
   // VITE_SITE_URL on Vercel (see config.js).
   const baseUrl = SITE_URL;
 

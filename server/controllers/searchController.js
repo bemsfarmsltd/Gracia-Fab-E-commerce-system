@@ -5,6 +5,7 @@ import Groq from "groq-sdk";
 import logger from "../utils/logger.js";
 import { escapeRegex } from "../utils/queryHelpers.js";
 import { sendServerError } from "../utils/httpErrors.js";
+import { groqModel } from "../config/ai.js";
 
 // ─────────────────────────────────────────
 //  SMART QUERY PARSER (No API needed)
@@ -119,7 +120,7 @@ SkinTypes: oily, dry, combination, normal, sensitive`;
 
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama-3.1-8b-instant",
+      model: groqModel(),
       temperature: 0.1,
       max_tokens: 200,
     });

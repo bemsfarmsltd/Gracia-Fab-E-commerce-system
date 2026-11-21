@@ -5,6 +5,7 @@ import Groq from "groq-sdk";
 import { addToQueue, emailQueue } from "../queues/index.js";
 import logger from "../utils/logger.js";
 import { siteUrl, siteHost } from "../utils/siteUrl.js";
+import { groqModel } from "../config/ai.js";
 
 const escapeHtml = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -42,7 +43,7 @@ Requirements:
 Return ONLY JSON: {"subject": "...", "body": "..."}`,
         },
       ],
-      model: "llama-3.1-8b-instant",
+      model: groqModel(),
       max_tokens: 250,
       temperature: 0.6,
     });

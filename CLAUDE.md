@@ -39,6 +39,8 @@ cd server && npm test
 
 ## Content rules
 
+- **Confirmed facts about the business** (owner, 21 Nov 2026): Gracia Fab is a Bems Group company, founded in 2024 as a physical store in Umuahia North, Umuahia, Abia State, now moving online. It buys and sells beauty, skin and hair products and a small range of wigs. In store: hair salon (hairstyles, wig installs), bridal makeup and accessories, consultations with the MD. Open 8am to 6pm (days not confirmed). The same facts feed the AI assistants (`server/config/ai.js` STORE_FACTS). Don't add others (service prices, delivery times, hair origin, guarantees) without the owner.
+
 - The store is in **Umuahia, Abia State**, not Lagos. Delivery is a flat ₦2,500 nationwide (`server/config/shipping.js`); don't advertise same-day, free-delivery thresholds or voucher codes that don't exist in `server/services/vouchers.js`.
 - Don't invent products, brands, reviews or claims. An earlier commit had to strip out fabricated content.
 - Product images must show the actual product. Use `/product-placeholder.svg` when there's no real photo; never use generic stock photos as stand-ins. Real photos so far are hosted on Cloudinary (`res.cloudinary.com/dyzkjerez/...`).

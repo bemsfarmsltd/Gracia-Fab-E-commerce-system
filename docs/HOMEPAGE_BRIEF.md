@@ -47,5 +47,9 @@ foundation), and every Unsplash photo. Don't bring any of these back.
   Replace it with a real photo or short video of the shop/products when the owner
   sends one; until then a product-led hero (real products on a plain background) is
   better than a model who isn't a Gracia Fab customer.
-- **About Gracia Fab:** a short real story (who runs it, since when, what the shop
-  offers in person) will come from the MD. Leave room for it on the homepage.
+- **About Gracia Fab (facts now confirmed, 21 Nov):** please add a short "Visit our
+  store" section: a Bems Group company, founded 2024, store in Umuahia North, Abia
+  State, open 8am to 6pm; in store: beauty, skin and hair products, a hair salon
+  (hairstyles and wig installs), bridal makeup and accessories, and consultations with
+  the MD. Link to /about (rewritten with these facts) and /contact. No street address
+  or days of the week yet.

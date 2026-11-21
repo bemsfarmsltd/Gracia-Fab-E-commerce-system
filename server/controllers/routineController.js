@@ -4,6 +4,7 @@ import Product from "../models/Product.js";
 import User from "../models/User.js";
 import { sendServerError } from "../utils/httpErrors.js";
 import logger from "../utils/logger.js";
+import { geminiModel, groqModel } from "../config/ai.js";
 
 // ── Lazy clients ──────────────────────────
 let geminiClient = null;
@@ -34,7 +35,7 @@ const callAI = async (prompt, schema = null, retries = 2) => {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const config = {
-          model: "gemini-2.0-flash"
+          model: geminiModel()
         };
         if (schema) {
           config.generationConfig = {
@@ -70,7 +71,7 @@ const callAI = async (prompt, schema = null, retries = 2) => {
     try {
       logger.info("Using Groq fallback for routine");
       const config = {
-        model: "llama-3.1-8b-instant",
+        model: groqModel(),
         temperature: 0.4,
         max_tokens: 2000,
         messages: [{ role: "user", content: prompt }]

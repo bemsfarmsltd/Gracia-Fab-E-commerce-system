@@ -164,7 +164,9 @@ function Contact({ onCartOpen }) {
                 <span className="contact-info-icon" aria-hidden="true">📍</span>
                 <div>
                   <h3>Our Store</h3>
-                  <p>Umuahia, Abia State, Nigeria · Delivering to all 36 states and the FCT.</p>
+                  <p>Umuahia North, Umuahia, Abia State, Nigeria · Open 8am to 6pm.</p>
+                  <p>Beauty, skin and hair products, a hair salon (hairstyles and wig installs), bridal makeup and accessories, and consultations with our MD.</p>
+                  <p>Delivering online orders to all 36 states and the FCT.</p>
                 </div>
               </div>
 

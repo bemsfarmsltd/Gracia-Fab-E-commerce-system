@@ -28,6 +28,7 @@ import vanityRoutes from "./routes/vanityRoutes.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { geminiModel, groqModel, STORE_FACTS } from "./config/ai.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -257,17 +258,23 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
 
   try {
     const Product = (await import("./models/Product.js")).default;
+    // In-stock products first, so the assistant suggests things customers can buy.
     const products = await Product.find({})
-      .select("name price category tags image _id")
+      .select("name price category tags image _id stock isInStock")
+      .sort({ stock: -1 })
       .limit(30)
       .lean();
     const productList = products
-      .map((p) => `ID:${p._id} | ${p.name} | ${p.category} | ₦${p.price}`)
+      .map((p) => `ID:${p._id} | ${p.name} | ${p.category} | ₦${p.price} | ${Number(p.stock) > 0 && p.isInStock !== false ? "in stock" : "out of stock"}`)
       .join("\n");
 
-    const systemInstruction = `You are a warm, luxury beauty concierge for Gracia Fab, an upscale Nigerian beauty maison.
-You assist customers with melanin-rich skincare (hyperpigmentation, sun protection, hydration), raw virgin glueless wigs, bridal beauty, and haircare.
-Keep responses concise (2-3 sentences max), elegant, and actionable.
+    const systemInstruction = `You are the friendly beauty assistant for Gracia Fab's website.
+You help customers with skincare, hair products, wigs, bridal beauty, and questions about the store, delivery and payment.
+Keep responses concise (2-3 sentences max), warm and practical.
+
+${STORE_FACTS}
+
+Only recommend products from the list below, and prefer ones that are in stock.
 When relevant, recommend 1 or 2 specific products from our catalog below by adding PRODUCTS: ["id1", "id2"] at the very end of your response.
 
 Available products:
@@ -282,7 +289,7 @@ ${productList}`;
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         
         // Select model (Gemini 2.0 Flash or 1.5 Flash)
-        const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+        const modelName = geminiModel();
         const model = genAI.getGenerativeModel({
           model: modelName,
           systemInstruction,
@@ -331,7 +338,7 @@ ${productList}`;
       ];
 
       const completion = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant",
+        model: groqModel(),
         max_tokens: 300,
         temperature: 0.7,
         messages: groqMessages,
