@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Claude Code | Homepage voucher card shows the live voucher; brief for Antigravity on category images (Gemini) | client/src/pages/Home.jsx (promo card data only), docs/CATEGORY_IMAGES_BRIEF.md | 21 Nov |
 
 ## Open questions
 
