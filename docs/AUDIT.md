@@ -95,12 +95,12 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: fix soon
 
-- [x] **Homepage showed invented products, photos and claims** (, 21 Nov, owner report). Now built from the real catalogue: New in Store, featured product, category tiles, feature cards and the compare preview all use real products, photos, prices and stock. Removed: 5 invented products (fake ratings, fake discount, and they could be added to the bag under fake IDs), the "Gracia Privé Club", purity/accuracy guarantees, "single-donor raw hair", "zero white cast", foundation shades, all Unsplash photos. The same claims were removed from the cart, Shop, Compare, AI Advisor, account page and a beauty guide.
-- [ ] **Homepage redesign around real content** (). Brief: .
-- [ ] **About page is invented** ( facts, then  + ). "Macro inspection gallery", sourcing, hand-bleached knots, a comparison table and a "money-back raw hair purity guarantee". Needs the real story from the MD before rewriting.
-- [ ] **AI Advisor isn't personalised** (, next). /recommend shows the first 4 catalogue products with invented step labels (and 4 invented products if the catalogue fails); it never calls the server's AI recommendation endpoint. The press kit and customer guide describe it as matching products to answers, so fix the feature before using that copy.
-- [ ] **Catalogue carries invented ratings** (). Products have rating/numReviews values (e.g. 4.7 from 15) with no actual reviews behind them; product cards show them. Show ratings only from real reviews.
-- [ ] **Hero video is AI-generated** (). Needs a real photo or video of the shop or products.
+- [x] **Homepage showed invented products, photos and claims** (`CC`, 21 Nov, owner report). Now built from the real catalogue: New in Store, featured product, category tiles, feature cards and the compare preview all use real products, photos, prices and stock. Removed: 5 invented products (fake ratings, fake discount, and they could be added to the bag under fake IDs), the "Gracia Privé Club", purity/accuracy guarantees, "single-donor raw hair", "zero white cast", foundation shades, all Unsplash photos. The same claims were removed from the cart, Shop, Compare, AI Advisor, account page and a beauty guide.
+- [ ] **Homepage redesign around real content** (`AG`). Brief: `docs/HOMEPAGE_BRIEF.md`.
+- [ ] **About page is invented** (`YOU` facts, then `CC` + `AG`). "Macro inspection gallery", sourcing, hand-bleached knots, a comparison table and a "money-back raw hair purity guarantee". Needs the real story from the MD before rewriting.
+- [ ] **AI Advisor isn't personalised** (`CC`, next). /recommend shows the first 4 catalogue products with invented step labels (and 4 invented products if the catalogue fails); it never calls the server's AI recommendation endpoint. The press kit and customer guide describe it as matching products to answers, so fix the feature before using that copy.
+- [ ] **Catalogue carries invented ratings** (`CC`). Products have rating/numReviews values (e.g. 4.7 from 15) with no actual reviews behind them; product cards show them. Show ratings only from real reviews.
+- [ ] **Hero video is AI-generated** (`YOU`). Needs a real photo or video of the shop or products.
 
 - [ ] **MD handover by Thu 26 Nov** (boss, 21 Nov). Plan and checklists: `docs/HANDOVER.md` (MD admin account via `npm run admin:grant`, install on her devices, stock upload session, her decisions on claims/legal/contact, Monnify close-out with the COO).
 
