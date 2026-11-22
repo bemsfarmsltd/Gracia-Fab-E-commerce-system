@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Fix: paid orders shown as Pending in Orders; board confirm wording; block manual "paid" | client/src/components/admin/AdminOrders.jsx, AdminOrderBoard.jsx, server/controllers/orderController.js, server/tests/admin.test.js | 22 Nov |
 
 ## Open questions
 
