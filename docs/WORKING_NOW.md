@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files / areas | Since |
+|---|---|---|---|
+| Antigravity | Admin redesign: Customers & Bookings (DashLite style) | client/src/components/admin/, client/src/pages/AdminDashboard.jsx, client/src/styles/AdminDashLite.css | 22 Nov |
 
 ## Open questions
 
