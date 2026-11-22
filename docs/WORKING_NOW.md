@@ -33,7 +33,9 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-_None right now._
+| Who | Task | Files | Since |
+|---|---|---|---|
+| Claude Code | Product page: remove invented ingredients, how-to, sizes, claims | client/src/pages/ProductDetail.jsx (+ test) | 22 Nov |
 
 ## Open questions
 
