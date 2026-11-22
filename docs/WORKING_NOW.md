@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Admin redesign: Order Board (Kanban) and Products (grid/list toggle, quick edit) | client/src/components/admin/, client/src/pages/AdminDashboard.jsx, client/src/styles/AdminDashLite.css | 22 Nov |
 
 ## Open questions
 
