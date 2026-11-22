@@ -13,6 +13,10 @@ import {
 import { getSalesReport, exportOrdersCsv } from '../controllers/reportController.js'
 import { updateOrderStatus, bulkUpdateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
 import { getOverview } from '../controllers/adminOverviewController.js'
+import { getCustomers, getCustomerDetail, postCustomerNote, removeCustomerNote } from '../controllers/customerController.js'
+import { getBookingOptions, getBookings, postBooking, putBooking, removeBooking } from '../controllers/bookingController.js'
+import { customerNoteSchema } from '../validators/customerValidators.js'
+import { createBookingSchema, updateBookingSchema } from '../validators/bookingValidators.js'
 import {
   listVouchers,
   createVoucher,
@@ -54,6 +58,17 @@ router.put('/products/stock', validate(bulkStockSchema), bulkUpdateStock)
 router.put('/products/:id', validate(updateProductSchema), updateProduct)
 router.delete('/products/:id', deleteProduct)
 router.get('/users', getAllUsers)
+// Customers (redesign stage 2)
+router.get('/customers', getCustomers)
+router.get('/customers/:id', getCustomerDetail)
+router.post('/customers/:id/notes', validate(customerNoteSchema), postCustomerNote)
+router.delete('/customers/:id/notes/:noteId', removeCustomerNote)
+// Bookings calendar (redesign stage 3). /options before /:id.
+router.get('/bookings/options', getBookingOptions)
+router.get('/bookings', getBookings)
+router.post('/bookings', validate(createBookingSchema), postBooking)
+router.put('/bookings/:id', validate(updateBookingSchema), putBooking)
+router.delete('/bookings/:id', removeBooking)
 router.get('/vouchers', listVouchers)
 router.post('/vouchers', validate(createVoucherSchema), createVoucher)
 router.put('/vouchers/:id', validate(updateVoucherSchema), updateVoucher)

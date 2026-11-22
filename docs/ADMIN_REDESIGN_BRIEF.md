@@ -95,3 +95,24 @@ pricing tables.
 - `PUT /api/admin/orders/status` `{ ids: [...], status: "processing"|"shipped"|"delivered", note? }`
   → `{ updated: [ids], failed: [{ id, message }] }` (live). Same customer email/WhatsApp
   as a single update. Allowed moves: paid → processing → shipped → delivered.
+- `GET /api/admin/customers?search=&sort=newest|spent|last-order|name&page=&limit=` (live)
+  → `{ customers: [{ _id, name, email, phone, createdAt, ordersCount, paidOrders, totalSpent,
+  lastOrderAt, loyaltyPoints, loyaltyTier }], total, page, pages }`. Search is name or email.
+- `GET /api/admin/customers/:id` (live) → `{ customer: { name, email, phone, latestAddress,
+  loyaltyPoints, loyaltyTier, createdAt }, stats: { ordersCount, paidOrders, totalSpent,
+  averageOrderValue, firstOrderAt, lastOrderAt }, orders: [... itemsCount], pointsHistory,
+  notes: [{ _id, text, author, createdAt }], bookings }`.
+- `POST /api/admin/customers/:id/notes` `{ text }` → the note; `DELETE .../notes/:noteId`.
+  Notes are staff-only; the customer never sees them.
+- `GET /api/admin/bookings/options` (live) → services `[{ id, label }]`, statuses
+  (booked, completed, cancelled, no-show), opening hours, default length (60 min).
+- `GET /api/admin/bookings?from=&to=&status=&customer=` (ISO date-times with offset,
+  e.g. `2026-11-24T00:00:00+01:00`) → bookings sorted by time, each with `serviceLabel`, `endsAt`.
+- `POST /api/admin/bookings` `{ customerName, phone, service, startsAt, durationMinutes?, staff?,
+  notes?, customer? (account id) }`; `PUT /api/admin/bookings/:id` (any of those + `status`);
+  `DELETE /api/admin/bookings/:id` (for mistakes; normally set status `cancelled`).
+  **Safety checks** answer 409 with `code`: `"outside-hours"` (not Mon–Sat 8am–6pm) or
+  `"clash"` (same staff member already booked; `clashes` lists them). Show the message and
+  a **Book anyway** button that resends with `allowOutsideHours: true` / `allowClash: true`.
+- Brides' wedding dates from My Vanity are **not** on the calendar yet: waiting for the MD
+  to decide whether staff should see them.
