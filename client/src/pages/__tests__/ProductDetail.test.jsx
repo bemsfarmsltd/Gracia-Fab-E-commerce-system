@@ -114,6 +114,22 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
     expect(screen.getByText(/100% Authentic Maison Guarantee/i)).toBeInTheDocument();
   });
 
+  it("shows no discount when the product has no real original price", async () => {
+    const noDiscount = { ...MOCK_PRODUCT, originalPrice: undefined };
+    const base = globalThis.fetch;
+    globalThis.fetch = vi.fn((url) =>
+      url.includes("/api/products/prod-101")
+        ? Promise.resolve({ ok: true, json: () => Promise.resolve(noDiscount) })
+        : base(url)
+    );
+    renderProductDetail();
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pure Glow Vitamin C Elixir");
+    });
+    expect(document.querySelector(".pdp-badge-discount, .pdp-save-pill, .pdp-original-price")).toBeNull();
+    expect(screen.queryByText(/Save \d+%/)).not.toBeInTheDocument();
+  });
+
   it("handles quantity stepper increment and decrement correctly", async () => {
     renderProductDetail();
 

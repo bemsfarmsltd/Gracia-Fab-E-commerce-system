@@ -194,13 +194,15 @@ export default function ProductDetail({ onCartOpen }) {
 
   const activeImage = gallery[activeImageIndex] || product?.image;
 
-  // Compute original price if not explicitly stored (~18% discount display)
+  // A crossed-out price and "% OFF" only when the product really has a higher
+  // original price stored. Never invent one: a made-up discount is a false
+  // price claim (CLAUDE.md content rules).
   const originalPrice = useMemo(() => {
     if (!product) return 0;
     if (product.originalPrice && product.originalPrice > product.price) {
       return product.originalPrice;
     }
-    return Math.round(product.price * 1.2 / 500) * 500;
+    return 0;
   }, [product]);
 
   const discountPercent = useMemo(() => {
@@ -679,15 +681,18 @@ export default function ProductDetail({ onCartOpen }) {
               <div className="pdp-perk-item">
                 <span className="pdp-perk-icon">🛡️</span>
                 <div className="pdp-perk-text">
-                  <strong>7-Day Authentic Return Policy</strong>
-                  <span>Hassle-free replacement for unopened luxury beauty seals</span>
+                  <strong>Returns on unopened items</strong>
+                  <span>
+                    Sealed, unused products can be returned. See{" "}
+                    <Link to="/shipping-returns">Shipping &amp; Returns</Link>
+                  </span>
                 </div>
               </div>
               <div className="pdp-perk-item">
                 <span className="pdp-perk-icon">✨</span>
                 <div className="pdp-perk-text">
-                  <strong>Melanin Barrier Approved</strong>
-                  <span>Formulated and tested for tropical climates and high humidity</span>
+                  <strong>Visit our store in Umuahia</strong>
+                  <span>Open Monday to Saturday, 8am to 6pm</span>
                 </div>
               </div>
             </div>
