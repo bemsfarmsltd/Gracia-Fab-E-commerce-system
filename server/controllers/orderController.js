@@ -358,6 +358,13 @@ export const updateOrderStatus = async (req, res) => {
     return cancelOrderHandler({ ...req, body: { reason: note || "Cancelled by admin" } }, res);
   }
 
+  // "Paid" is set only by confirmOrderPayment after Monnify confirms the money
+  // (that's also where stock is committed and points awarded). Setting it by
+  // hand would skip all of that.
+  if (status === "paid") {
+    return res.status(400).json({ message: "Orders are marked paid automatically when Monnify confirms the payment." });
+  }
+
   try {
     const order = await advanceOrderStatus(req.params.id, status, note);
     res.json(order.depopulate("user"));

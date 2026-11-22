@@ -53,7 +53,6 @@ export default function AdminOrderBoard({
   handleUpdateStatus,
   formatPrice,
   setAdminError,
-  setAdminNotice,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeMobileColumn, setActiveMobileColumn] = useState("all");
@@ -137,18 +136,20 @@ export default function AdminOrderBoard({
 
     const shortId = order._id.slice(-6).toUpperCase();
     const confirmed = window.confirm(
-      `Move order #${shortId} to "${targetStatus}"?\n\nThis will send a WhatsApp and email notification to the customer.`
+      `Move order #${shortId} to "${targetStatus}"?${
+        targetStatus === "shipped" || targetStatus === "delivered"
+          ? "\n\nThe customer will get an email and a WhatsApp message."
+          : ""
+      }`
     );
 
     if (!confirmed) return;
 
     setMovingOrderId(order._id);
     try {
+      // handleUpdateStatus shows its own success or error message.
       if (handleUpdateStatus) {
         await handleUpdateStatus(order, targetStatus);
-      }
-      if (setAdminNotice) {
-        setAdminNotice(`Order #${shortId} moved to ${targetStatus}. Customer notified.`);
       }
     } catch (err) {
       if (setAdminError) {

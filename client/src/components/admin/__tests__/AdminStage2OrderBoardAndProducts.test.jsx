@@ -225,9 +225,10 @@ describe("Admin Stage 2: Order Board (Kanban)", () => {
 
     fireEvent.click(advancePaidBtn);
 
-    expect(confirmSpy).toHaveBeenCalledWith(
-      expect.stringMatching(/Move order #.* to "processing"[\s\S]*WhatsApp and email notification/)
-    );
+    expect(confirmSpy).toHaveBeenCalledWith(expect.stringMatching(/Move order #.* to "processing"/));
+    // Customers are only messaged on shipped and delivered, so packing
+    // mustn't promise them a message.
+    expect(confirmSpy.mock.calls[0][0]).not.toMatch(/email|WhatsApp/i);
     expect(handleUpdateStatus).toHaveBeenCalledWith(
       expect.objectContaining({ _id: "674011111111111111110001" }),
       "processing"

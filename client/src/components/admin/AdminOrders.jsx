@@ -462,6 +462,9 @@ export default function AdminOrders({
                         onChange={(e) => handleUpdateStatus(order, e.target.value)}
                       >
                         <option value="pending">Pending</option>
+                        {/* Set only when Monnify confirms payment; listed so a
+                            paid order doesn't read as "Pending". */}
+                        <option value="paid" disabled>Paid</option>
                         <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>

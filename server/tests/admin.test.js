@@ -145,6 +145,21 @@ describe("order status", () => {
     expect((await Order.findById(order._id)).status).toBe("pending");
     expect((await request(app).put(`/api/admin/orders/${order._id}`).set(admin).send({ status: "teleported" })).status).toBe(400);
   });
+
+  it("won't mark an order paid by hand: only a Monnify confirmation does", async () => {
+    const admin = await register("admin@example.com", true);
+    const buyer = await register("buyer@example.com");
+    const product = await Product.create({ ...newProduct, tags: [] });
+    const order = await placeOrder(buyer, product);
+
+    const res = await request(app).put(`/api/admin/orders/${order._id}`).set(admin).send({ status: "paid" });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/Monnify/);
+    const saved = await Order.findById(order._id);
+    expect(saved.status).toBe("pending");
+    expect(saved.isPaid).toBe(false);
+    expect((await Product.findById(product._id)).stock).toBe(12);
+  });
 });
 
 describe("user list", () => {

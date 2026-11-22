@@ -187,18 +187,23 @@ function AdminDashboard() {
 
   // Sends an admin order action and reports the outcome (these used to fail
   // silently, e.g. when the status rules rejected a change).
+  // Returns true when the change was saved, so callers (e.g. the Order Board)
+  // never announce success after a failure.
   const sendOrderAction = async (url, body, successMessage) => {
     setAdminError("");
     setAdminNotice("");
+    let ok = false;
     try {
       const res = await fetch(url, { method: "PUT", headers: getHeaders(), body: JSON.stringify(body) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "That didn't work. Please try again.");
       setAdminNotice(successMessage);
+      ok = true;
     } catch (err) {
       setAdminError(err.message);
     }
     fetchOrders();
+    return ok;
   };
 
   const handleUpdateStatus = async (order, status) => {
@@ -216,7 +221,9 @@ function AdminDashboard() {
         paid ? "Order cancelled. Refund recorded as due." : "Order cancelled.",
       );
     }
-    return sendOrderAction(`${API_URL}/api/admin/orders/${order._id}`, { status }, `Order marked ${status}.`);
+    // Only shipped and delivered send the customer an email and WhatsApp.
+    const told = status === "shipped" || status === "delivered" ? " The customer has been told by email and WhatsApp." : "";
+    return sendOrderAction(`${API_URL}/api/admin/orders/${order._id}`, { status }, `Order marked ${status}.${told}`);
   };
 
   const handleMarkRefunded = (order) => {
