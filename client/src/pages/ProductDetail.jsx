@@ -40,27 +40,13 @@ function formatNaira(num) {
   }).format(num || 0);
 }
 
-// ── Active ingredients extractor ──
-function getActiveIngredients(product) {
-  if (!product) return [];
-  const text = `${product.name} ${product.description || ""} ${(product.tags || []).join(" ")}`.toLowerCase();
-  const list = [];
-
-  if (text.includes("vitamin c")) list.push({ name: "15% Pure L-Ascorbic Acid", role: "Fades stubborn hyperpigmentation & boosts radiance" });
-  if (text.includes("niacinamide")) list.push({ name: "5% Niacinamide (Vitamin B3)", role: "Tightens enlarged pores & regulates sebum" });
-  if (text.includes("hyaluronic") || text.includes("hydrat")) list.push({ name: "Multi-Weight Hyaluronic Acid", role: "Draws 1000x its weight in moisture for deep plumping" });
-  if (text.includes("retinol")) list.push({ name: "Encapsulated Retinoid", role: "Accelerates overnight cellular turnover with zero irritation" });
-  if (text.includes("shea")) list.push({ name: "Organic Raw Shea Butter", role: "24-Hour lipid moisture seal for dry or sensitized skin" });
-  if (text.includes("charcoal")) list.push({ name: "Activated Bamboo Charcoal", role: "Draws micro-pollutants and unclogs congested pores" });
-  if (text.includes("rose")) list.push({ name: "Damask Rosewater Distillate", role: "Balances skin pH and soothes redness in tropical humidity" });
-  if (text.includes("hair") || text.includes("wig") || text.includes("lash")) list.push({ name: "100% Remy Keratin / Premium Silk", role: "Natural cuticle alignment for long-lasting tangle-free wear" });
-
-  if (list.length === 0) {
-    list.push({ name: "Bio-Botanical Hydration Complex", role: "Nourishes the natural lipid moisture barrier" });
-    list.push({ name: "Vitamin E & Antioxidants", role: "Shields against environmental stressors and free radicals" });
-  }
-
-  return list;
+// What the product suits, from the catalogue's own "suitable for" data.
+const SUITS_LABELS = { skinType: "Skin type", hairType: "Hair type", concern: "Helps with" };
+function suitsRows(product) {
+  const sf = product?.suitableFor || {};
+  return Object.entries(SUITS_LABELS)
+    .map(([key, label]) => ({ label, values: (sf[key] || []).filter(Boolean) }))
+    .filter((row) => row.values.length > 0);
 }
 
 export default function ProductDetail({ onCartOpen }) {
@@ -79,8 +65,6 @@ export default function ProductDetail({ onCartOpen }) {
 
   // Buy box state
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState("30 ml");
-  const [selectedVariant, setSelectedVariant] = useState("Standard");
   const [added, setAdded] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [copiedVoucher, setCopiedVoucher] = useState(null);
@@ -100,7 +84,6 @@ export default function ProductDetail({ onCartOpen }) {
   }, []);
 
   // Tabs state: "desc" | "ingredients" | "howTo" | "routine"
-  const [activeTab, setActiveTab] = useState("desc");
   const addedTimerRef = useRef(null);
 
   useEffect(() => {
@@ -357,7 +340,7 @@ export default function ProductDetail({ onCartOpen }) {
     );
   }
 
-  const activeIngredients = getActiveIngredients(product);
+  const suits = suitsRows(product);
 
   return (
     <div className="pdp-page" role="main">
@@ -536,40 +519,6 @@ export default function ProductDetail({ onCartOpen }) {
             {/* Product Options / Specifications */}
             <div className="pdp-options-section">
               <div className="pdp-option-row">
-                <span className="pdp-option-label">Size:</span>
-                <div className="pdp-option-chips">
-                  {["30 ml", "50 ml"].map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      className={`pdp-option-chip ${selectedSize === size ? "active" : ""}`}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {product.category === "makeup" && (
-                <div className="pdp-option-row">
-                  <span className="pdp-option-label">Finish:</span>
-                  <div className="pdp-option-chips">
-                    {["Natural Satin", "Velvet Matte", "Dewy Glow"].map((variant) => (
-                      <button
-                        key={variant}
-                        type="button"
-                        className={`pdp-option-chip ${selectedVariant === variant ? "active" : ""}`}
-                        onClick={() => setSelectedVariant(variant)}
-                      >
-                        {variant}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="pdp-option-row">
                 <span className="pdp-option-label">Stock:</span>
                 <span className={`pdp-stock-status ${outOfStock ? "out-of-stock" : "in-stock"}`}>
                   <span className="pdp-stock-pulse" />
@@ -701,149 +650,45 @@ export default function ProductDetail({ onCartOpen }) {
 
         {/* ── Tabbed Specifications Section ── */}
         <section className="pdp-tabs-section">
-          <div className="pdp-tabs-header">
-            <button
-              type="button"
-              className={`pdp-tab-btn ${activeTab === "desc" ? "active" : ""}`}
-              onClick={() => setActiveTab("desc")}
-            >
-              Description
-            </button>
-            <button
-              type="button"
-              className={`pdp-tab-btn ${activeTab === "ingredients" ? "active" : ""}`}
-              onClick={() => setActiveTab("ingredients")}
-            >
-              Active Ingredients
-            </button>
-            <button
-              type="button"
-              className={`pdp-tab-btn ${activeTab === "howTo" ? "active" : ""}`}
-              onClick={() => setActiveTab("howTo")}
-            >
-              How to Use
-            </button>
-            <button
-              type="button"
-              className={`pdp-tab-btn ${activeTab === "routine" ? "active" : ""}`}
-              onClick={() => setActiveTab("routine")}
-            >
-              Routine Fit
-            </button>
-          </div>
-
           <div className="pdp-tab-content">
-            {activeTab === "desc" && (
-              <div className="pdp-tab-pane">
-                <h3>About {product.name}</h3>
-                <p>{product.description}</p>
-                <p>
-                  Every drop has been curated to maintain the protective acid mantle of African and melanin-rich skin.
-                  Our clean formulation standard avoids pore-clogging mineral oils and drying synthetic agents,
-                  ensuring your natural barrier stays resilient under the West African sun.
-                </p>
-                {product.tags && product.tags.length > 0 && (
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "1rem" }}>
-                    {product.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          background: "#FCF8F2",
-                          border: "1px solid rgba(212,175,55,0.25)",
-                          padding: "0.3rem 0.75rem",
-                          borderRadius: "999px",
-                          fontSize: "0.78rem",
-                          fontWeight: 600,
-                          color: "var(--color-primary, #7A2432)",
-                        }}
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "ingredients" && (
-              <div className="pdp-tab-pane">
-                <h3>Potent Active Ingredients</h3>
-                <p>
-                  We prioritize clinically proven actives with high biocompatibility.
-                  Free from parabens, harsh sulfates, phthalates, and synthetic dyes.
-                </p>
-                <div className="pdp-actives-grid">
-                  {activeIngredients.map((item, i) => (
-                    <div key={i} className="pdp-active-item">
-                      <strong>{item.name}</strong>
-                      <span>{item.role}</span>
+            <div className="pdp-tab-pane">
+              <h3>About {product.name}</h3>
+              <p>{product.description}</p>
+              {suits.length > 0 && (
+                <dl className="pdp-suits">
+                  {suits.map((row) => (
+                    <div key={row.label} className="pdp-suits-row">
+                      <dt>{row.label}</dt>
+                      <dd>{row.values.join(", ")}</dd>
                     </div>
                   ))}
+                </dl>
+              )}
+              {product.tags && product.tags.length > 0 && (
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "1rem" }}>
+                  {product.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        background: "#FCF8F2",
+                        border: "1px solid rgba(212,175,55,0.25)",
+                        padding: "0.3rem 0.75rem",
+                        borderRadius: "999px",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        color: "var(--color-primary, #7A2432)",
+                      }}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
                 </div>
-              </div>
-            )}
-
-            {activeTab === "howTo" && (
-              <div className="pdp-tab-pane">
-                <h3>How to Apply</h3>
-                <p>For maximum efficacy and rapid skin absorption, follow this ritual:</p>
-                <div className="pdp-routine-steps">
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Step 01</span>
-                    <span className="pdp-routine-step-desc">
-                      Cleanse your face thoroughly with lukewarm water and pat dry with a clean cotton towel.
-                    </span>
-                  </div>
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Step 02</span>
-                    <span className="pdp-routine-step-desc">
-                      Dispense 2 to 3 drops or a dime-sized amount onto clean palms or directly onto targeted areas.
-                    </span>
-                  </div>
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Step 03</span>
-                    <span className="pdp-routine-step-desc">
-                      Gently press and glide in upward circular motions across your face, neck, and décolletage.
-                    </span>
-                  </div>
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Step 04</span>
-                    <span className="pdp-routine-step-desc">
-                      Allow 60 seconds to absorb before applying your daily moisturizer and broad-spectrum SPF.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "routine" && (
-              <div className="pdp-tab-pane">
-                <h3>Ideal Routine Placement</h3>
-                <p>
-                  Layer products from thinnest consistency to thickest to guarantee deep dermal delivery:
-                </p>
-                <div className="pdp-routine-steps">
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Cleanse</span>
-                    <span className="pdp-routine-step-desc">Gentle Hydrating Cleanser (AM & PM)</span>
-                  </div>
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Tone</span>
-                    <span className="pdp-routine-step-desc">Balancing Rosewater Mist or Exfoliating Toner</span>
-                  </div>
-                  <div className="pdp-routine-step" style={{ borderLeftColor: "var(--color-primary, #7A2432)", background: "#FFF6F7" }}>
-                    <span className="pdp-routine-step-num" style={{ color: "var(--color-primary, #7A2432)" }}>★ Current</span>
-                    <span className="pdp-routine-step-desc" style={{ fontWeight: 600 }}>
-                      {product.name} — Targeted Active Care
-                    </span>
-                  </div>
-                  <div className="pdp-routine-step">
-                    <span className="pdp-routine-step-num">Seal</span>
-                    <span className="pdp-routine-step-desc">Moisturizing Cream + SPF 50 Shield (AM)</span>
-                  </div>
-                </div>
-              </div>
-            )}
+              )}
+              <p className="pdp-ask">
+                Not sure how to use it, or whether it suits you? Ask the AI Concierge (the chat button), or{" "}
+                <Link to="/contact">contact our store</Link>.
+              </p>
+            </div>
           </div>
         </section>
 

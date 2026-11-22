@@ -173,32 +173,27 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
     expect(onCartOpen).toHaveBeenCalled();
   });
 
-  it("switches tabs between Description, Active Ingredients, How to Use, and Routine Fit", async () => {
+  it("describes the product from catalogue data only, with nothing invented", async () => {
+    const withSuits = { ...MOCK_PRODUCT, suitableFor: { skinType: ["oily", "normal"], concern: ["dark spots"] } };
+    const base = globalThis.fetch;
+    globalThis.fetch = vi.fn((url) =>
+      url.includes("/api/products/prod-101")
+        ? Promise.resolve({ ok: true, json: () => Promise.resolve(withSuits) })
+        : base(url)
+    );
     renderProductDetail();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
     });
 
-    // Initial tab is Description
     expect(screen.getByText(/About Pure Glow Vitamin C Elixir/i)).toBeInTheDocument();
-
-    // Switch to Active Ingredients tab
-    const ingredientsTab = screen.getByRole("button", { name: /Active Ingredients/i });
-    fireEvent.click(ingredientsTab);
-    expect(screen.getByText(/Potent Active Ingredients/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/15% Pure L-Ascorbic Acid/i).length).toBeGreaterThanOrEqual(1);
-
-    // Switch to How to Use tab
-    const howToTab = screen.getByRole("button", { name: /How to Use/i });
-    fireEvent.click(howToTab);
-    expect(screen.getByText(/How to Apply/i)).toBeInTheDocument();
-    expect(screen.getByText(/Step 01/i)).toBeInTheDocument();
-
-    // Switch to Routine Fit tab
-    const routineTab = screen.getByRole("button", { name: /Routine Fit/i });
-    fireEvent.click(routineTab);
-    expect(screen.getByText(/Ideal Routine Placement/i)).toBeInTheDocument();
+    expect(screen.getByText("oily, normal")).toBeInTheDocument();
+    expect(screen.getByText("dark spots")).toBeInTheDocument();
+    // The old one-size-fits-all template: invented actives, sizes, steps, "clean" claims.
+    for (const invented of [/Potent Active Ingredients/i, /Remy/i, /parabens/i, /mineral oils/i, /30 ml/i, /Step 01/i, /Routine Placement/i, /Melanin Barrier/i]) {
+      expect(screen.queryByText(invented)).not.toBeInTheDocument();
+    }
   });
 
   it("renders customer reviews hub with 5-star progress bars", async () => {

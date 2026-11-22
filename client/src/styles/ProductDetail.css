@@ -1572,3 +1572,10 @@
   }
 }
 
+/* What the product suits, from the catalogue data */
+.pdp-suits { display: grid; gap: 0.5rem; margin: 1rem 0 0; }
+.pdp-suits-row { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+.pdp-suits-row dt { font-weight: 600; color: var(--text); min-width: 7rem; }
+.pdp-suits-row dd { margin: 0; color: var(--text-2); text-transform: capitalize; }
+.pdp-ask { margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-muted); }
+.pdp-ask a, .pdp-perk-text a { color: var(--accent); text-decoration: underline; }
