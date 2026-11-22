@@ -248,8 +248,8 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
     <div className="advisor-flow-page" ref={containerRef}>
       <SEO
         title="AI Beauty Advisor &amp; Consultation — Gracia Fab"
-        description="Experience luxury step-by-step skincare, glueless raw wigs, and bridal beauty consultation calibrated for African complexions."
-        keywords="AI beauty advisor, Nigerian skincare, melanin undertone detector, raw wigs Nigeria"
+        description="Answer a few questions about your skin or hair and get product suggestions from what Gracia Fab stocks: skincare, hair products, wigs and bridal beauty."
+        keywords="AI beauty advisor, Nigerian skincare, undertone, wigs Nigeria, Umuahia"
         url="/recommend"
       />
 
@@ -414,7 +414,7 @@ function Recommend({ onCartOpen, initialStep = 1 }) {
                   <span className="tile-icon">💆🏽‍♀️</span>
                   <div className="tile-text">
                     <strong>Explore haircare</strong>
-                    <span>and raw wig solutions</span>
+                    <span>and wigs</span>
                   </div>
                 </button>
               </div>
