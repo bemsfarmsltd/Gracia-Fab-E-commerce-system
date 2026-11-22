@@ -13,5 +13,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.js",
     globals: false,
+    // GitHub's CI machines are slower than a laptop: the default 5s per test
+    // made docs-only commits fail at random (22 Nov). Same limit we use locally.
+    testTimeout: 30000,
   },
 });
