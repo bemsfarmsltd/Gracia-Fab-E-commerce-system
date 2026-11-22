@@ -346,9 +346,12 @@ ${productList}`;
       reply = completion.choices[0]?.message?.content || "";
     }
 
+    // No AI answer (no keys set, or both providers failed): say so with a 503,
+    // so the chat widget falls back to its built-in answers (delivery, store
+    // hours, booking...) instead of showing a canned message as if it were one.
     if (!reply) {
-      reply =
-        "Welcome to Gracia Fab! I am here to help you find the perfect skincare, haircare, glueless raw wigs, or bridal beauty formulations. How may I assist you today? ✨";
+      logger.warn("Chat: no AI reply (check GEMINI_API_KEY / GROQ_API_KEY)");
+      return res.status(503).json({ message: "The assistant is unavailable right now." });
     }
 
     // Extract recommended product IDs
@@ -370,10 +373,7 @@ ${productList}`;
     res.json({ reply, products: recommendedProducts });
   } catch (err) {
     logger.error({ err }, "Chat error");
-    res.json({
-      reply: "I'm having a brief moment! Feel free to ask about our skincare, haircare, raw wigs, or bridal beauty services ✨",
-      products: [],
-    });
+    res.status(503).json({ message: "The assistant is unavailable right now." });
   }
 });
 
