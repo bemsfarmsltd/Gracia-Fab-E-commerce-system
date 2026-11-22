@@ -35,9 +35,35 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Admin redesign: Order Board (Kanban) and Products (grid/list toggle, quick edit) | client/src/components/admin/, client/src/pages/AdminDashboard.jsx, client/src/styles/AdminDashLite.css | 22 Nov |
 
 ## Open questions
+
+- **For Claude Code (22 Nov, from Antigravity):** Admin Stage 2 (Order Board & Products Catalogue) completed!
+  1. **Order Board (Kanban workflow, inspired by `demo2/app-kanban`):** `AdminOrderBoard.jsx`
+     - Columns: `Paid` (Ready to Pack) → `Processing` (Packing in Progress) → `Shipped` (In Transit / Dispatched) → `Delivered` (Completed).
+     - Strict order state machine: Paid → Processing → Shipped → Delivered. Rejects invalid skips (e.g. Paid straight to Delivered) or moving backward.
+     - Confirmation dialog before moving order: `"Move order #${shortId} to "${targetStatus}"?\n\nThis will send a WhatsApp and email notification to the customer."`
+     - Excludes unpaid/pending (`isPaid: false`) and cancelled orders from board.
+     - Full HTML5 drag-and-drop between valid columns + accessible, touch-friendly "Start Packing →" / "Mark Shipped →" / "Mark Delivered →" action buttons on each card.
+     - Search filter by order number, customer name, phone, item name, or destination city/state.
+     - Live column stats with active order counts and total column Naira values.
+     - Mobile phone support with horizontal touch swipe snap and quick column selector tabs ("All Columns", "Paid", "Processing", "Shipped", "Delivered").
+  2. **Products Catalogue (inspired by `demo2/product-card` & `product-list`):** `AdminProducts.jsx`
+     - Extracted cleanly from `AdminDashboard.jsx`, encapsulating form state and Cloudinary image upload.
+     - Grid & List view toggle (`⊞ Grid` and `☰ List`).
+     - Stock pills: Healthy green (`In Stock (>5)`), Amber warning (`Low Stock (1–5)`), Red alert (`Out of Stock`).
+     - Filters by search keyword (name, brand, tags, description), category dropdown (All, Skincare, Haircare, Wig, Hairstyle, Bridal), and stock level (All, In Stock, Low Stock, Out of Stock).
+     - Sort dropdown (Newest, Name A-Z, Name Z-A, Price Low-High, Price High-Low, Stock Low-High, Stock High-Low).
+     - Grid cards feature primary image with fallback to `/product-placeholder.svg`, hover preview for secondary image, category and featured badges, brand eyebrow, formatted Naira price, and quick edit/delete buttons.
+     - List view table with responsive layout.
+     - Add & Edit modal with Cloudinary primary and secondary image uploads (`/api/admin/upload`), validation, and delete confirmation.
+  3. **Sidebar & Header Updates:**
+     - `AdminSidebar.jsx`: Removed `disabled: true` and `badge: "Stage 2"` from Order Board navigation item.
+     - `AdminHeader.jsx`: Added Order Board title & subtitle ("Visual workflow from payment to packing, shipping and delivery").
+     - `AdminDashboard.jsx`: Mounted `<AdminOrderBoard />` and `<AdminProducts />`, removed over 300 lines of old embedded table/form code.
+  4. **Styles & Tests:**
+     - `AdminDashLite.css`: Complete styling for Kanban board and Product cards/table adhering to Gracia Fab luxury cream & wine tokens with full dark mode and phone responsiveness.
+     - All 33 client test files (190 tests) pass 100%, ESLint passes with 0 errors, and Vite production build succeeds.
 
 - **For Claude Code (22 Nov, from Antigravity):** Customers & Bookings UI + phone responsive fixes completed!
   1. **Customers:** `AdminCustomers.jsx` & `AdminCustomerDetail.jsx` — directory with search, sort (newest, spend, last-order, name), 20/page pagination, loyalty badges, total spend; detail view with customer profile, 4 stats cards (total spend, orders, AOV, last order), latest delivery address, full order history, recent loyalty points, and staff-only notes box (`POST /api/admin/customers/:id/notes` and `DELETE /api/admin/customers/:id/notes/:noteId`).

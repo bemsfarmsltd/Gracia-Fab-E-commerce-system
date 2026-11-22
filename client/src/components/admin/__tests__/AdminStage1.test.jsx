@@ -120,19 +120,18 @@ describe("Admin Stage 1 Components", () => {
       expect(screen.getByRole("button", { name: /orders/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /inventory/i })).toBeInTheDocument();
 
-      // Check stage badges
-      expect(screen.getByText("Stage 2")).toBeInTheDocument();
+      // Order Board and Bookings are live in stage 2/3
       expect(screen.getByRole("button", { name: /bookings/i })).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: /order board/i })).not.toBeDisabled();
 
       // Click Orders tab
       fireEvent.click(screen.getByRole("button", { name: /orders/i }));
       expect(setActiveTab).toHaveBeenCalledWith("orders");
 
-      // Disabled stage link should not trigger setActiveTab
+      // Click Order Board tab
       const orderBoardBtn = screen.getByRole("button", { name: /order board/i });
-      expect(orderBoardBtn).toBeDisabled();
       fireEvent.click(orderBoardBtn);
-      expect(setActiveTab).toHaveBeenCalledTimes(1);
+      expect(setActiveTab).toHaveBeenCalledWith("orderboard");
     });
   });
 

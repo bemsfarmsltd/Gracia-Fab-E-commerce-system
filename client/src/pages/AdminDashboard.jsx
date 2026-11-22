@@ -8,6 +8,8 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminOverview from "../components/admin/AdminOverview";
 import AdminOrders from "../components/admin/AdminOrders";
+import AdminOrderBoard from "../components/admin/AdminOrderBoard";
+import AdminProducts from "../components/admin/AdminProducts";
 import AdminCustomers from "../components/admin/AdminCustomers";
 import AdminBookings from "../components/admin/AdminBookings";
 import "../styles/Admin.css";
@@ -26,32 +28,13 @@ function AdminDashboard() {
   const [subscribers, setSubscribers] = useState([]);
   const [msgLoading, setMsgLoading] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showProductForm, setShowProductForm] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
-  const [productForm, setProductForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    image: "",
-    secondaryImage: "",
-    category: "skincare",
-    brand: "",
-    stock: "10",
-    tags: "",
-    isFeatured: false,
-  });
-  const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState("");
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingSecondaryImage, setUploadingSecondaryImage] = useState(false);
+  const [adminError, setAdminError] = useState("");
+  const [adminNotice, setAdminNotice] = useState("");
 
   const getHeaders = useCallback(() => ({
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   }), []);
-
-  const [adminError, setAdminError] = useState("");
-  const [adminNotice, setAdminNotice] = useState("");
 
   // GETs an admin endpoint. On failure the API returns { message } instead of
   // the expected list; storing that and then calling .map() on it crashed the
@@ -151,7 +134,7 @@ function AdminDashboard() {
   useEffect(() => {
     if (activeTab === "overview") fetchStats();
     if (activeTab === "products") fetchProducts();
-    if (activeTab === "orders") fetchOrders();
+    if (activeTab === "orders" || activeTab === "orderboard") fetchOrders();
     if (activeTab === "messages") fetchMessages();
     if (activeTab === "subscribers") fetchSubscribers();
   }, [activeTab, fetchStats, fetchProducts, fetchOrders, fetchMessages, fetchSubscribers]);
@@ -202,116 +185,6 @@ function AdminDashboard() {
     }
   };
 
-  const handleImageUpload = async (e, field = "image") => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file (JPG, PNG, etc.)");
-      return;
-    }
-
-    const setUploading = field === "secondaryImage" ? setUploadingSecondaryImage : setUploadingImage;
-    setUploading(true);
-    setFormError("");
-
-    try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async () => {
-        try {
-          const base64 = reader.result.replace(/^data:image\/[a-z]+;base64,/, "");
-          const mimeType = file.type;
-
-          const res = await fetch(`${API_URL}/api/admin/upload`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify({ imageBase64: base64, mimeType }),
-          });
-
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Upload failed");
-
-          setProductForm((prev) => ({
-            ...prev,
-            [field]: data.url,
-          }));
-          setFormSuccess("✅ Image uploaded successfully!");
-          setTimeout(() => setFormSuccess(""), 3000);
-        } catch (err) {
-          setFormError(err.message);
-        } finally {
-          setUploading(false);
-        }
-      };
-    } catch {
-      setFormError("Failed to read file");
-      setUploading(false);
-    }
-  };
-
-  const handleProductSubmit = async (e) => {
-    e.preventDefault();
-    setFormError("");
-    setFormSuccess("");
-
-    if (
-      !productForm.name ||
-      !productForm.price ||
-      !productForm.image ||
-      !productForm.description
-    ) {
-      return setFormError("Please fill in all required fields");
-    }
-
-    try {
-      const url = editProduct
-        ? `${API_URL}/api/admin/products/${editProduct._id}`
-        : `${API_URL}/api/admin/products`;
-
-      const method = editProduct ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: getHeaders(),
-        body: JSON.stringify({
-          ...productForm,
-          price: Number(productForm.price),
-          stock: Number(productForm.stock),
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setFormSuccess(
-        editProduct ? "✅ Product updated!" : "✅ Product created!",
-      );
-      setShowProductForm(false);
-      setEditProduct(null);
-      resetForm();
-      fetchProducts();
-    } catch (err) {
-      setFormError(err.message);
-    }
-  };
-
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
-    try {
-      await fetch(`${API_URL}/api/admin/products/${id}`, {
-        method: "DELETE",
-        headers: getHeaders(),
-      });
-      fetchProducts();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   // Sends an admin order action and reports the outcome (these used to fail
   // silently, e.g. when the status rules rejected a change).
   const sendOrderAction = async (url, body, successMessage) => {
@@ -356,38 +229,6 @@ function AdminDashboard() {
       { reference: reference.trim() },
       "Refund recorded. The customer has been told.",
     );
-  };
-
-  const handleEditProduct = (product) => {
-    setEditProduct(product);
-    setProductForm({
-      name: product.name,
-      description: product.description,
-      price: product?.price,
-      image: product?.image,
-      secondaryImage: product?.secondaryImage || "",
-      category: product.category,
-      brand: product.brand,
-      stock: product.stock,
-      tags: product.tags?.join(", ") || "",
-      isFeatured: product.isFeatured,
-    });
-    setShowProductForm(true);
-  };
-
-  const resetForm = () => {
-    setProductForm({
-      name: "",
-      description: "",
-      price: "",
-      image: "",
-      secondaryImage: "",
-      category: "skincare",
-      brand: "",
-      stock: "10",
-      tags: "",
-      isFeatured: false,
-    });
   };
 
   const formatPrice = (price) =>
@@ -443,313 +284,31 @@ function AdminDashboard() {
           />
         )}
 
+        {/* ── ORDER BOARD ── */}
+        {activeTab === "orderboard" && (
+          <AdminOrderBoard
+            orders={orders}
+            loading={loading}
+            fetchOrders={fetchOrders}
+            handleUpdateStatus={handleUpdateStatus}
+            formatPrice={formatPrice}
+            setAdminError={setAdminError}
+            setAdminNotice={setAdminNotice}
+            getHeaders={getHeaders}
+          />
+        )}
+
         {/* ── PRODUCTS ── */}
         {activeTab === "products" && (
-          <div className="admin-content">
-            <div className="admin-section-header">
-              <h2>Products ({products.length})</h2>
-              <button
-                className="btn-admin-add"
-                onClick={() => {
-                  setEditProduct(null);
-                  resetForm();
-                  setShowProductForm(true);
-                }}
-              >
-                + Add Product
-              </button>
-            </div>
-
-            {formSuccess && <div className="admin-success">{formSuccess}</div>}
-
-            {/* Product Form */}
-            {showProductForm && (
-              <div className="admin-form-card">
-                <h3>{editProduct ? "Edit Product" : "Add New Product"}</h3>
-
-                {formError && <div className="admin-error">⚠️ {formError}</div>}
-
-                <form onSubmit={handleProductSubmit}>
-                  <div className="admin-form-grid">
-                    <div className="form-group">
-                      <label>Product Name *</label>
-                      <input
-                        type="text"
-                        value={productForm.name}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            name: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. Vitamin C Serum"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Brand *</label>
-                      <input
-                        type="text"
-                        value={productForm.brand}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            brand: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. GlowLab"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Price (₦) *</label>
-                      <input
-                        type="number"
-                        value={productForm.price}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            price: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. 8500"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Category *</label>
-                      <select
-                        value={productForm.category}
-                        aria-label="Category"
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            category: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="skincare">Skincare</option>
-                        <option value="haircare">Haircare</option>
-                        <option value="wig">Wig</option>
-                        <option value="hairstyle">Hairstyle</option>
-                        <option value="bridal">Bridal</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label>Stock Count</label>
-                      <input
-                        type="number"
-                        value={productForm.stock}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            stock: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Tags (comma separated)</label>
-                      <input
-                        type="text"
-                        value={productForm.tags}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            tags: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. serum, vitamin c, brightening"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label>Image *</label>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                      <input
-                        type="text"
-                        value={productForm.image}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            image: e.target.value,
-                          })
-                        }
-                        placeholder="https://... or upload file"
-                        style={{ flex: 1 }}
-                      />
-                      <label style={{
-                        padding: "10px 16px",
-                        background: "var(--accent)",
-                        color: "#000",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        display: "inline-block",
-                        textAlign: "center",
-                        fontSize: "14px",
-                        whiteSpace: "nowrap"
-                      }}>
-                        {uploadingImage ? "Uploading..." : "📂 Choose File"}
-                        <input
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp,image/gif"
-                          onChange={handleImageUpload}
-                          disabled={uploadingImage}
-                          style={{ display: "none" }}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label>Secondary Image (optional — shown on hover)</label>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                      <input
-                        type="text"
-                        value={productForm.secondaryImage}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            secondaryImage: e.target.value,
-                          })
-                        }
-                        placeholder="https://... or upload file"
-                        style={{ flex: 1 }}
-                      />
-                      <label style={{
-                        padding: "10px 16px",
-                        background: "var(--accent)",
-                        color: "#000",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        display: "inline-block",
-                        textAlign: "center",
-                        fontSize: "14px",
-                        whiteSpace: "nowrap"
-                      }}>
-                        {uploadingSecondaryImage ? "Uploading..." : "📂 Choose File"}
-                        <input
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp,image/gif"
-                          onChange={(e) => handleImageUpload(e, "secondaryImage")}
-                          disabled={uploadingSecondaryImage}
-                          style={{ display: "none" }}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label>Description *</label>
-                    <textarea
-                      value={productForm.description}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          description: e.target.value,
-                        })
-                      }
-                      placeholder="Describe the product..."
-                      rows={4}
-                    />
-                  </div>
-
-                  <div className="form-group form-checkbox">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={productForm.isFeatured}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            isFeatured: e.target.checked,
-                          })
-                        }
-                      />
-                      Mark as Featured Product
-                    </label>
-                  </div>
-
-                  <div className="admin-form-actions">
-                    <button type="submit" className="btn-admin-save">
-                      {editProduct ? "💾 Update Product" : "✅ Create Product"}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-admin-cancel"
-                      onClick={() => {
-                        setShowProductForm(false);
-                        setEditProduct(null);
-                        setFormError("");
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {/* Products Table */}
-            {loading ? (
-              <p className="admin-loading">Loading products...</p>
-            ) : (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Featured</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product._id}>
-                      <td>
-                        <img
-                          src={product?.image}
-                          alt={product.name}
-                          className="admin-product-img"
-                        />
-                      </td>
-                      <td className="product-name-cell">
-                        <p>{product.name}</p>
-                        <span>{product.brand}</span>
-                      </td>
-                      <td>
-                        <span className="category-pill">
-                          {product.category}
-                        </span>
-                      </td>
-                      <td>{formatPrice(product?.price)}</td>
-                      <td>{product.stock}</td>
-                      <td>{product.isFeatured ? "⭐ Yes" : "—"}</td>
-                      <td>
-                        <div className="admin-actions">
-                          <button
-                            className="btn-edit"
-                            onClick={() => handleEditProduct(product)}
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button
-                            className="btn-delete"
-                            onClick={() => handleDeleteProduct(product._id)}
-                          >
-                            🗑️ Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          <AdminProducts
+            products={products}
+            loading={loading}
+            fetchProducts={fetchProducts}
+            formatPrice={formatPrice}
+            setAdminError={setAdminError}
+            setAdminNotice={setAdminNotice}
+            getHeaders={getHeaders}
+          />
         )}
 
         {/* ── ORDERS ── */}
@@ -953,7 +512,7 @@ function AdminDashboard() {
         {activeTab === "subscribers" && (
           <div className="admin-section">
             <div className="admin-section-header">
-              <h2>Newsletter Subscribers 📧</h2>
+              <h2>Newsletter Subscribers 📬</h2>
               <span style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>
                 {subscribers.length} total
               </span>

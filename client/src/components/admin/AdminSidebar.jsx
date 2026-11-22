@@ -11,7 +11,7 @@ const NAV_SECTIONS = [
     heading: "Store & Commerce",
     items: [
       { id: "orders", label: "Orders", icon: "📦" },
-      { id: "orderboard", label: "Order Board", icon: "📋", badge: "Stage 2", disabled: true },
+      { id: "orderboard", label: "Order Board", icon: "📋" },
       { id: "products", label: "Products", icon: "🛍️" },
       { id: "inventory", label: "Inventory", icon: "🏷️" },
     ],

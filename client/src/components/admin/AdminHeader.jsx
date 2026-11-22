@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 const TAB_TITLES = {
   overview: { title: "Store Overview", subtitle: "Performance, real sales figures and inventory health" },
   orders: { title: "Orders Management", subtitle: "Filter, track and process customer orders" },
+  orderboard: { title: "Order Board", subtitle: "Visual workflow from payment to packing, shipping and delivery" },
   products: { title: "Product Catalogue", subtitle: "Manage stock items, pricing and photography" },
   inventory: { title: "Inventory & Stock Levels", subtitle: "Real-time counts, thresholds and CSV bulk updates" },
   vouchers: { title: "Discount Vouchers", subtitle: "Promo codes, minimum spend and campaign limits" },
