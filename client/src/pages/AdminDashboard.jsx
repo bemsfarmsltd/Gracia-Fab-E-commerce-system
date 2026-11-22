@@ -1,40 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import InventoryPanel from "../components/InventoryPanel";
 import VoucherPanel from "../components/VoucherPanel";
 import SalesPanel from "../components/SalesPanel";
-import { downloadOrdersCsv } from "../utils/adminDownload";
+import AdminSidebar from "../components/admin/AdminSidebar";
+import AdminHeader from "../components/admin/AdminHeader";
+import AdminOverview from "../components/admin/AdminOverview";
+import AdminOrders from "../components/admin/AdminOrders";
 import "../styles/Admin.css";
+import "../styles/AdminDashLite.css";
 import API_URL from "../config";
-
-const tabs = [
-  { id: "overview", label: "📊 Overview" },
-  { id: "sales", label: "📈 Sales" },
-  { id: "products", label: "🛍️ Products" },
-  { id: "inventory", label: "📋 Inventory" },
-  { id: "vouchers", label: "🎟️ Vouchers" },
-  { id: "orders", label: "📦 Orders" },
-  { id: "users", label: "👥 Users" },
-  { id: "messages", label: "💌 Messages" },
-  { id: "subscribers", label: "📧 Subscribers" },
-];
-
-const statusColors = {
-  pending: "#f39c12",
-  processing: "#3498db",
-  shipped: "#9b59b6",
-  delivered: "#27ae60",
-  cancelled: "#e74c3c",
-};
 
 function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
-  const [stats, setStats] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [ordersStatusFilter, setOrdersStatusFilter] = useState("all");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
@@ -93,8 +76,7 @@ function AdminDashboard() {
     try {
       await Promise.resolve();
       setLoading(true);
-      const data = await loadAdminData("/api/admin/stats");
-      if (data && typeof data === "object") setStats(data);
+      await loadAdminData("/api/admin/stats");
     } catch (err) {
       console.error(err);
     } finally {
@@ -431,46 +413,26 @@ function AdminDashboard() {
   if (!user?.isAdmin) return null;
 
   return (
-    <>
-      <Navbar />
-      <div className="admin-page">
-        {/* Admin Header */}
-        <div className="admin-header">
-          <div>
-            <h1>Admin Dashboard 👑</h1>
-            <p>Manage your Gracia Fab store</p>
-          </div>
-          <button
-            className="admin-back-to-store"
-            onClick={() => navigate("/")}
-          >
-            ← Back to Store
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="admin-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`admin-tab ${activeTab === tab.id ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {adminError && (
-          <div className="admin-error" role="alert" style={{ margin: "16px 0" }}>
-            ⚠️ {adminError}
-          </div>
-        )}
-        {adminNotice && (
-          <div className="admin-success" role="status" style={{ margin: "16px 0" }}>
-            ✅ {adminNotice}
-          </div>
-        )}
+    <div className="admin-dashlite-layout">
+      <AdminSidebar
+        activeTab={activeTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          if (tab === "orders") setOrdersStatusFilter("all");
+        }}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        user={user}
+        logout={logout}
+      />
+      <main className="admin-main-viewport">
+        <AdminHeader
+          activeTab={activeTab}
+          setMobileOpen={setMobileOpen}
+          adminError={adminError}
+          adminNotice={adminNotice}
+          user={user}
+        />
 
         {/* ── INVENTORY ── */}
         {activeTab === "inventory" && <InventoryPanel />}
@@ -483,115 +445,15 @@ function AdminDashboard() {
 
         {/* ── OVERVIEW ── */}
         {activeTab === "overview" && (
-          <div className="admin-content">
-            {loading ? (
-              <p className="admin-loading">Loading stats...</p>
-            ) : (
-              <>
-                {/* Stats Cards */}
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-icon">💰</div>
-                    <div>
-                      <p className="stat-label">Total Revenue</p>
-                      <h2 className="stat-value">
-                        {formatPrice(stats?.totalRevenue || 0)}
-                      </h2>
-                    </div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-icon">📦</div>
-                    <div>
-                      <p className="stat-label">Total Orders</p>
-                      <h2 className="stat-value">{stats?.totalOrders}</h2>
-                    </div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-icon">🛍️</div>
-                    <div>
-                      <p className="stat-label">Total Products</p>
-                      <h2 className="stat-value">{stats?.totalProducts}</h2>
-                    </div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-icon">👥</div>
-                    <div>
-                      <p className="stat-label">Total Users</p>
-                      <h2 className="stat-value">{stats?.totalUsers}</h2>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stock alerts */}
-                {(stats?.lowStock?.length > 0 || stats?.outOfStockCount > 0) && (
-                  <div className="admin-section admin-stock-alert">
-                    <div className="admin-section-header">
-                      <h2>⚠️ Stock alerts</h2>
-                      <button
-                        type="button"
-                        className="btn-admin-cancel"
-                        onClick={() => setActiveTab("inventory")}
-                      >
-                        Open Inventory →
-                      </button>
-                    </div>
-                    <p>
-                      {stats.outOfStockCount > 0 && (
-                        <><strong>{stats.outOfStockCount} out of stock</strong> (customers can't buy these). </>
-                      )}
-                      {stats.lowStock.length > 0 && (
-                        <>
-                          <strong>{stats.lowStock.length} running low</strong> ({stats.lowStockThreshold} or fewer left):{" "}
-                          {stats.lowStock.slice(0, 8).map((p) => `${p.name} (${p.stock})`).join(", ")}
-                          {stats.lowStock.length > 8 && `, and ${stats.lowStock.length - 8} more`}.
-                        </>
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {/* Recent Orders */}
-                <div className="admin-section">
-                  <h2>Recent Orders</h2>
-                  <table className="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {stats?.recentOrders?.map((order) => (
-                        <tr key={order._id}>
-                          <td>#{order._id.slice(-8).toUpperCase()}</td>
-                          <td>{order.user?.name || "Unknown"}</td>
-                          <td>{formatPrice(order.totalPrice)}</td>
-                          <td>
-                            <span
-                              className="status-pill"
-                              style={{
-                                background: statusColors[order.status],
-                              }}
-                            >
-                              {order.status}
-                            </span>
-                          </td>
-                          <td>
-                            {new Date(order.createdAt).toLocaleDateString(
-                              "en-NG",
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </div>
+          <AdminOverview
+            onFilterOrders={(status) => {
+              setOrdersStatusFilter(status);
+              setActiveTab("orders");
+            }}
+            setActiveTab={setActiveTab}
+            getHeaders={getHeaders}
+            formatPrice={formatPrice}
+          />
         )}
 
         {/* ── PRODUCTS ── */}
@@ -905,107 +767,18 @@ function AdminDashboard() {
 
         {/* ── ORDERS ── */}
         {activeTab === "orders" && (
-          <div className="admin-content">
-            <div className="admin-section-header">
-              <h2>All Orders ({orders.length})</h2>
-              <button
-                type="button"
-                className="btn-admin-cancel"
-                onClick={async () => {
-                  try {
-                    await downloadOrdersCsv();
-                  } catch (err) {
-                    setAdminError(err.message);
-                  }
-                }}
-              >
-                ⬇ Export CSV
-              </button>
-            </div>
-
-            {loading ? (
-              <p className="admin-loading">Loading orders...</p>
-            ) : (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order._id}>
-                      <td>#{order._id.slice(-8).toUpperCase()}</td>
-                      <td>
-                        <p>{order.user?.name || "Unknown"}</p>
-                        <span className="cell-sub">{order.user?.email}</span>
-                      </td>
-                      <td>{order.orderItems.length} item(s)</td>
-                      <td>{formatPrice(order.totalPrice)}</td>
-                      <td>
-                        <span
-                          className={`pay-pill
-                            ${order.isPaid ? "paid" : "unpaid"}`}
-                        >
-                          {order.isPaid ? "✅ Paid" : "⏳ Unpaid"}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className="status-pill"
-                          style={{
-                            background: statusColors[order.status],
-                          }}
-                        >
-                          {order.status}
-                        </span>
-                        {order.refund?.status === "pending" && (
-                          <div className="order-refund-due">
-                            Refund due {formatPrice(order.refund.amount)}
-                            <button type="button" className="btn-edit" onClick={() => handleMarkRefunded(order)}>
-                              Mark refunded
-                            </button>
-                          </div>
-                        )}
-                        {order.refund?.status === "refunded" && (
-                          <div className="order-refund-done" title={order.refund.reference}>
-                            Refunded ✓
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {new Date(order.createdAt).toLocaleDateString("en-NG")}
-                      </td>
-                      <td>
-                        <select
-                          className="status-select"
-                          value={order.status}
-                          aria-label={`Update status for order ${order._id}`}
-                          disabled={order.status === "cancelled"}
-                          onChange={(e) =>
-                            handleUpdateStatus(order, e.target.value)
-                          }
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="shipped">Shipped</option>
-                          <option value="delivered">Delivered</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          <AdminOrders
+            orders={orders}
+            loading={loading}
+            fetchOrders={fetchOrders}
+            handleUpdateStatus={handleUpdateStatus}
+            handleMarkRefunded={handleMarkRefunded}
+            formatPrice={formatPrice}
+            initialStatusFilter={ordersStatusFilter}
+            setAdminError={setAdminError}
+            setAdminNotice={setAdminNotice}
+            getHeaders={getHeaders}
+          />
         )}
 
         {/* ── USERS ── */}
@@ -1283,9 +1056,8 @@ function AdminDashboard() {
             )}
           </div>
         )}
-      </div>
-      <Footer />
-    </>
+      </main>
+    </div>
   );
 }
 
