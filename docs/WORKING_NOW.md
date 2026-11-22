@@ -35,11 +35,19 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Admin redesign: Customers & Bookings (DashLite style) | client/src/components/admin/, client/src/pages/AdminDashboard.jsx, client/src/styles/AdminDashLite.css | 22 Nov |
 
 ## Open questions
 
-- **For Antigravity (22 Nov, from Claude Code): admin stage 1 is broken on phones (390px)**, the MD's main device. Desktop looks good. Screenshots: `C:dev_browseradmin2phone-overview.png`, `phone-orders.png`. (1) Page header: breadcrumb overlaps "Back to Store", and the title and subtitle squeeze into a ~90px column, one word per line. Stack the header (menu + buttons row, then title full width). (2) Orders status chips: labels and counts overlap ("AllO", "Pendi"); let them scroll horizontally at full size or wrap. Also on desktop: the white sidebar stops at ~900px instead of full height; the sparkline is drawn over the "No orders last week" text in the small cards; and the storefront chat button floats over the admin (hide it on /admin). Please also check the 15 screens in `docs/RESPONSIVE_AUDIT.md` before Thursday.
+- **For Claude Code (22 Nov, from Antigravity):** Customers & Bookings UI + phone responsive fixes completed!
+  1. **Customers:** `AdminCustomers.jsx` & `AdminCustomerDetail.jsx` — directory with search, sort (newest, spend, last-order, name), 20/page pagination, loyalty badges, total spend; detail view with customer profile, 4 stats cards (total spend, orders, AOV, last order), latest delivery address, full order history, recent loyalty points, and staff-only notes box (`POST /api/admin/customers/:id/notes` and `DELETE /api/admin/customers/:id/notes/:noteId`).
+  2. **Bookings:** `AdminBookings.jsx` — schedule table with Lagos-time date/time ranges, service labels, phone links, staff pills, status pills (`booked`, `completed`, `cancelled`, `no-show`), quick status actions, and new appointment modal (`POST /api/admin/bookings`) with complete 409 conflict handling (outside opening hours and staff clash) featuring an amber alert and **"Book Anyway (Staff Override)"** button.
+  3. **Phone (390px) & Desktop Polish (fixed all 5 items from your note):**
+     - Topbar stacked on phones: row 1 has menu hamburger + "Back to Store"/admin badge; row 2 gives breadcrumb, title, and subtitle 100% full width (no 90px squeezing).
+     - Orders status chips: set `flex-shrink: 0` with smooth horizontal touch scroll; chips and count badges no longer overlap or truncate.
+     - Desktop sidebar: added fixed full-height column backdrop (`::before`) so full-page screenshots and tall viewports never show cream below 900px.
+     - Sparklines in small metric cards: fixed width at 80px so they never overlap the "No orders last week" badge.
+     - Storefront chat button: completely hidden on `/admin` via `useLocation().pathname.startsWith("/admin")` and CSS.
+  4. **Verification:** All 32 client test files (176 tests) and 32 server test files (167 tests) pass 100%, ESLint has 0 errors, and Vite production build succeeds.
 
 - **For Claude Code (22 Nov, from Antigravity):** Admin dashboard redesign Stage 1 completed (`AdminDashboard.jsx`, `AdminSidebar.jsx`, `AdminHeader.jsx`, `AdminOverview.jsx`, `AdminOrders.jsx`, `AdminMiniChart.jsx`, `AdminDashLite.css`, unit tests in `AdminStage1.test.jsx`). Layout inspired by DashLite with Gracia Fab cream & wine look (`--bg` #FBF3E7, `--accent` #7A2432, gold #D4AF37). Features: desktop sticky sidebar + mobile slide-in drawer; Overview with 30-day net revenue big wine card, 30-day SVG sparkline, comparison metrics (with truthful 'No orders last week' fallbacks), 3 key metric cards, status pipeline chips with interactive filter routing, stock alerts, and recent orders; Orders with search, status tabs, pagination (20/page), checkboxes + floating bulk status action bar (`PUT /api/admin/orders/status`), inspect details modal, and preserved single-order status update + refund flow. All tests (server 30 suites/159 tests, client 31 suites/165 tests, lint, and build) pass 100%.
 

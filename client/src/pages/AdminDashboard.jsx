@@ -8,6 +8,8 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminOverview from "../components/admin/AdminOverview";
 import AdminOrders from "../components/admin/AdminOrders";
+import AdminCustomers from "../components/admin/AdminCustomers";
+import AdminBookings from "../components/admin/AdminBookings";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
@@ -20,7 +22,6 @@ function AdminDashboard() {
   const [ordersStatusFilter, setOrdersStatusFilter] = useState("all");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
   const [msgLoading, setMsgLoading] = useState(false);
@@ -110,19 +111,6 @@ function AdminDashboard() {
     }
   }, [loadAdminData]);
 
-  const fetchUsers = useCallback(async () => {
-    try {
-      await Promise.resolve();
-      setLoading(true);
-      const data = await loadAdminData("/api/admin/users");
-      if (Array.isArray(data)) setUsers(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [loadAdminData]);
-
   const fetchMessages = useCallback(async () => {
     try {
       await Promise.resolve();
@@ -164,10 +152,9 @@ function AdminDashboard() {
     if (activeTab === "overview") fetchStats();
     if (activeTab === "products") fetchProducts();
     if (activeTab === "orders") fetchOrders();
-    if (activeTab === "users") fetchUsers();
     if (activeTab === "messages") fetchMessages();
     if (activeTab === "subscribers") fetchSubscribers();
-  }, [activeTab, fetchStats, fetchProducts, fetchOrders, fetchUsers, fetchMessages, fetchSubscribers]);
+  }, [activeTab, fetchStats, fetchProducts, fetchOrders, fetchMessages, fetchSubscribers]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleMarkRead = async (id) => {
@@ -781,58 +768,23 @@ function AdminDashboard() {
           />
         )}
 
-        {/* ── USERS ── */}
+        {/* ── CUSTOMERS ── */}
         {activeTab === "users" && (
-          <div className="admin-content">
-            <div className="admin-section-header">
-              <h2>All Users ({users.length})</h2>
-            </div>
+          <AdminCustomers
+            getHeaders={getHeaders}
+            formatPrice={formatPrice}
+            setAdminError={setAdminError}
+            setAdminNotice={setAdminNotice}
+          />
+        )}
 
-            {loading ? (
-              <p className="admin-loading">Loading users...</p>
-            ) : (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Skin Type</th>
-                    <th>Hair Type</th>
-                    <th>Role</th>
-                    <th>Joined</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => (
-                    <tr key={u._id}>
-                      <td>
-                        <div className="user-cell">
-                          <div className="user-avatar">
-                            {u.name?.charAt(0).toUpperCase()}
-                          </div>
-                          {u.name}
-                        </div>
-                      </td>
-                      <td>{u.email}</td>
-                      <td>{u.skinType || "—"}</td>
-                      <td>{u.hairType || "—"}</td>
-                      <td>
-                        <span
-                          className={`role-pill
-                          ${u.isAdmin ? "admin" : "user"}`}
-                        >
-                          {u.isAdmin ? "👑 Admin" : "👤 User"}
-                        </span>
-                      </td>
-                      <td>
-                        {new Date(u.createdAt).toLocaleDateString("en-NG")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+        {/* ── BOOKINGS ── */}
+        {activeTab === "bookings" && (
+          <AdminBookings
+            getHeaders={getHeaders}
+            setAdminError={setAdminError}
+            setAdminNotice={setAdminNotice}
+          />
         )}
 
         {/* ── Messages Tab ── */}

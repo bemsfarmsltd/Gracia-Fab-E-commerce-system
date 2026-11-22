@@ -8,6 +8,7 @@ const TAB_TITLES = {
   vouchers: { title: "Discount Vouchers", subtitle: "Promo codes, minimum spend and campaign limits" },
   sales: { title: "Sales & Financial Reports", subtitle: "Historical revenue trends and CSV export" },
   users: { title: "Customers & Accounts", subtitle: "Registered customer directory and contact details" },
+  bookings: { title: "In-Store & Bridal Bookings", subtitle: "Manage salon appointments, wig installs, bridal makeup and MD consultations" },
   messages: { title: "Customer Inquiries", subtitle: "Messages submitted via the contact and support form" },
   subscribers: { title: "Newsletter Subscribers", subtitle: "Email list subscriptions from storefront footer" },
 };

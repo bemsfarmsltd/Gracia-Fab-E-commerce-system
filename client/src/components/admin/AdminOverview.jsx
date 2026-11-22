@@ -208,6 +208,7 @@ export default function AdminOverview({
                 data={daily.slice(-7).map((d) => d.paidOrders)}
                 strokeColor="#7A2432"
                 height={26}
+                width={80}
                 ariaLabel="7-day orders trend"
               />
             </div>
@@ -228,6 +229,7 @@ export default function AdminOverview({
                 data={daily.slice(-7).map((d) => d.newCustomers)}
                 strokeColor="#7A2432"
                 height={26}
+                width={80}
                 ariaLabel="7-day customer signup trend"
               />
             </div>

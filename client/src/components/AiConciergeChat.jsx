@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import API_URL from "../config";
@@ -63,6 +63,7 @@ const INITIAL_MESSAGES = [
 ];
 
 function AiConciergeChat({ onCartOpen }) {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
@@ -217,6 +218,8 @@ function AiConciergeChat({ onCartOpen }) {
       );
     });
   };
+
+  if (location?.pathname?.startsWith("/admin")) return null;
 
   return (
     <>

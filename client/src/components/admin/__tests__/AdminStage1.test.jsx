@@ -122,7 +122,7 @@ describe("Admin Stage 1 Components", () => {
 
       // Check stage badges
       expect(screen.getByText("Stage 2")).toBeInTheDocument();
-      expect(screen.getByText("Stage 3")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /bookings/i })).not.toBeDisabled();
 
       // Click Orders tab
       fireEvent.click(screen.getByRole("button", { name: /orders/i }));
