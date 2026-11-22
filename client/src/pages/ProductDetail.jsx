@@ -41,7 +41,7 @@ function formatNaira(num) {
 }
 
 // What the product suits, from the catalogue's own "suitable for" data.
-const SUITS_LABELS = { skinType: "Skin type", hairType: "Hair type", concern: "Helps with" };
+const SUITS_LABELS = { skinType: "Skin type", hairType: "Hair type", concern: "Good for" };
 function suitsRows(product) {
   const sf = product?.suitableFor || {};
   return Object.entries(SUITS_LABELS)
