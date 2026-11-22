@@ -52,3 +52,11 @@ export const updateOrderStatusSchema = z.object({
   // (including the reason when cancelling from the status menu).
   note: z.string().trim().max(300).optional(),
 });
+
+// Admin bulk action: move several orders to one status. Cancelling isn't
+// allowed here (it needs a reason per order and may refund).
+export const bulkOrderStatusSchema = z.object({
+  ids: z.array(z.string().regex(/^[a-f0-9]{24}$/i, "Not a valid order id")).min(1, "Choose at least one order").max(100),
+  status: z.enum(["processing", "shipped", "delivered"]),
+  note: z.string().trim().max(300).optional(),
+});

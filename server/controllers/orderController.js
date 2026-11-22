@@ -15,6 +15,7 @@ import { confirmOrderPayment } from "../services/orderPayment.js";
 import { getMonnifyConfig } from "../services/monnify.js";
 import { sendServerError } from "../utils/httpErrors.js";
 import { cancelOrder, markRefunded, OrderCancelError } from "../services/orderCancel.js";
+import { advanceOrderStatus, OrderStatusError } from "../services/orderStatus.js";
 
 // @desc   Create new order
 // @route  POST /api/orders
@@ -358,61 +359,35 @@ export const updateOrderStatus = async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    // Use the state machine method (prevents invalid transitions)
-    order.advanceStatus(status, note);
-    await order.save();
-
-    const phone = order.deliveryAddress?.phone;
-    const name = order.deliveryAddress?.fullName || "Customer";
-    const orderId = order._id.toString().slice(-8).toUpperCase();
-    const orderUserEmail = (await Order.findById(order._id).populate("user"))
-      .user.email;
-
-    if (status === "shipped") {
-      if (phone) {
-        await addToQueue(whatsappQueue, "order-shipped", {
-          phone,
-          message: messages.orderShipped(name, orderId),
-          type: "order-shipped",
-        });
-      }
-
-      const template = emailTemplates.orderShipped(name, orderId);
-
-      await addToQueue(emailQueue, "order-shipped", {
-        to: orderUserEmail,
-        subject: template.subject,
-        html: template.html,
-        type: "order-shipped",
-      });
-    }
-
-    if (status === "delivered") {
-      if (phone) {
-        await addToQueue(whatsappQueue, "order-delivered", {
-          phone,
-          message: messages.orderDelivered(name),
-          type: "order-delivered",
-        });
-      }
-
-      const template = emailTemplates.orderDelivered(name);
-
-      await addToQueue(emailQueue, "order-delivered", {
-        to: orderUserEmail,
-        subject: template.subject,
-        html: template.html,
-        type: "order-delivered",
-      });
-    }
-
-    logger.info({ orderId: order._id, status }, "Order status updated");
-    res.json(order);
+    const order = await advanceOrderStatus(req.params.id, status, note);
+    res.json(order.depopulate("user"));
   } catch (error) {
-    // This catches invalid transitions too
-    res.status(400).json({ message: error.message });
+    if (error instanceof OrderStatusError) {
+      return res.status(error.status).json({ message: error.message });
+    }
+    return sendServerError(res, error, "updateOrderStatus error");
   }
+};
+
+// The statuses the bulk action may set. Cancelling needs a reason and may
+// refund, so it stays one order at a time.
+export const BULK_STATUSES = ["processing", "shipped", "delivered"];
+
+// @desc   Move several orders to the same status (admin)
+// @route  PUT /api/admin/orders/status   { ids, status, note? }
+// One order failing (e.g. still unpaid) doesn't stop the others.
+export const bulkUpdateOrderStatus = async (req, res) => {
+  const { ids, status, note } = req.body;
+  const updated = [];
+  const failed = [];
+  for (const id of [...new Set(ids)]) {
+    try {
+      await advanceOrderStatus(id, status, note);
+      updated.push(id);
+    } catch (error) {
+      if (!(error instanceof OrderStatusError)) logger.error({ err: error, id }, "bulk status error");
+      failed.push({ id, message: error instanceof OrderStatusError ? error.message : "Couldn't update this order" });
+    }
+  }
+  res.json({ updated, failed });
 };

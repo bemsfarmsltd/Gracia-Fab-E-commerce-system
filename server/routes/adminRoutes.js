@@ -11,7 +11,8 @@ import {
   bulkUpdateStock
 } from '../controllers/adminController.js'
 import { getSalesReport, exportOrdersCsv } from '../controllers/reportController.js'
-import { updateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
+import { updateOrderStatus, bulkUpdateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
+import { getOverview } from '../controllers/adminOverviewController.js'
 import {
   listVouchers,
   createVoucher,
@@ -28,7 +29,7 @@ import {
   uploadImageSchema,
   bulkStockSchema,
 } from '../validators/adminValidators.js'
-import { updateOrderStatusSchema, cancelOrderSchema, markRefundedSchema } from '../validators/orderValidators.js'
+import { updateOrderStatusSchema, cancelOrderSchema, markRefundedSchema, bulkOrderStatusSchema } from '../validators/orderValidators.js'
 
 const router = express.Router()
 
@@ -36,9 +37,12 @@ const router = express.Router()
 router.use(protect, admin)
 
 router.get('/stats', getDashboardStats)
+router.get('/overview', getOverview)
 router.get('/orders', getAllOrders)
 router.get('/orders/export', exportOrdersCsv)
 router.get('/reports/sales', getSalesReport)
+// Must come before /orders/:id so "status" isn't read as an order id.
+router.put('/orders/status', validate(bulkOrderStatusSchema), bulkUpdateOrderStatus)
 router.put('/orders/:id/cancel', validate(cancelOrderSchema), cancelOrderHandler)
 router.put('/orders/:id/refund', validate(markRefundedSchema), markRefundedHandler)
 router.put('/orders/:id', validate(updateOrderStatusSchema), updateOrderStatus)

@@ -33,9 +33,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 ## In progress
 
-| Who | Task | Files | Since |
-|---|---|---|---|
-| Claude Code | Admin redesign stage 1 data: overview + bulk order status APIs | server/services/adminOverview.js, server/services/orderStatus.js, server/controllers/adminController.js, server/controllers/orderController.js, server/routes/adminRoutes.js, server/validators/orderValidators.js, server/tests/adminOverview.test.js | 22 Nov |
+_None right now._
 
 ## Open questions
 

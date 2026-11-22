@@ -55,8 +55,8 @@ Subscribers, Bookings (stage 3). Replaces the 9 emoji tabs.
 
 ## Stage 2: order board, Products/Inventory, Customers
 
-- **Order board** (like `demo2/app-kanban`, but for orders): columns Paid (processing),
-  Shipped, Delivered. Dragging a card calls the same status endpoint; the customer
+- **Order board** (like `demo2/app-kanban`, but for orders): columns Paid → Processing
+  (packing) → Shipped → Delivered (the order state machine; no skipping steps). Dragging a card calls the same status endpoint; the customer
   gets the usual shipped/delivered email and WhatsApp, so confirm before the move.
   Pending (unpaid) orders are not on the board.
 - **Products** (like `demo2/product-list` / `product-card`): grid/list toggle, photo,
@@ -88,6 +88,10 @@ pricing tables.
 
 ## API reference (Claude Code fills this in as endpoints land)
 
-- `GET /api/admin/overview`: see `server/services/adminOverview.js` for the shape.
+- `GET /api/admin/overview` (live): totals, last7/prev7, last30/prev30, 30-day `daily`
+  series, `statusCounts`, recent orders, stock alerts. Full shape at the top of
+  `server/services/adminOverview.js`. Days are Lagos days. When the earlier period is 0,
+  show "No orders last week" rather than a percentage.
 - `PUT /api/admin/orders/status` `{ ids: [...], status: "processing"|"shipped"|"delivered", note? }`
-  → `{ updated: [ids], failed: [{ id, message }] }`.
+  → `{ updated: [ids], failed: [{ id, message }] }` (live). Same customer email/WhatsApp
+  as a single update. Allowed moves: paid → processing → shipped → delivered.
