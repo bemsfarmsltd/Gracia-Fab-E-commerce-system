@@ -520,7 +520,15 @@
   gap: 0.4rem;
 }
 
+.comparison-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
 .comp-label {
+  display: block;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   color: #D4AF37;
@@ -528,6 +536,7 @@
 }
 
 .comp-val {
+  display: block;
   font-size: 1.15rem;
   font-weight: 700;
   color: #FFFFFF;
@@ -1642,6 +1651,10 @@
     align-items: flex-start;
   }
 
+  .comparison-metric {
+    align-items: flex-start;
+  }
+
   .status-pipeline-chips {
     grid-template-columns: 1fr 1fr;
   }
@@ -1649,6 +1662,18 @@
   .orders-toolbar-top {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .orders-status-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    overflow-x: visible;
+  }
+
+  .orders-filter-btn {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.78rem;
   }
 
   .export-csv-btn {
