@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Split Hostinger deployment into `graciafab.com` (`client/`) and `api.graciafab.com` (`server/`) | `package.json`, `scripts/build-hostinger.mjs`, `client/public/.htaccess`, `client/src/config.js`, `client/vercel.json`, `client/vite.config.js`, `server/app.js` | 23 Nov |
 
 ## Open questions
 
