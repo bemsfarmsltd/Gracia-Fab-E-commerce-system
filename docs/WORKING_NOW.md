@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Single-site Hostinger auto-deploy & domain setup (`graciafab.com`) | `package.json`, `server/package.json`, `server/app.js`, `server/config/db.js`, `client/src/config.js`, `client/src/utils/api.js`, `client/src/components/SocialLogin.jsx`, `client/vite.config.js` | 23 Nov |
 
 ## Open questions
 
