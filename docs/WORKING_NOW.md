@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Remove all Render & Vercel URLs/configs from codebase | `.github/workflows/keep-awake.yml`, `client/vercel.json`, `client/vite.config.js`, `client/public/.htaccess`, `client/src/config.js`, `client/.env.example`, `server/render.yaml`, `server/app.js`, `server/utils/siteUrl.js`, `server/utils/unsubscribe.js`, `server/.env.example`, `server/tests/admin.test.js`, `server/tests/sitemap.test.js`, `server/tests/cspReport.test.js` | 23 Nov |
 
 ## Open questions
 
