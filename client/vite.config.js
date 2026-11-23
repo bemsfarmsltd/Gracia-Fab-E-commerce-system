@@ -23,7 +23,11 @@ function siteUrlPlugin() {
   return {
     name: "gracia-site-url",
     configResolved(config) {
-      site = (config.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
+      const defaultUrl =
+        config.command === "build" && config.mode === "production"
+          ? "https://www.graciafab.com"
+          : DEFAULT_SITE_URL;
+      site = (config.env.VITE_SITE_URL || defaultUrl).replace(/\/+$/, "");
     },
     // %APP_VERSION%: the deployed commit (Vercel sets VERCEL_GIT_COMMIT_SHA at build).
     transformIndexHtml: (html) =>
@@ -126,9 +130,9 @@ export default defineConfig({
             },
           },
           {
-            // Match both the same-origin Gracia Fab domain and Render API host.
+            // Match the Hostinger API subdomain, same-origin domain, and Render API host.
             urlPattern:
-              /^https:\/\/(gracia-fab(-api)?\.onrender\.com|(www\.)?graciafab\.com)\/api\/products.*/i,
+              /^https:\/\/(api\.graciafab\.com|gracia-fab(-api)?\.onrender\.com|(www\.)?graciafab\.com)\/api\/products.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-products",

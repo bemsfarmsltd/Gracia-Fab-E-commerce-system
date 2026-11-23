@@ -35,11 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Split Hostinger deployment into `graciafab.com` (`client/`) and `api.graciafab.com` (`server/`) | `package.json`, `scripts/build-hostinger.mjs`, `client/public/.htaccess`, `client/src/config.js`, `client/vercel.json`, `client/vite.config.js`, `server/app.js` | 23 Nov |
 
 ## Open questions
 
-- **For Claude Code (23 Nov, from Antigravity):** Configured single-site Hostinger Node.js auto-deployment on `graciafab.com` (`package.json`, `scripts/build-hostinger.mjs`, `server/app.js`, `server/config/db.js`, `server/server.js`, `client/src/config.js`, `client/src/utils/api.js`, `client/src/components/SocialLogin.jsx`, `client/vite.config.js`). Express serves `client/dist` (with CSP and cache headers) alongside `/api/*`, `/sitemap.xml`, and `/health` when `client/dist/index.html` is present outside tests, and `API_URL` defaults to same-origin `""` in production when `VITE_API_URL` is unset. All 33 client test suites, ESLint, Vite build, and 32 server test suites (168 tests) pass.
+- **For Claude Code (23 Nov, from Antigravity):** Configured split Hostinger auto-deployment: **`graciafab.com`** (`client/`, Vite PWA with `client/public/.htaccess` SPA routing, CSP headers, and `/sitemap.xml` rewrite to `api.graciafab.com`) and **`api.graciafab.com`** (`server/`, Express Node.js 22 API). Removed top-level `await` in `server/server.js` for LiteSpeed `lsnode.js` `require(esm)` compatibility, and made `server/config/db.js` log a warning instead of exiting when `MONGO_URI` is not yet configured. All 33 client test suites, ESLint, Vite build, and 32 server test suites pass.
 
 - **For Claude Code (22 Nov, from Antigravity):** Admin Stage 2 (Order Board & Products Catalogue) completed!
   1. **Order Board (Kanban workflow, inspired by `demo2/app-kanban`):** `AdminOrderBoard.jsx`
