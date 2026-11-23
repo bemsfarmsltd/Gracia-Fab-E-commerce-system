@@ -17,18 +17,24 @@ import logger from "./utils/logger.js";
 // outbound connection this process makes (Mongo, SMTP, any future API call).
 dns.setDefaultResultOrder("ipv4first");
 
-// Crash alerts (only when SENTRY_DSN is set). Before anything else starts.
-await initMonitoring();
+// Crash alerts (only when SENTRY_DSN is set) and DB startup run without
+// top-level await so Hostinger's LiteSpeed lsnode.js loader can require()
+// this ES module synchronously under Node 22.
+initMonitoring()
+  .then(() => connectDB())
+  .then((dbConnected) => {
+    if (dbConnected) {
+      // Ratings come only from real reviews: correct any product whose stored
+      // numbers don't match (e.g. values typed into the catalogue). Safe to repeat.
+      return recalculateAllRatings().then(
+        (fixed) =>
+          fixed &&
+          logger.info({ fixed }, "Product ratings recalculated from real reviews"),
+      );
+    }
+  })
+  .catch((err) => logger.error({ err }, "Startup initialization error"));
 
-const dbConnected = await connectDB();
-
-// Ratings come only from real reviews: correct any product whose stored
-// numbers don't match (e.g. values typed into the catalogue). Safe to repeat.
-if (dbConnected) {
-  recalculateAllRatings()
-    .then((fixed) => fixed && logger.info({ fixed }, "Product ratings recalculated from real reviews"))
-    .catch((err) => logger.error({ err }, "Rating recalculation failed"));
-}
 startWorkers();
 
 cron.schedule("0 10 * * *", async () => {
