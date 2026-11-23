@@ -20,13 +20,15 @@ dns.setDefaultResultOrder("ipv4first");
 // Crash alerts (only when SENTRY_DSN is set). Before anything else starts.
 await initMonitoring();
 
-connectDB();
+const dbConnected = await connectDB();
 
 // Ratings come only from real reviews: correct any product whose stored
 // numbers don't match (e.g. values typed into the catalogue). Safe to repeat.
-recalculateAllRatings()
-  .then((fixed) => fixed && logger.info({ fixed }, "Product ratings recalculated from real reviews"))
-  .catch((err) => logger.error({ err }, "Rating recalculation failed"));
+if (dbConnected) {
+  recalculateAllRatings()
+    .then((fixed) => fixed && logger.info({ fixed }, "Product ratings recalculated from real reviews"))
+    .catch((err) => logger.error({ err }, "Rating recalculation failed"));
+}
 startWorkers();
 
 cron.schedule("0 10 * * *", async () => {

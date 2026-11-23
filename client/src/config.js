@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_URL =
+  rawApiUrl !== undefined
+    ? rawApiUrl.replace(/\/+$/, "")
+    : import.meta.env.PROD && import.meta.env.MODE !== "test"
+      ? ""
+      : "http://localhost:5000";
 export default API_URL;
 
 // The public website's address, for canonical links and structured data.

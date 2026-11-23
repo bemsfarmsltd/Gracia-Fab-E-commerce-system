@@ -1,5 +1,6 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { useLocation } from "react-router-dom";
+import API_URL from "../config";
 import { afterLoginPath } from "../utils/afterLogin";
 import "./SocialLogin.css";
 
@@ -25,7 +26,6 @@ function GoogleButton() {
         // Send only the raw access token — the server verifies it with
         // Google itself and derives the profile server-side, rather than
         // trusting a client-supplied identity payload.
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const res = await fetch(`${API_URL}/api/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

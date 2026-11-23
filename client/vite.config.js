@@ -126,10 +126,9 @@ export default defineConfig({
             },
           },
           {
-            // Was gracia-fab-api.onrender.com, which isn't the real API host,
-            // so this rule never matched.
+            // Match both the same-origin Gracia Fab domain and Render API host.
             urlPattern:
-              /^https:\/\/gracia-fab(-api)?\.onrender\.com\/api\/products.*/i,
+              /^https:\/\/(gracia-fab(-api)?\.onrender\.com|(www\.)?graciafab\.com)\/api\/products.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-products",

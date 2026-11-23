@@ -395,10 +395,6 @@ app.use("/api/vouchers", voucherRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/vanity", vanityRoutes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "💄 BeautyAI API is running!" });
-});
-
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({
@@ -410,6 +406,60 @@ app.get("/health", (req, res) => {
     version: (process.env.RENDER_GIT_COMMIT || "dev").slice(0, 7),
   });
 });
+
+// ── Single-site static frontend (Hostinger / unified deployment)
+// When client/dist/index.html has been built alongside the server, serve the
+// compiled React PWA and its security headers directly from Express.
+const clientDistDir = path.resolve(__dirname, "../client/dist");
+const clientIndexHtml = path.join(clientDistDir, "index.html");
+const FRONTEND_CSP =
+  "default-src 'self'; script-src 'self' https://*.monnify.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https://res.cloudinary.com; connect-src 'self' https://gracia-fab.onrender.com https://*.monnify.com https://accounts.google.com https://res.cloudinary.com https://fonts.googleapis.com https://fonts.gstatic.com https://*.sentry.io; frame-src https://*.monnify.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /api/csp-report";
+
+if (!isTest && fs.existsSync(clientIndexHtml)) {
+  app.use((req, res, next) => {
+    if (!req.path.startsWith("/api/")) {
+      res.setHeader("Permissions-Policy", "camera=(self), microphone=(), geolocation=()");
+      res.setHeader("Content-Security-Policy", FRONTEND_CSP);
+    }
+    next();
+  });
+
+  app.use(
+    "/assets",
+    express.static(path.join(clientDistDir, "assets"), {
+      immutable: true,
+      maxAge: "365d",
+      fallthrough: false,
+    }),
+  );
+
+  app.use(
+    express.static(clientDistDir, {
+      setHeaders: (res, filePath) => {
+        if (
+          filePath.endsWith("index.html") ||
+          filePath.endsWith("sw.js") ||
+          filePath.endsWith("registerSW.js") ||
+          filePath.endsWith("manifest.webmanifest")
+        ) {
+          res.setHeader("Cache-Control", "no-cache");
+        }
+      },
+    }),
+  );
+
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api/") || req.path.startsWith("/uploads/")) {
+      return next();
+    }
+    res.setHeader("Cache-Control", "no-cache");
+    res.sendFile(clientIndexHtml);
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.json({ message: "💄 BeautyAI API is running!" });
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
