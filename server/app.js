@@ -64,8 +64,7 @@ app.use(
 // served from someone's localhost can't make logged-in calls to the live API.
 export const allowedOrigins = () =>
   [
-    process.env.FRONTEND_URL, // the main site address, set on Render
-    "https://gracia-fab.vercel.app",
+    process.env.FRONTEND_URL, // the main site address, set on Hostinger
     "https://graciafab.com",
     "https://www.graciafab.com",
     ...(process.env.NODE_ENV === "production"

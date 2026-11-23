@@ -22,7 +22,7 @@ export function isValidUnsubscribeToken(userId, token) {
 
 // The API's public address (links in emails point straight at the API).
 export const apiUrl = () =>
-  (process.env.PUBLIC_API_URL || "https://gracia-fab.onrender.com").replace(/\/+$/, "");
+  (process.env.PUBLIC_API_URL || "https://api.graciafab.com").replace(/\/+$/, "");
 
 export function unsubscribeUrl(userId) {
   return `${apiUrl()}/api/email/unsubscribe?u=${userId}&t=${unsubscribeToken(String(userId))}`;

@@ -10,7 +10,7 @@ describe("POST /api/csp-report", () => {
       .send(
         JSON.stringify({
           "csp-report": {
-            "document-uri": "https://gracia-fab.vercel.app/checkout",
+            "document-uri": "https://www.graciafab.com/checkout",
             "violated-directive": "script-src",
             "blocked-uri": "https://evil.example.com/x.js",
           },

@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Remove all Render & Vercel URLs/configs from codebase | `.github/workflows/keep-awake.yml`, `client/vercel.json`, `client/vite.config.js`, `client/public/.htaccess`, `client/src/config.js`, `client/.env.example`, `server/render.yaml`, `server/app.js`, `server/utils/siteUrl.js`, `server/utils/unsubscribe.js`, `server/.env.example`, `server/tests/admin.test.js`, `server/tests/sitemap.test.js`, `server/tests/cspReport.test.js` | 23 Nov |
 
 ## Open questions
+
+- **For Claude Code (23 Nov, from Antigravity):** Removed all Render (`gracia-fab.onrender.com`, `server/render.yaml`, `.github/workflows/keep-awake.yml`) and Vercel (`gracia-fab.vercel.app`, `client/vercel.json`) configurations and URL references from `client/` and `server/`, pointing everything exclusively to Hostinger (`https://www.graciafab.com` and `https://api.graciafab.com`).
 
 - **For Claude Code (23 Nov, from Antigravity):** Configured split Hostinger auto-deployment: **`graciafab.com`** (`client/`, Vite PWA with `client/public/.htaccess` SPA routing, CSP headers, and `/sitemap.xml` rewrite to `api.graciafab.com`) and **`api.graciafab.com`** (`server/`, Express Node.js 22 API). Removed top-level `await` in `server/server.js` for LiteSpeed `lsnode.js` `require(esm)` compatibility, and made `server/config/db.js` log a warning instead of exiting when `MONGO_URI` is not yet configured. All 33 client test suites, ESLint, Vite build, and 32 server test suites pass.
 

@@ -21,7 +21,7 @@ afterEach(() => vi.unstubAllEnvs());
 
 describe("GET /sitemap.xml", () => {
   it("lists pages, landing pages and products on the real site address", async () => {
-    vi.stubEnv("FRONTEND_URL", "https://gracia-fab.vercel.app/");
+    vi.stubEnv("FRONTEND_URL", "https://www.graciafab.com/");
     const p = await Product.create({ name: "Serum", description: "d", price: 1, image: "x", category: "skincare" });
 
     const res = await request(app).get("/sitemap.xml");
@@ -29,11 +29,11 @@ describe("GET /sitemap.xml", () => {
     // It used to throw on every request (`landingPages` referenced itself).
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toMatch(/application\/xml/);
-    expect(res.text).toContain("<loc>https://gracia-fab.vercel.app/</loc>");
-    expect(res.text).toContain(`<loc>https://gracia-fab.vercel.app/products/${p._id}</loc>`);
-    expect(res.text).toContain("<loc>https://gracia-fab.vercel.app/beauty/bridal-skincare-routine-nigeria</loc>");
-    expect(res.text).toContain("<loc>https://gracia-fab.vercel.app/shipping-returns</loc>");
-    expect(res.text).not.toContain("graciafab.com");
+    expect(res.text).toContain("<loc>https://www.graciafab.com/</loc>");
+    expect(res.text).toContain(`<loc>https://www.graciafab.com/products/${p._id}</loc>`);
+    expect(res.text).toContain("<loc>https://www.graciafab.com/beauty/bridal-skincare-routine-nigeria</loc>");
+    expect(res.text).toContain("<loc>https://www.graciafab.com/shipping-returns</loc>");
+    expect(res.text).not.toContain("vercel.app");
     expect(res.text).not.toContain("/login");
   });
 });

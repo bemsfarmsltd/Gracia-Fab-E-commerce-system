@@ -186,15 +186,15 @@ describe("CORS", () => {
 
   it("allows localhost only outside production", () => {
     process.env.NODE_ENV = "production";
-    expect(allowedOrigins()).toContain("https://gracia-fab.vercel.app");
+    expect(allowedOrigins()).toContain("https://www.graciafab.com");
     expect(allowedOrigins().some((o) => o.includes("localhost"))).toBe(false);
     process.env.NODE_ENV = "development";
     expect(allowedOrigins()).toContain("http://localhost:5173");
   });
 
   it("answers the live site's preflight", async () => {
-    const res = await request(app).options("/api/products").set("Origin", "https://gracia-fab.vercel.app").set("Access-Control-Request-Method", "GET");
-    expect(res.headers["access-control-allow-origin"]).toBe("https://gracia-fab.vercel.app");
+    const res = await request(app).options("/api/products").set("Origin", "https://www.graciafab.com").set("Access-Control-Request-Method", "GET");
+    expect(res.headers["access-control-allow-origin"]).toBe("https://www.graciafab.com");
   });
 
   it("is ready for the graciafab.com domain", async () => {

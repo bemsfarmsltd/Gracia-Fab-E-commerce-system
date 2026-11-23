@@ -9,8 +9,7 @@ const API_URL =
 export default API_URL;
 
 // The public website's address, for canonical links and structured data.
-// Set VITE_SITE_URL on Hostinger/Vercel (e.g. https://www.graciafab.com).
+// Set VITE_SITE_URL on Hostinger (e.g. https://www.graciafab.com).
 export const SITE_URL = (
-  import.meta.env.VITE_SITE_URL ||
-  (isProdBuild ? "https://www.graciafab.com" : "https://gracia-fab.vercel.app")
+  import.meta.env.VITE_SITE_URL || "https://www.graciafab.com"
 ).replace(/\/+$/, "");

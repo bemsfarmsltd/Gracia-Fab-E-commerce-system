@@ -6,7 +6,7 @@ import process from "node:process";
 // The public site address: VITE_SITE_URL on Vercel (https://graciafab.com once
 // the domain is connected). Fills %SITE_URL% in index.html and writes
 // robots.txt, so changing domains needs no code edits.
-const DEFAULT_SITE_URL = "https://gracia-fab.vercel.app";
+const DEFAULT_SITE_URL = "https://www.graciafab.com";
 const ROBOTS = (site) => `User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -130,9 +130,9 @@ export default defineConfig({
             },
           },
           {
-            // Match the Hostinger API subdomain, same-origin domain, and Render API host.
+            // Match the Hostinger API subdomain and same-origin domain.
             urlPattern:
-              /^https:\/\/(api\.graciafab\.com|gracia-fab(-api)?\.onrender\.com|(www\.)?graciafab\.com)\/api\/products.*/i,
+              /^https:\/\/(api\.graciafab\.com|(www\.)?graciafab\.com)\/api\/products.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-products",
