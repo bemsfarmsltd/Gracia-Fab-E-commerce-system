@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Supabase table design + copy script (branch feat/supabase) | server/db/, server/scripts/copyMongoToSupabase.js, server/tests/db/, server/package.json | 24 Nov |
 
 ## Open questions
 
