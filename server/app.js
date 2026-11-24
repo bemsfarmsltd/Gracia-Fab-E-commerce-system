@@ -29,6 +29,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { geminiModel, groqModel, STORE_FACTS } from "./config/ai.js";
+import { settingsReport } from "./config/settingsCheck.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -398,15 +399,20 @@ app.get("/", (req, res) => {
   res.json({ message: "💄 BeautyAI API is running!" });
 });
 
-// Health check endpoint
+// Health check endpoint. "healthy" only when the database is connected and
+// every required setting is present; `missingRequired` names what to add on
+// the host (yes/no only, never values).
 app.get("/health", (req, res) => {
+  const report = settingsReport();
+  const ok = report.databaseConnected && report.missingRequired.length === 0;
   res.json({
-    status: "healthy",
+    status: ok ? "healthy" : "degraded",
     timestamp: new Date().toISOString(),
     uptime: Math.floor(process.uptime()),
     environment: process.env.NODE_ENV,
-    // Deployed commit (Render sets RENDER_GIT_COMMIT), to confirm what is live.
-    version: (process.env.RENDER_GIT_COMMIT || "dev").slice(0, 7),
+    // Deployed commit, to confirm what is live. Set APP_VERSION on the host.
+    version: (process.env.APP_VERSION || process.env.RENDER_GIT_COMMIT || "dev").slice(0, 7),
+    ...report,
   });
 });
 

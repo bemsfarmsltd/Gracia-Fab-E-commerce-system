@@ -5,8 +5,8 @@ AI-powered beauty e-commerce store for the Nigerian market: skincare, haircare, 
 **Several AI assistants work on this repo at once.** Before editing anything, `git pull --rebase` and read `docs/WORKING_NOW.md`. Claim your task there before you start, and remove your row when you finish.
 
 - Repository: https://github.com/bemsfarmsltd/Gracia-Fab-E-commerce-system (company account, moved 21 Nov 2026). The old `dark-fury22/gracia-fab` is retired once Vercel and Render deploy from the new one.
-- `client/`: React 18 + Vite PWA, react-router-dom. Deployed on Vercel.
-- `server/`: Node + Express + MongoDB (Mongoose), BullMQ/Redis jobs. ES modules. Deployed on Render.
+- `client/`: React 18 + Vite PWA, react-router-dom. Deployed on Hostinger (graciafab.com).
+- `server/`: Node + Express + MongoDB (Mongoose), BullMQ/Redis jobs. ES modules. Deployed on Hostinger (api.graciafab.com); settings check at /health.
 - AI: Gemini first, Groq fallback. Payments: Monnify (`server/services/monnify.js`). Email: Resend over HTTPS (SMTP is blocked on Render). WhatsApp: Twilio.
 - Deeper docs: `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`, `docs/WORKFLOW.md`, `docs/ROADMAP.md`, `CONTRIBUTING.md`.
 

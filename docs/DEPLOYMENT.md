@@ -1,141 +1,73 @@
 # Deployment
 
-Two environments: **production** (`main`) and **staging** (`staging`). Both
-deploy automatically on push — Render for the server, Vercel for the
-client. There's no CI-triggered deploy step; Render and Vercel each watch
-the repo directly.
+Production runs on **Hostinger** since 23 Nov 2026 (moved from Render and Vercel):
 
-| | Production | Staging |
+| Site | What | Built from |
 |---|---|---|
-| Branch | `main` | `staging` |
-| Server | `gracia-fab-api` (Render) | `gracia-fab-api-staging` (Render) |
-| Client | `gracia-fab.vercel.app` | a branch-aliased Vercel URL (you choose the subdomain when you set it up) |
-| Database | production MongoDB database | separate `gracia-fab-staging` database |
-| Redis | production instance | separate instance |
-| Monnify | live keys (`api.monnify.com`) | **sandbox** keys only (`sandbox.monnify.com`) |
+| `graciafab.com` / `www.graciafab.com` | the website (Vite build, static files + `client/public/.htaccess`) | `client/` |
+| `api.graciafab.com` | the API (Node + Express) | `server/` |
 
-Promoting a change to production is a normal merge: `staging` → `main`.
+Database: MongoDB Atlas. Background jobs: Redis (Upstash). Images: Cloudinary.
 
-## Why staging gets its own Redis instance
+## Is everything set? Check /health
 
-`server/queues/index.js` names queues `"whatsapp"`, `"email"`, `"points"` —
-not scoped by environment. If staging and production pointed at the same
-`REDIS_URL`, a job enqueued by a staging test order could be picked up and
-processed by production's worker (e.g. a real WhatsApp/email send triggered
-by test data). A second free Redis instance avoids this with no code
-change. If queue names are ever made environment-aware in code, sharing
-becomes safe and this requirement can be dropped.
+Open `https://api.graciafab.com/health`. It shows, as true/false only (never the values):
 
-## One-time setup (do this once, in order)
+- `databaseConnected`: the API is talking to MongoDB.
+- `settings`: which settings exist on the host.
+- `missingRequired`: what still has to be added. Empty = done.
+- `status`: `healthy` only when the database is connected and nothing required is missing; otherwise `degraded`.
 
-These are dashboard steps on services you already have accounts with; none
-of this can be done from the repo.
+## API settings (Hostinger → api.graciafab.com → Node.js app → Environment variables)
 
-### 1. MongoDB — a staging database
+Copy the values from the old Render service (Environment tab) where it still exists; it's the same project, same values, unless marked "new".
+Never paste these into chat, code or documents. After saving, restart the app.
 
-In the same MongoDB Atlas cluster you already use for production, create a
-second database named `gracia-fab-staging` (Atlas creates it automatically
-the first time something writes to it — you don't need to pre-create
-collections). Copy your existing connection string and just swap the
-database name at the end of the path, e.g.:
+| Variable | Required | Value / where it comes from |
+|---|---|---|
+| `NODE_ENV` | yes | `production` |
+| `MONGO_URI` | yes | Atlas → Connect → Drivers. **Also** Atlas → Network Access: add the Hostinger server's outgoing IP (or `0.0.0.0/0`), or the connection is refused |
+| `JWT_SECRET` | yes | same as before. A new one logs everybody out |
+| `FRONTEND_URL` | yes | **new**: `https://www.graciafab.com` |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_REPLY_TO` | key yes | resend.com. Without the key no login codes are emailed, so nobody can log in |
+| `MONNIFY_API_KEY`, `MONNIFY_SECRET_KEY`, `MONNIFY_CONTRACT_CODE` | yes | Monnify → Developers (live keys). Webhook URL there: **new** `https://api.graciafab.com/api/webhooks/monnify` |
+| `CLOUDINARY_URL` | yes | Cloudinary dashboard → API environment variable. Without it admin photo uploads are refused |
+| `REDIS_URL` | yes | Upstash → database → `rediss://…` URL. Without it order emails and WhatsApp messages are **not sent** (only logged) |
+| `GEMINI_API_KEY`, `GROQ_API_KEY` | for AI | Google AI Studio, console.groq.com. `GEMINI_MODEL` / `GROQ_MODEL` optional |
+| `GOOGLE_CLIENT_ID` | for Google login | Google Cloud → Credentials. Add `https://graciafab.com` and `https://www.graciafab.com` to the client's Authorised JavaScript origins |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` | for WhatsApp | Twilio console |
+| `SENTRY_DSN` | optional | Sentry project `gracia-fab-server` |
+| `UNSUBSCRIBE_SECRET` | optional | falls back to `JWT_SECRET` |
+| `APP_VERSION` | optional | commit being deployed, shown as `version` in /health |
 
-```
-mongodb+srv://user:password@cluster.mongodb.net/gracia-fab-staging
-```
+`PORT` is set by Hostinger; don't add it.
 
-That's your staging `MONGO_URI`. (Stronger isolation: use a separate Atlas
-cluster instead — same idea, a second free-tier cluster.)
+## Website settings (Hostinger → graciafab.com → build environment)
 
-### 2. Redis — a staging instance
+These are read when the site is **built**, so rebuild after changing them.
 
-Create a second free Redis database with your provider (e.g. a new Upstash
-database). Copy its connection string — that's your staging `REDIS_URL`.
-
-### 3. Monnify — sandbox keys
-
-In the Monnify dashboard, switch to **Test Mode** and open **Developers**.
-Copy the sandbox **API Key** (`MK_TEST_...`), **Secret Key** and
-**Contract Code**. Never put live keys in staging. While you're there, set
-the webhook URL to `<staging Render URL>/api/webhooks/monnify` (and, for
-production, the live webhook URL to `<production Render URL>/api/webhooks/monnify`).
-
-### 4. Generate a staging `JWT_SECRET`
-
-Run this locally and use the output — don't reuse production's secret:
-
-```bash
-openssl rand -hex 32
-```
-
-(No OpenSSL handy? `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` works the same.)
-
-### 5. Render — create the staging service
-
-`server/render.yaml` already declares `gracia-fab-api-staging` (branch
-`staging`) alongside production's `gracia-fab-api`. In the Render
-dashboard: **New → Blueprint**, point it at this repo, and it picks up both
-services from the YAML — or, if you'd rather not touch the existing
-production service via Blueprint sync, create `gracia-fab-api-staging` by
-hand as a new Web Service pointed at the `staging` branch with the same
-build (`npm install`) and start (`npm start`) commands.
-
-Either way, set these env vars on the staging service (Render dashboard →
-that service → Environment):
-
-| Key | Staging value |
+| Variable | Value |
 |---|---|
-| `NODE_ENV` | `staging` |
-| `MONGO_URI` | from step 1 |
-| `REDIS_URL` | from step 2 |
-| `JWT_SECRET` | from step 4 |
-| `MONNIFY_API_KEY`, `MONNIFY_SECRET_KEY`, `MONNIFY_CONTRACT_CODE` | sandbox values from step 3 (`MONNIFY_BASE_URL` can stay unset — non-production defaults to sandbox) |
-| `CLOUDINARY_URL` | can reuse production's (uploads land in the `gracia-fab/products` folder either way) |
-| `FRONTEND_URL` | the staging Vercel URL from step 6 (circular — come back and set this after step 6) |
-| everything else in [server/.env.example](../server/.env.example) | can start as a **copy of production's** value (Gemini/Groq keys, email, Twilio) — split these later if you want staging AI/email usage tracked separately |
+| `VITE_API_URL` | `https://api.graciafab.com` (also the default in `client/src/config.js`) |
+| `VITE_SITE_URL` | `https://www.graciafab.com` |
+| `VITE_GOOGLE_CLIENT_ID` | same as the API's `GOOGLE_CLIENT_ID` |
+| `VITE_SENTRY_DSN` | optional, Sentry project `gracia-fab-web` |
 
-### 6. Vercel — a stable staging URL
+## Scheduled jobs
 
-Vercel already deploys every non-`main` branch as a Preview automatically —
-no code change needed. To give `staging` a fixed URL instead of a new one
-per commit: Project Settings → Domains → add a domain (or use a Vercel
-subdomain) → assign it to the Git branch `staging`.
+`server/server.js` runs two timers inside the API process: unpaid orders are cancelled after 48 hours (hourly), and marketing emails go out at 10:00. They only run while the Node process is running. If Hostinger stops the app when idle, they're skipped, so check that the app stays running (or ping /health every 10 minutes from UptimeRobot).
 
-Then set staging-specific env vars for the **Preview** environment (Project
-Settings → Environment Variables — scope to the `staging` branch if your
-Vercel plan supports branch-specific values, otherwise Preview-wide is
-fine since there's currently only one active non-production branch):
+## Staging
 
-| Key | Staging value |
-|---|---|
-| `VITE_API_URL` | the staging Render URL from step 5 |
-| `VITE_GOOGLE_CLIENT_ID` | can reuse production's |
-
-Go back to step 5 and set the server's `FRONTEND_URL` to this staging
-Vercel URL.
-
-## After setup
-
-Push to `staging` → Render and Vercel both redeploy staging automatically,
-gated by the same CI (`.github/workflows/ci.yml`) that already runs on
-`main`. When staging looks good, open a PR from `staging` into `main`.
-
-## Keeping the API awake
-
-`.github/workflows/keep-awake.yml` pings `https://gracia-fab.onrender.com/health` every 10 minutes so the free Render instance doesn't fall asleep (the first visitor would otherwise wait ~30 s, and the 10:00 marketing job could miss its slot). It costs nothing because the repo is public. If the API stays unhealthy after three tries the run fails and GitHub emails whoever last changed the schedule.
-
-- One always-on free service uses ~744 of the workspace's 750 free hours a month. **Don't add a ping for a staging service on the same free workspace**; it would run out of hours. Staging can sleep.
-- If the API moves to a paid Render instance (which never sleeps), delete the workflow.
-- GitHub pauses scheduled workflows after 60 days without commits. Re-enable it under Actions → "Keep API awake".
+The `staging` branch deployed to Render and Vercel. There's no staging site on Hostinger yet, so test locally (`CLAUDE.md` → Commands) before pushing to `main`. When one is set up, give it its own database and Redis (shared queue names would let staging jobs send real customer messages) and Monnify **sandbox** keys.
 
 ## Crash alerts (Sentry)
 
-The server and website report crashes to Sentry, but only once a DSN is set. Without one nothing is loaded or sent.
+The server and website report crashes to Sentry once a DSN is set; without one nothing is sent.
 
-1. Create a free account at sentry.io (the free Developer plan allows about 5,000 errors a month). Pick the EU or US data region when asked; it can't be changed later.
-2. Create two projects: **Node.js / Express** named `gracia-fab-server`, and **React** named `gracia-fab-web`. Skip the setup wizards; the code is already in place.
-3. Copy each project's DSN (Settings → Client Keys (DSN)):
-   - Render → gracia-fab → Environment: `SENTRY_DSN` = the server DSN. Save (Render restarts).
-   - Vercel → Settings → Environment Variables: `VITE_SENTRY_DSN` = the web DSN, type **Config** (it's public by design), Production. Redeploy.
-4. In each project, Alerts → keep the default "new issue" email alert (or add one), so a new kind of crash emails you.
+1. Free account at sentry.io; pick the data region once (it can't be changed later).
+2. Two projects: **Node.js / Express** `gracia-fab-server` and **React** `gracia-fab-web`. Skip the wizards.
+3. Put the server DSN in `SENTRY_DSN` on the API and the web DSN in `VITE_SENTRY_DSN` on the website (then rebuild).
+4. Keep the default "new issue" email alert in each project.
 
-What's reported: every 500 from the API, failed email/WhatsApp/points jobs, failed scheduled jobs, uncaught server errors, and page crashes in the browser. What's never sent: request bodies (passwords, login codes, addresses), cookies, auth headers, IP addresses, email addresses and secret link parameters (`server/utils/monitoring.js`, `client/src/utils/monitoring.js`).
+What's reported: every 500 from the API, failed email/WhatsApp/points jobs, failed scheduled jobs, uncaught server errors and page crashes. Never sent: request bodies, cookies, auth headers, IP and email addresses, secret link parameters (`server/utils/monitoring.js`, `client/src/utils/monitoring.js`).
