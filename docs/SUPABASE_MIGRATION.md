@@ -1,6 +1,6 @@
 # Moving the database from MongoDB Atlas to Supabase
 
-Status: **planned, not started.** The live store stays on MongoDB until the switch-over day below.
+Status: **phase 1 done on branch `feat/supabase` (24 Nov).** The live store stays on MongoDB until the switch-over day below.
 Owner: Claude Code (server and data). Started 24 Nov 2026.
 
 ## Why this is a rewrite, not a copy
@@ -33,6 +33,19 @@ Every one of those has to be rewritten for Postgres and re-tested. The data itse
 4. **Switch-over (about 30 minutes, early morning).** Admin notice → stop the API → final copy → set `DATABASE_URL` on Hostinger and remove `MONGO_URI` → deploy → check `/health` and a test order. Atlas stays untouched for 30 days as the way back.
 
 Rough size: 8–10 working days for phases 1–3. Earliest switch-over: the week of 7 Dec, after the MD handover on 26 Nov so she isn't learning a system that's changing underneath her.
+
+## Phase 1: what exists (branch `feat/supabase`)
+
+- `server/db/schema.js`: 15 tables. Lists became their own tables (order items, status history, reviews, wishlists, points history, interests, saved recommendations). Allowed values are database rules; stock can't go below 0; ratings are 1 to 5.
+- `server/db/migrations/`: the SQL that creates them. `0001` turns on row-level security on every table, so Supabase's public web API (the "anon key") can't read anything; only the server can.
+- `server/scripts/copyMongoToSupabase.js` (`npm run db:copy`): reads MongoDB without changing it, converts, writes everything in one transaction, then compares users, admins, products, stock, orders, paid revenue, loyalty points, reviews, vouchers, bookings, messages and subscribers. It stops before writing on anything it can't copy faithfully: a fraction of a naira, two accounts with the same email in different capitals, an order whose customer is gone.
+- Tests: `server/tests/db/` runs the copy from an in-memory MongoDB into PGlite (Postgres inside the test).
+
+### Running it
+
+1. Dry run, safe on production data: `cd server && npm run db:copy -- --dry-run` (needs `MONGO_URI` in `server/.env`).
+2. Rehearsal copy: put the rehearsal project's pooler connection string in `DATABASE_URL` in `server/.env`, then `npm run db:copy`. To repeat it later: `COPY_TARGET_IS_REHEARSAL=yes npm run db:copy -- --replace`.
+3. Passwords copy as their bcrypt hashes, so customers keep their passwords. Ids are kept, so order numbers and links keep working.
 
 ## Needed before starting
 
