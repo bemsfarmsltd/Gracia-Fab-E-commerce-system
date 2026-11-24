@@ -7,7 +7,7 @@ Production runs on **Hostinger** since 23 Nov 2026 (moved from Render and Vercel
 | `graciafab.com` / `www.graciafab.com` | the website (Vite build, static files + `client/public/.htaccess`) | `client/` |
 | `api.graciafab.com` | the API (Node + Express) | `server/` |
 
-Database: MongoDB Atlas. Background jobs: Redis (Upstash). Images: Cloudinary.
+Database: MongoDB Atlas in the **company account** (cluster `gracia-fab`, database `gracia-fab`) since 24 Nov 2026; the old cluster is kept untouched until 24 Dec as a fallback, then deleted. Copy script: `npm run db:copy-to-company`. Background jobs: Redis (Upstash). Images: Cloudinary.
 
 ## Is everything set? Check /health
 
