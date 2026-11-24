@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Admin: unreadable button text (light theme never set), faint status pills, logo + brand name top-left | client/index.html, client/src/components/admin/AdminSidebar.jsx, AdminHeader.jsx, client/src/styles/AdminDashLite.css, Admin.css | 24 Nov |
 
 ## Open questions
 
