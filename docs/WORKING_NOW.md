@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Hostinger settings check in /health, Hostinger deploy doc | server/app.js, server/tests/health.test.js, docs/DEPLOYMENT.md | 24 Nov |
 
 ## Open questions
 
