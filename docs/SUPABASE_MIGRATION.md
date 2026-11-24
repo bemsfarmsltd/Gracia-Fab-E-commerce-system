@@ -23,7 +23,7 @@ Every one of those has to be rewritten for Postgres and re-tested. The data itse
 | Nested lists | Own tables for order items, status history and reviews; `jsonb` for short lists (tags, suitable-for, interests) | Reports and stock need to query the first group; the second is only ever read whole |
 | Stock at payment | One transaction: `stock = stock - n where stock >= n` | Safer than today: two payments can't both take the last item |
 | Tests | PGlite (Postgres running inside the test process) replaces mongodb-memory-server | Same speed, no Docker, works in CI |
-| Supabase plan | **Pro** for production | The free plan pauses a project after a week without activity and has no daily backups |
+| Supabase plan | **Free** (the company can't pay for Pro) | Same footing as today's free MongoDB Atlas. Limits and how we cover them: see "Free plan" below |
 
 ## Phases
 
@@ -49,7 +49,18 @@ Rough size: 8–10 working days for phases 1–3. Earliest switch-over: the week
 
 ## Needed before starting
 
-- [ ] Access to the company Supabase organisation: who owns it, and a project for rehearsal plus one for production (Pro plan)
+- [ ] Two free projects in the company Supabase organisation (free organisations get two active projects): `gracia-fab-rehearsal` and `gracia-fab`
 - [ ] The region for both projects (closest to the Hostinger server)
 - [ ] The connection strings, put by the owner into `server/.env` on the developer machine (rehearsal) and Hostinger (production), never into chat or the repo
 - [ ] Agreement on the switch-over date with the boss and the MD
+
+## Free plan
+
+The company can't pay for Supabase Pro, so production runs on the free plan, like today's free MongoDB Atlas (which has no backups either).
+
+| Free-plan limit | Effect on us | How we cover it |
+|---|---|---|
+| Pauses a project after 7 days with no activity | Production won't pause: every shop visit and the hourly unpaid-order cleanup use the database. The rehearsal project will pause between rehearsals | Restore the rehearsal project in the dashboard when needed (one click, a few minutes) |
+| No backups you can download | If data were deleted by mistake, Supabase couldn't give it back | Our own nightly backup (to build in phase 2): the API writes a compressed copy of every table to a private folder on Hostinger, outside the website folder, keeping 14 days |
+| 500 MB database | The whole store today is a few MB | Check the size monthly in the dashboard |
+| 2 active projects per free organisation | Rehearsal and production use both | If the organisation already has other projects, use one project: rehearse in it, then empty it on switch-over day |
