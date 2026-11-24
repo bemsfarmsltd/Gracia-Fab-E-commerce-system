@@ -37,6 +37,17 @@ export default function AdminHeader({
           <span className="hamburger-icon" aria-hidden="true">☰</span>
         </button>
 
+        {/* Logo + brand name, top left, when the sidebar is tucked away (tablet/phone) */}
+        <div className="admin-topbar-brand">
+          <span className="admin-brand-logo" aria-hidden="true">
+            <img src="/icons/icon-192.png" alt="" width="40" height="40" />
+          </span>
+          <span className="admin-topbar-brand-text">
+            <span className="admin-brand-title">GRACIA FAB</span>
+            <span className="admin-brand-tag">ADMIN PORTAL</span>
+          </span>
+        </div>
+
         {/* Current Section Title & Breadcrumb */}
         <div className="admin-topbar-headings">
           <div className="admin-breadcrumb">
@@ -56,7 +67,7 @@ export default function AdminHeader({
             onClick={() => navigate("/")}
             title="Return to the storefront"
           >
-            ← Back to Store
+            ← <span className="admin-back-label">Back to </span>Store
           </button>
           <div className="admin-topbar-user" title={`Logged in as ${user?.email || "Admin"}`}>
             <span className="topbar-user-badge">👑 Admin</span>

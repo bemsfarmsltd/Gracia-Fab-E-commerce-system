@@ -211,7 +211,7 @@
 
 .pay-pill { font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 20px; }
 .pay-pill.paid { background: var(--success-bg); color: var(--success); }
-.pay-pill.unpaid { background: rgba(212,130,10,0.1); color: #D4820A; }
+.pay-pill.unpaid { background: var(--warning-bg); color: var(--warning); }
 
 .role-pill { font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.65rem; border-radius: 20px; }
 .role-pill.admin { background: var(--accent-light); color: var(--accent); }

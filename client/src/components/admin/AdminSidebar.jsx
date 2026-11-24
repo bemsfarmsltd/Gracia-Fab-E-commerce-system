@@ -68,7 +68,9 @@ export default function AdminSidebar({
         {/* Brand Header */}
         <div className="admin-sidebar-header">
           <div className="admin-sidebar-brand">
-            <span className="admin-brand-sparkle">✦</span>
+            <span className="admin-brand-logo" aria-hidden="true">
+              <img src="/icons/icon-192.png" alt="" width="44" height="44" />
+            </span>
             <div className="admin-brand-text">
               <span className="admin-brand-title">GRACIA FAB</span>
               <span className="admin-brand-tag">ADMIN PORTAL</span>

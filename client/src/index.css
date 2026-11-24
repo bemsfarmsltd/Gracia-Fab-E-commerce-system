@@ -47,8 +47,8 @@
   --white:          #FFFFFF;
   --black:          #241310;
 
-  --success:        #4A8B5E;
-  --success-bg:     rgba(74,139,94,0.1);
+  --success:        #2F6B43; /* 5.9:1 on cream; #4A8B5E was 3.6:1 */
+  --success-bg:     rgba(47,107,67,0.1);
   --error:          #C0185A;
   --error-bg:       rgba(192,24,90,0.08);
   --warning:        #8F4413;
