@@ -10,7 +10,8 @@
     "stock:zero-uncounted": "node data/zeroUncountedStock.js",
     "catalog:sync": "node data/syncCatalog.js",
     "email:preview": "node scripts/previewEmails.js",
-    "admin:grant": "node scripts/grantAdmin.js"
+    "admin:grant": "node scripts/grantAdmin.js",
+    "db:copy-to-company": "node scripts/copyMongoDatabase.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

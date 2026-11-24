@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Copy script: current MongoDB → company MongoDB Atlas (Supabase paused, work kept on branch feat/supabase) | server/scripts/copyMongoDatabase.js, server/scripts/lib/, server/tests/copyMongoDatabase.test.js | 24 Nov |
 
 ## Open questions
 
