@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import AdminOrderInvoice from "./AdminOrderInvoice";
 
 const COLUMNS = [
   {
@@ -59,6 +60,7 @@ export default function AdminOrderBoard({
   const [draggedOrderId, setDraggedOrderId] = useState(null);
   const [dragOverColId, setDragOverColId] = useState(null);
   const [movingOrderId, setMovingOrderId] = useState(null);
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
 
   // Eligible orders: must be paid, not cancelled, and in one of the 4 workflow statuses
   const boardOrders = useMemo(() => {
@@ -449,23 +451,34 @@ export default function AdminOrderBoard({
                               </span>
                             </div>
 
-                            {/* Move Action Button */}
-                            {col.nextStatus ? (
+                            {/* Move Action & Invoice Buttons */}
+                            <div className="kanban-card-action-group">
                               <button
                                 type="button"
-                                className="kanban-card-advance-btn"
-                                onClick={() => handleMoveOrder(order, col.nextStatus)}
-                                disabled={isMoving}
-                                title={`Move to ${col.nextStatus} (sends customer update)`}
-                                data-testid={`advance-btn-${order._id}`}
+                                className="kanban-card-invoice-btn"
+                                onClick={() => setInvoiceOrder(order)}
+                                title="View & print invoice"
+                                aria-label={`Invoice for order #${shortId}`}
                               >
-                                {isMoving ? "Updating..." : col.nextActionLabel}
+                                🧾
                               </button>
-                            ) : (
-                              <span className="kanban-card-delivered-pill" aria-label="Delivered">
-                                ✓ Completed
-                              </span>
-                            )}
+                              {col.nextStatus ? (
+                                <button
+                                  type="button"
+                                  className="kanban-card-advance-btn"
+                                  onClick={() => handleMoveOrder(order, col.nextStatus)}
+                                  disabled={isMoving}
+                                  title={`Move to ${col.nextStatus} (sends customer update)`}
+                                  data-testid={`advance-btn-${order._id}`}
+                                >
+                                  {isMoving ? "Updating..." : col.nextActionLabel}
+                                </button>
+                              ) : (
+                                <span className="kanban-card-delivered-pill" aria-label="Delivered">
+                                  ✓ Completed
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           {/* Drag Handle Indicator */}
@@ -487,6 +500,14 @@ export default function AdminOrderBoard({
             );
           })}
         </div>
+      )}
+
+      {invoiceOrder && (
+        <AdminOrderInvoice
+          order={invoiceOrder}
+          formatPrice={formatPrice}
+          onClose={() => setInvoiceOrder(null)}
+        />
       )}
     </div>
   );

@@ -12,6 +12,7 @@ import AdminOrderBoard from "../components/admin/AdminOrderBoard";
 import AdminProducts from "../components/admin/AdminProducts";
 import AdminCustomers from "../components/admin/AdminCustomers";
 import AdminBookings from "../components/admin/AdminBookings";
+import AdminMessages from "../components/admin/AdminMessages";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
@@ -139,37 +140,6 @@ function AdminDashboard() {
     if (activeTab === "subscribers") fetchSubscribers();
   }, [activeTab, fetchStats, fetchProducts, fetchOrders, fetchMessages, fetchSubscribers]);
   /* eslint-enable react-hooks/set-state-in-effect */
-
-  const handleMarkRead = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(`${API_URL}/api/contact/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: "read" }),
-      });
-      fetchMessages();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleDeleteMessage = async (id) => {
-    if (!window.confirm("Delete this message?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(`${API_URL}/api/contact/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchMessages();
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleDeleteSubscriber = async (id) => {
     if (!window.confirm("Remove this subscriber?")) return;
@@ -353,166 +323,16 @@ function AdminDashboard() {
           />
         )}
 
-        {/* ── Messages Tab ── */}
+        {/* ── Messages Inbox ── */}
         {activeTab === "messages" && (
-          <div className="admin-section">
-            <div className="admin-section-header">
-              <h2>Contact Messages 💌</h2>
-              <span style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>
-                {messages.filter((m) => m.status === "new").length} unread
-              </span>
-            </div>
-
-            {msgLoading ? (
-              <p className="admin-loading">Loading messages...</p>
-            ) : messages.length === 0 ? (
-              <p className="admin-loading">No messages yet.</p>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
-                }}
-              >
-                {messages.map((msg) => (
-                  <div
-                    key={msg._id}
-                    className="admin-message-card"
-                    style={{
-                      background: "var(--surface)",
-                      border: `1.5px solid ${msg.status === "new" ? "var(--accent)" : "var(--border-soft)"}`,
-                      borderRadius: "var(--radius-lg)",
-                      padding: "1.2rem 1.5rem",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "0.75rem",
-                        flexWrap: "wrap",
-                        gap: "0.5rem",
-                      }}
-                    >
-                      <div>
-                        <strong
-                          style={{ color: "var(--text)", fontSize: "0.9rem" }}
-                        >
-                          {msg.name}
-                        </strong>
-                        <span
-                          style={{
-                            color: "var(--text-muted)",
-                            fontSize: "0.78rem",
-                            marginLeft: "0.75rem",
-                          }}
-                        >
-                          {msg.email}
-                        </span>
-                        {msg.phone && (
-                          <span
-                            style={{
-                              color: "var(--text-muted)",
-                              fontSize: "0.78rem",
-                              marginLeft: "0.75rem",
-                            }}
-                          >
-                            📞 {msg.phone}
-                          </span>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            background:
-                              msg.status === "new"
-                                ? "var(--accent-light)"
-                                : "var(--surface-2)",
-                            color:
-                              msg.status === "new"
-                                ? "var(--accent)"
-                                : "var(--text-muted)",
-                            padding: "0.2rem 0.75rem",
-                            borderRadius: "20px",
-                            fontSize: "0.65rem",
-                            fontWeight: 700,
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          {msg.status}
-                        </span>
-                        <span
-                          style={{
-                            color: "var(--text-faint)",
-                            fontSize: "0.72rem",
-                          }}
-                        >
-                          {new Date(msg.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    {msg.subject && (
-                      <p
-                        style={{
-                          color: "var(--accent)",
-                          fontSize: "0.78rem",
-                          fontWeight: 600,
-                          marginBottom: "0.4rem",
-                        }}
-                      >
-                        Re: {msg.subject}
-                      </p>
-                    )}
-                    <p
-                      style={{
-                        color: "var(--text-muted)",
-                        fontSize: "0.85rem",
-                        lineHeight: 1.65,
-                      }}
-                    >
-                      {msg.message}
-                    </p>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "0.5rem",
-                        marginTop: "0.85rem",
-                      }}
-                    >
-                      {msg.status === "new" && (
-                        <button
-                          className="btn-edit"
-                          onClick={() => handleMarkRead(msg._id)}
-                        >
-                          ✓ Mark Read
-                        </button>
-                      )}
-                      <a
-                        href={`mailto:${msg.email}?subject=Re: ${msg.subject || "Your inquiry"}`}
-                        className="btn-edit"
-                        style={{ textDecoration: "none" }}
-                      >
-                        ↩ Reply
-                      </a>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDeleteMessage(msg._id)}
-                      >
-                        🗑 Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <AdminMessages
+            messages={messages}
+            loading={msgLoading}
+            fetchMessages={fetchMessages}
+            getHeaders={getHeaders}
+            setAdminError={setAdminError}
+            setAdminNotice={setAdminNotice}
+          />
         )}
 
         {/* ── Subscribers Tab ── */}

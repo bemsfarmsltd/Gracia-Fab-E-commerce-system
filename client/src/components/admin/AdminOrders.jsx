@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { downloadOrdersCsv } from "../../utils/adminDownload";
 import API_URL from "../../config";
+import AdminOrderInvoice from "./AdminOrderInvoice";
 
 const statusColors = {
   pending: "#f39c12",
@@ -31,6 +32,7 @@ export default function AdminOrders({
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
   const [inspectOrder, setInspectOrder] = useState(null);
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   // Update filter if initialStatusFilter changes from outside (e.g. Overview chip click)
@@ -474,15 +476,26 @@ export default function AdminOrders({
 
                     {/* Actions Menu */}
                     <td className="td-actions">
-                      <button
-                        type="button"
-                        className="btn-inspect-order"
-                        onClick={() => setInspectOrder(order)}
-                        title="Inspect order details"
-                        aria-label={`Inspect order ${order._id}`}
-                      >
-                        👁 View
-                      </button>
+                      <div className="orders-row-actions">
+                        <button
+                          type="button"
+                          className="btn-inspect-order"
+                          onClick={() => setInspectOrder(order)}
+                          title="Inspect order details"
+                          aria-label={`Inspect order ${order._id}`}
+                        >
+                          👁 View
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-order-invoice"
+                          onClick={() => setInvoiceOrder(order)}
+                          title="View & print invoice"
+                          aria-label={`Invoice for order ${order._id}`}
+                        >
+                          🧾 Invoice
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -624,6 +637,17 @@ export default function AdminOrders({
             <div className="order-modal-footer">
               <button
                 type="button"
+                className="btn-invoice-print"
+                onClick={() => {
+                  const target = inspectOrder;
+                  setInspectOrder(null);
+                  setInvoiceOrder(target);
+                }}
+              >
+                🧾 Print Invoice
+              </button>
+              <button
+                type="button"
                 className="btn-admin-cancel"
                 onClick={() => setInspectOrder(null)}
               >
@@ -632,6 +656,15 @@ export default function AdminOrders({
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── PRINTABLE INVOICE MODAL ── */}
+      {invoiceOrder && (
+        <AdminOrderInvoice
+          order={invoiceOrder}
+          formatPrice={formatPrice}
+          onClose={() => setInvoiceOrder(null)}
+        />
       )}
     </div>
   );
