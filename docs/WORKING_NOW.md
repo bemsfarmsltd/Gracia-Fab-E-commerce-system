@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Admin Stage 3 (printable order invoice, Messages inbox) & CartDrawer resize fix | client/src/components/admin/, client/src/pages/AdminDashboard.jsx, client/src/styles/AdminDashLite.css, client/src/components/CartDrawer.css | 25 Nov |
 
 ## Open questions
 
