@@ -1,41 +1,522 @@
-/* Stock take. Functional first version: Antigravity owns the look. */
-.stocktake { display: grid; gap: 1rem; }
-.stocktake-card {
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg);
-  padding: 1rem; box-shadow: var(--shadow-sm);
-}
-.stocktake-heading { font-family: var(--font-display); font-size: 1.1rem; margin: 0 0 0.4rem; color: var(--text); }
-.stocktake-muted { color: var(--text-muted); font-size: 0.88rem; }
-.stocktake input, .stocktake select {
-  min-height: 44px; padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: var(--radius-md);
-  background: var(--surface); color: var(--text); font: inherit; font-size: 1rem;
-}
-.stocktake label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; font-weight: 600; color: var(--text); }
-.stocktake-start { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.75rem; align-items: end; margin-top: 0.75rem; }
-.stocktake-scanrow { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; }
-.stocktake-scanrow input { flex: 1 1 220px; }
-.stocktake-last { margin: 0 0 0.75rem; padding: 0.5rem 0.75rem; background: var(--surface-2); border-radius: var(--radius-md); color: var(--text); }
-.stocktake-search { width: 100%; }
-.stocktake-matches { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 0.35rem; }
-.stocktake-matches button, .stocktake-past-item {
-  width: 100%; min-height: 44px; text-align: left; padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--bg); color: var(--text); font: inherit; cursor: pointer;
-}
-.stocktake-past { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem; }
-.stocktake-past-item { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
-.stocktake-qty { display: inline-flex; align-items: center; gap: 0.35rem; }
-.stocktake-qty button {
-  width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--radius-md);
-  background: var(--surface); color: var(--text); font-size: 1.1rem; cursor: pointer;
-}
-.stocktake-qty input { width: 4.5rem; text-align: center; }
-.stocktake-minus { color: var(--error); font-weight: 700; }
-.stocktake-plus { color: var(--success); font-weight: 700; }
-.stocktake-uncounted { margin-top: 0.75rem; color: var(--text-muted); }
-.stocktake-check { flex-direction: row !important; align-items: center; gap: 0.5rem !important; margin: 0.5rem 0; }
-.stocktake-check input { min-height: auto; width: 20px; height: 20px; }
-.stocktake-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+/* ═══════════════════════════════════════════════════════════════════
+   GRACIA FAB — STOCK TAKE (Phone-first shelf counting)
+   Matches Tour.css & AdminLogin.css: wine-to-gold top rule, dark-gold
+   eyebrows (#8A6A1F), Playfair headings, 44px+ tap targets.
+   ═══════════════════════════════════════════════════════════════════ */
 
-@media (max-width: 700px) {
-  .stocktake-start { grid-template-columns: 1fr; }
+.stocktake {
+  display: grid;
+  gap: 1.1rem;
+  font-family: var(--font-body);
+  color: var(--text);
+}
+
+.stocktake-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.stocktake-card::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 0;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, var(--accent), #D4AF37);
+}
+
+.stocktake-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stocktake-eyebrow {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8A6A1F;
+  margin: 0 0 0.2rem;
+}
+
+.stocktake-heading {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  color: var(--text);
+}
+
+.stocktake-muted {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.stocktake input,
+.stocktake select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.96rem;
+}
+
+.stocktake input:focus,
+.stocktake select:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(122, 36, 50, 0.12);
+}
+
+.stocktake label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Pill Buttons ── */
+.stocktake-btn-primary,
+.stocktake-btn-ghost {
+  min-height: 48px;
+  padding: 0.65rem 1.35rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: background 0.16s ease, transform 0.14s ease, border-color 0.16s ease;
+}
+
+.stocktake-btn-primary {
+  border: none;
+  background: var(--accent);
+  color: #FFFFFF;
+  box-shadow: 0 6px 16px rgba(122, 36, 50, 0.24);
+}
+
+.stocktake-btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.stocktake-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.stocktake-btn-ghost {
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.stocktake-btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stocktake-refresh-btn {
+  min-height: 44px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* ── Start Form ── */
+.stocktake-start {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.85rem;
+  align-items: end;
+  margin-top: 1rem;
+}
+
+/* ── Dominant Scan Hero & Gold-Flash Last Scan ── */
+.stocktake-scan-hero {
+  width: 100%;
+  min-height: 56px;
+  font-size: 1.05rem;
+  margin: 0.9rem 0 0.85rem;
+}
+
+.stocktake-last {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0 0 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid #D4AF37;
+  background: var(--surface-2);
+  animation: stocktakeGoldFlash 0.85s ease-out;
+}
+
+.stocktake-last-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8A6A1F;
+}
+
+.stocktake-last-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+@keyframes stocktakeGoldFlash {
+  0% {
+    background: rgba(212, 175, 55, 0.38);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.35);
+  }
+  100% {
+    background: var(--surface-2);
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+  }
+}
+
+.stocktake-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.stocktake-matches,
+.stocktake-past,
+.stocktake-lines {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stocktake-matches {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.stocktake-matches button,
+.stocktake-past-item {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  text-align: left;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.stocktake-matches button:hover,
+.stocktake-past-item:hover {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.stocktake-match-name,
+.stocktake-past-name {
+  font-weight: 700;
+}
+
+.stocktake-match-add {
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stocktake-past {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+/* ── Counted Rows (44px+ controls, coloured diff pills) ── */
+.stocktake-lines {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+
+.stocktake-line-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.stocktake-line-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+
+.stocktake-line-name {
+  font-weight: 700;
+  font-size: 0.96rem;
+  color: var(--text);
+}
+
+.stocktake-line-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.stocktake-diff-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.16rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.stocktake-diff-pill.is-minus {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.stocktake-diff-pill.is-plus {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.stocktake-diff-pill.is-match {
+  background: var(--bg-2);
+  color: var(--text-muted);
+}
+
+.stocktake-line-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.stocktake-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.stocktake-qty button {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stocktake-qty button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stocktake-qty input {
+  width: 4.5rem;
+  min-height: 44px;
+  text-align: center;
+  font-weight: 700;
+  background: var(--surface);
+}
+
+.stocktake-remove-btn {
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.stocktake-remove-btn:hover {
+  color: var(--error);
+}
+
+.stocktake-uncounted {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.stocktake-uncounted summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stocktake-uncounted ul {
+  margin: 0.6rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+/* ── Owner Result Stat Cards ── */
+.stocktake-result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0.85rem 0 1rem;
+}
+
+.stocktake-stat {
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stocktake-stat.is-minus {
+  background: var(--error-bg);
+  border-color: rgba(192, 24, 90, 0.2);
+}
+
+.stocktake-stat.is-plus {
+  background: var(--success-bg);
+  border-color: rgba(47, 107, 67, 0.22);
+}
+
+.stocktake-stat-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.stocktake-stat-val {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.stocktake-stat.is-minus .stocktake-stat-val {
+  color: var(--error);
+}
+
+.stocktake-stat.is-plus .stocktake-stat-val {
+  color: var(--success);
+}
+
+.stocktake-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.65rem !important;
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.stocktake-check input {
+  min-height: auto;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.stocktake-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .stocktake-card {
+    padding: 1rem;
+  }
+
+  .stocktake-start,
+  .stocktake-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stocktake-line-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .stocktake-actions {
+    flex-direction: column;
+  }
+
+  .stocktake-actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stocktake-last {
+    animation: none;
+  }
 }

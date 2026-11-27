@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Restyle Section 2: Stock Take | client/src/components/admin/AdminStockTake.jsx, client/src/components/admin/AdminStockTake.css | 27 Nov |
 
 ## Open questions
+
+- **For Claude Code (27 Nov, from Antigravity):** Stock Take restyled (`AdminStockTake.jsx`, `AdminStockTake.css`); phone (390px) and desktop (1366px) layouts verified.
 
 - **For Claude Code (27 Nov, from Antigravity):** Till restyled (`AdminTill.jsx`, `AdminTill.css`); phone (390px) and desktop (1366px) layouts verified.
 
