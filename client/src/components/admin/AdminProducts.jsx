@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import API_URL from "../../config";
+import { can } from "../../utils/portal";
 
 const CATEGORIES = [
   { id: "all", label: "All Categories" },
@@ -31,6 +32,7 @@ const INITIAL_FORM = {
 };
 
 export default function AdminProducts({
+  user,
   products = [],
   loading = false,
   fetchProducts,
@@ -39,6 +41,7 @@ export default function AdminProducts({
   setAdminNotice,
   getHeaders,
 }) {
+  const canEditProducts = user === undefined ? true : can(user, "products.edit");
   const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -76,7 +79,9 @@ export default function AdminProducts({
           const brand = (p.brand || "").toLowerCase();
           const tags = Array.isArray(p.tags) ? p.tags.join(" ").toLowerCase() : "";
           const desc = (p.description || "").toLowerCase();
-          if (!name.includes(q) && !brand.includes(q) && !tags.includes(q) && !desc.includes(q)) {
+          const sku = (p.sku || "").toLowerCase();
+          const barcode = (p.barcode || "").toLowerCase();
+          if (!name.includes(q) && !brand.includes(q) && !tags.includes(q) && !desc.includes(q) && !sku.includes(q) && !barcode.includes(q)) {
             return false;
           }
         }
@@ -313,14 +318,16 @@ export default function AdminProducts({
           </div>
 
           {/* Add Product Button */}
-          <button
-            type="button"
-            className="btn-admin-add-product"
-            onClick={handleAddNew}
-            data-testid="add-product-btn"
-          >
-            + Add Product
-          </button>
+          {canEditProducts && (
+            <button
+              type="button"
+              className="btn-admin-add-product"
+              onClick={handleAddNew}
+              data-testid="add-product-btn"
+            >
+              + Add Product
+            </button>
+          )}
         </div>
       </div>
 
@@ -477,6 +484,21 @@ export default function AdminProducts({
                     {product.name}
                   </h3>
 
+                  {(product.sku || product.barcode) && (
+                    <div className="admin-prod-codes">
+                      {product.sku && (
+                        <span className="admin-prod-code-chip" title="Shop code">
+                          Code: {product.sku}
+                        </span>
+                      )}
+                      {product.barcode && product.barcode !== product.sku && (
+                        <span className="admin-prod-code-chip" title="Barcode">
+                          Barcode: {product.barcode}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="admin-prod-meta-row">
                     <span className="admin-prod-price">{displayPrice}</span>
                     {renderStockPill(product.stock)}
@@ -484,25 +506,27 @@ export default function AdminProducts({
                 </div>
 
                 {/* Card Actions Footer */}
-                <div className="admin-prod-card-actions">
-                  <button
-                    type="button"
-                    className="btn-prod-quick-edit"
-                    onClick={() => handleEdit(product)}
-                    data-testid={`edit-product-${product._id}`}
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-prod-delete"
-                    onClick={() => handleDelete(product._id, product.name)}
-                    disabled={isDeleting}
-                    data-testid={`delete-product-${product._id}`}
-                  >
-                    {isDeleting ? "..." : "🗑️ Delete"}
-                  </button>
-                </div>
+                {canEditProducts && (
+                  <div className="admin-prod-card-actions">
+                    <button
+                      type="button"
+                      className="btn-prod-quick-edit"
+                      onClick={() => handleEdit(product)}
+                      data-testid={`edit-product-${product._id}`}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-prod-delete"
+                      onClick={() => handleDelete(product._id, product.name)}
+                      disabled={isDeleting}
+                      data-testid={`delete-product-${product._id}`}
+                    >
+                      {isDeleting ? "..." : "🗑️ Delete"}
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -518,7 +542,7 @@ export default function AdminProducts({
                 <th>Price</th>
                 <th>Stock Status</th>
                 <th>Featured</th>
-                <th className="th-actions">Actions</th>
+                {canEditProducts && <th className="th-actions">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -542,6 +566,13 @@ export default function AdminProducts({
                         <div className="tbl-prod-info">
                           <span className="tbl-prod-name">{product.name}</span>
                           <span className="tbl-prod-brand">{product.brand || "—"}</span>
+                          {(product.sku || product.barcode) && (
+                            <span className="tbl-prod-codes">
+                              {product.sku ? `Code: ${product.sku}` : ""}
+                              {product.sku && product.barcode && product.barcode !== product.sku ? " · " : ""}
+                              {product.barcode && product.barcode !== product.sku ? `Barcode: ${product.barcode}` : ""}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -571,27 +602,29 @@ export default function AdminProducts({
                     </td>
 
                     {/* Actions */}
-                    <td className="td-actions">
-                      <div className="tbl-actions-group">
-                        <button
-                          type="button"
-                          className="btn-tbl-action edit"
-                          onClick={() => handleEdit(product)}
-                          title="Edit product"
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-tbl-action delete"
-                          onClick={() => handleDelete(product._id, product.name)}
-                          disabled={isDeleting}
-                          title="Delete product"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
+                    {canEditProducts && (
+                      <td className="td-actions">
+                        <div className="tbl-actions-group">
+                          <button
+                            type="button"
+                            className="btn-tbl-action edit"
+                            onClick={() => handleEdit(product)}
+                            title="Edit product"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-tbl-action delete"
+                            onClick={() => handleDelete(product._id, product.name)}
+                            disabled={isDeleting}
+                            title="Delete product"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -601,7 +634,7 @@ export default function AdminProducts({
       )}
 
       {/* ── ADD / EDIT PRODUCT MODAL ── */}
-      {showProductForm && (
+      {canEditProducts && showProductForm && (
         <div className="admin-modal-overlay" onClick={() => setShowProductForm(false)}>
           <div
             className="admin-modal-dialog admin-product-modal"
@@ -626,6 +659,18 @@ export default function AdminProducts({
 
             {formError && <div className="admin-error" role="alert">⚠️ {formError}</div>}
             {formSuccess && <div className="admin-success" role="status">✅ {formSuccess}</div>}
+
+            {editProduct && (editProduct.sku || editProduct.barcode) && (
+              <div className="prod-readonly-codes">
+                <div className="prod-readonly-codes-row">
+                  <span><strong>Shop code:</strong> {editProduct.sku || "—"}</span>
+                  <span><strong>Barcode:</strong> {editProduct.barcode || "—"}</span>
+                </div>
+                <span className="prod-readonly-codes-hint">
+                  Read-only here — change barcodes in Barcode Labels.
+                </span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="admin-product-form">
               <div className="admin-form-grid">

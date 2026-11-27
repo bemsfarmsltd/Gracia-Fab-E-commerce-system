@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { downloadOrdersCsv } from "../../utils/adminDownload";
 import API_URL from "../../config";
+import { can } from "../../utils/portal";
 import AdminOrderInvoice from "./AdminOrderInvoice";
 
 const statusColors = {
@@ -14,6 +15,7 @@ const statusColors = {
 const PAGE_SIZE = 20;
 
 export default function AdminOrders({
+  user,
   orders = [],
   loading = false,
   fetchOrders,
@@ -25,6 +27,8 @@ export default function AdminOrders({
   setAdminNotice,
   getHeaders,
 }) {
+  const canCancelOrders = user === undefined ? true : can(user, "orders.cancel");
+  const canExport = user === undefined ? true : can(user, "customers.export");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
   const [sortOrder, setSortOrder] = useState("newest");
@@ -205,20 +209,22 @@ export default function AdminOrders({
           </div>
 
           {/* Export CSV */}
-          <button
-            type="button"
-            className="btn-admin-cancel export-csv-btn"
-            onClick={async () => {
-              try {
-                await downloadOrdersCsv();
-              } catch (err) {
-                setAdminError(err.message);
-              }
-            }}
-            title="Download full orders spreadsheet"
-          >
-            ⬇ Export CSV
-          </button>
+          {canExport && (
+            <button
+              type="button"
+              className="btn-admin-cancel export-csv-btn"
+              onClick={async () => {
+                try {
+                  await downloadOrdersCsv();
+                } catch (err) {
+                  setAdminError(err.message);
+                }
+              }}
+              title="Download full orders spreadsheet"
+            >
+              ⬇ Export CSV
+            </button>
+          )}
         </div>
 
         {/* Search & Sort Row */}
@@ -436,13 +442,15 @@ export default function AdminOrders({
                       {order.refund?.status === "pending" && (
                         <div className="order-refund-due">
                           Refund due {formatPrice(order.refund.amount)}
-                          <button
-                            type="button"
-                            className="btn-edit"
-                            onClick={() => handleMarkRefunded(order)}
-                          >
-                            Mark refunded
-                          </button>
+                          {canCancelOrders && (
+                            <button
+                              type="button"
+                              className="btn-edit"
+                              onClick={() => handleMarkRefunded(order)}
+                            >
+                              Mark refunded
+                            </button>
+                          )}
                         </div>
                       )}
 
@@ -470,7 +478,9 @@ export default function AdminOrders({
                         <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        {(canCancelOrders || order.status === "cancelled") && (
+                          <option value="cancelled">Cancelled</option>
+                        )}
                       </select>
                     </td>
 

@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Restyle Section 6: Products & permissions | client/src/pages/AdminDashboard.jsx, client/src/components/admin/AdminProducts.jsx, client/src/components/admin/AdminOrders.jsx, client/src/components/admin/AdminCustomers.jsx, client/src/components/admin/AdminCustomerDetail.jsx, client/src/components/admin/AdminMessages.jsx, client/src/components/admin/AdminDashLite.css | 27 Nov |
 
 ## Open questions
+
+- **For Claude Code (27 Nov, from Antigravity):** Products & permissions done (`AdminDashboard.jsx`, `AdminProducts.jsx`, `AdminOrders.jsx`, `AdminCustomers.jsx`, `AdminCustomerDetail.jsx`, `AdminMessages.jsx`, `AdminDashLite.css`): shop code (`sku`) and barcode shown read-only on product cards, list rows and edit modal; staff-restricted buttons hidden via `can(user, ...)` (`products.edit`, `orders.cancel`, `customers.export`, `messages.delete`); screens checked at 390 and 1366.
 
 - **For Claude Code (27 Nov, from Antigravity):** Staff restyled (`AdminStaff.jsx`, `AdminStaff.css`); phone (390px) and desktop (1366px) layouts verified.
 

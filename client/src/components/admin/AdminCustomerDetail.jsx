@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import API_URL from "../../config";
+import { can } from "../../utils/portal";
 
 export default function AdminCustomerDetail({
+  user,
   customerId,
   onBack,
   getHeaders,
@@ -9,6 +11,7 @@ export default function AdminCustomerDetail({
   setAdminError,
   setAdminNotice,
 }) {
+  const canDeleteNotes = user === undefined ? true : can(user, "customers.export");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newNote, setNewNote] = useState("");
@@ -399,16 +402,18 @@ export default function AdminCustomerDetail({
                             year: "numeric",
                           })}
                         </span>
-                        <button
-                          type="button"
-                          className="btn-delete-note"
-                          onClick={() => handleDeleteNote(n._id)}
-                          disabled={deletingNoteId === n._id}
-                          title="Delete staff note"
-                          aria-label="Delete staff note"
-                        >
-                          ✕
-                        </button>
+                        {canDeleteNotes && (
+                          <button
+                            type="button"
+                            className="btn-delete-note"
+                            onClick={() => handleDeleteNote(n._id)}
+                            disabled={deletingNoteId === n._id}
+                            title="Delete staff note"
+                            aria-label="Delete staff note"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     </div>
                     <p className="note-text-body">{n.text}</p>

@@ -305,6 +305,7 @@ function AdminDashboard() {
         {/* ── ORDER BOARD ── */}
         {activeTab === "orderboard" && (
           <AdminOrderBoard
+            user={user}
             orders={orders}
             loading={loading}
             fetchOrders={fetchOrders}
@@ -319,6 +320,7 @@ function AdminDashboard() {
         {/* ── PRODUCTS ── */}
         {activeTab === "products" && (
           <AdminProducts
+            user={user}
             products={products}
             loading={loading}
             fetchProducts={fetchProducts}
@@ -332,6 +334,7 @@ function AdminDashboard() {
         {/* ── ORDERS ── */}
         {activeTab === "orders" && (
           <AdminOrders
+            user={user}
             orders={orders}
             loading={loading}
             fetchOrders={fetchOrders}
@@ -348,6 +351,7 @@ function AdminDashboard() {
         {/* ── CUSTOMERS ── */}
         {activeTab === "users" && (
           <AdminCustomers
+            user={user}
             getHeaders={getHeaders}
             formatPrice={formatPrice}
             setAdminError={setAdminError}
@@ -367,6 +371,7 @@ function AdminDashboard() {
         {/* ── Messages Inbox ── */}
         {activeTab === "messages" && (
           <AdminMessages
+            user={user}
             messages={messages}
             loading={msgLoading}
             fetchMessages={fetchMessages}

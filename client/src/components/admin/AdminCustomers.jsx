@@ -3,6 +3,7 @@ import AdminCustomerDetail from "./AdminCustomerDetail";
 import API_URL from "../../config";
 
 export default function AdminCustomers({
+  user,
   getHeaders,
   formatPrice,
   setAdminError,
@@ -59,6 +60,7 @@ export default function AdminCustomers({
   if (selectedCustomerId) {
     return (
       <AdminCustomerDetail
+        user={user}
         customerId={selectedCustomerId}
         onBack={() => {
           setSelectedCustomerId(null);

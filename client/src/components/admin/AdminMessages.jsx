@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import API_URL from "../../config";
+import { can } from "../../utils/portal";
 
 const STATUS_TABS = [
   { id: "all", label: "All" },
@@ -49,6 +50,7 @@ const formatWhatsAppHref = (phone, name, subject) => {
 };
 
 export default function AdminMessages({
+  user,
   messages = [],
   loading = false,
   fetchMessages,
@@ -56,6 +58,7 @@ export default function AdminMessages({
   setAdminError,
   setAdminNotice,
 }) {
+  const canDeleteMessages = user === undefined ? true : can(user, "messages.delete");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -459,14 +462,16 @@ export default function AdminMessages({
                       </button>
                     )}
 
-                    <button
-                      type="button"
-                      className="btn-inbox-delete"
-                      disabled={updatingId === selectedMessage._id}
-                      onClick={() => handleDelete(selectedMessage)}
-                    >
-                      🗑 Delete
-                    </button>
+                    {canDeleteMessages && (
+                      <button
+                        type="button"
+                        className="btn-inbox-delete"
+                        disabled={updatingId === selectedMessage._id}
+                        onClick={() => handleDelete(selectedMessage)}
+                      >
+                        🗑 Delete
+                      </button>
+                    )}
                   </div>
                 </footer>
               </>
