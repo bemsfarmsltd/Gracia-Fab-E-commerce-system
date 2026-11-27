@@ -26,6 +26,8 @@ import {
 import { createVoucherSchema, updateVoucherSchema } from '../validators/voucherValidators.js'
 import protect from '../middleware/authMiddleware.js'
 import admin from '../middleware/adminMiddleware.js'
+import activityLog from '../middleware/activityLog.js'
+import { getActivity } from '../controllers/activityController.js'
 import validate from '../middleware/validate.js'
 import {
   createProductSchema,
@@ -39,6 +41,10 @@ const router = express.Router()
 
 // All routes protected by both auth and admin middleware
 router.use(protect, admin)
+// Every successful change below is recorded in the activity log.
+router.use(activityLog)
+
+router.get('/activity', getActivity)
 
 router.get('/stats', getDashboardStats)
 router.get('/overview', getOverview)

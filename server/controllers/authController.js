@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        token: generateToken(user._id),
+        token: generateToken(user._id, { isAdmin: user.isAdmin }),
       });
     }
   } catch (error) {
@@ -104,7 +104,7 @@ export const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        token: generateToken(user._id),
+        token: generateToken(user._id, { isAdmin: user.isAdmin }),
       });
     }
   } catch (error) {
@@ -154,7 +154,7 @@ export const verifyOtp = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
+      token: generateToken(user._id, { isAdmin: user.isAdmin }),
     });
   } catch (error) {
     return sendServerError(res, error, "verifyOtp error");
@@ -254,7 +254,7 @@ export const updateUserProfile = async (req, res) => {
       hairType: updatedUser.hairType,
       isAdmin: updatedUser.isAdmin,
       marketingEmails: updatedUser.emailPreferences?.marketing !== false,
-      token: generateToken(updatedUser._id),
+      token: generateToken(updatedUser._id, { isAdmin: updatedUser.isAdmin, authTime: req.authTime }),
     });
   } catch (error) {
     return sendServerError(res, error, "authController error");
@@ -272,6 +272,6 @@ export const refreshSession = (req, res) => {
     name: req.user.name,
     email: req.user.email,
     isAdmin: req.user.isAdmin,
-    token: generateToken(req.user._id),
+    token: generateToken(req.user._id, { isAdmin: req.user.isAdmin, authTime: req.authTime }),
   });
 };

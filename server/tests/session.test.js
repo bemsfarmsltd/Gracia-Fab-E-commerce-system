@@ -32,7 +32,7 @@ describe("sessions", () => {
     expect(exp - iat).toBe(7 * DAY);
   });
 
-  it("renew with a fresh 7-day token and the account's current details", async () => {
+  it("renew with a fresh token and the account's current details (admins: 8 hours)", async () => {
     const old = jwt.sign({ id: (await User.create({ name: "Gracia", email: "md@example.com", password: "password123" }))._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     // Six days in: still valid, and meanwhile she was made an admin.
     await User.updateOne({ email: "md@example.com" }, { isAdmin: true });
@@ -41,8 +41,11 @@ describe("sessions", () => {
     expect(res.status).toBe(200);
     expect(res.headers["cache-control"]).toContain("no-store");
     expect(res.body).toMatchObject({ name: "Gracia", email: "md@example.com", isAdmin: true });
-    const { exp } = jwt.decode(res.body.token);
-    expect(exp - Math.floor(Date.now() / 1000)).toBeGreaterThan(7 * DAY - 60);
+    // She's an admin now, so the renewed sign-in ends 8 hours after she
+    // signed in (admin rule), not 7 days.
+    const { exp, at } = jwt.decode(res.body.token);
+    expect(exp - at).toBeLessThanOrEqual(8 * 3600 + 1);
+    expect(exp - Math.floor(Date.now() / 1000)).toBeLessThan(DAY);
     // The new token works.
     expect((await request(app).get("/api/auth/profile").set("Authorization", `Bearer ${res.body.token}`)).status).toBe(200);
   });

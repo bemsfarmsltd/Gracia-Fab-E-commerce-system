@@ -15,6 +15,10 @@ const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
+      // When this person actually signed in (renewals keep it), for the
+      // admin 8-hour limit. Older tokens have no `at`: use when issued.
+      req.authTime = decoded.at || decoded.iat
+
       // Attach user to request (without password)
       req.user = await User.findById(decoded.id).select('-password')
 

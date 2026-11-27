@@ -16,6 +16,9 @@ import { getMonnifyConfig } from "../services/monnify.js";
 import { sendServerError } from "../utils/httpErrors.js";
 import { cancelOrder, markRefunded, OrderCancelError } from "../services/orderCancel.js";
 import { advanceOrderStatus, OrderStatusError } from "../services/orderStatus.js";
+import { naira } from "../utils/activityText.js";
+
+const shortOrderId = (order) => String(order._id).slice(-8).toUpperCase();
 
 // @desc   Create new order
 // @route  POST /api/orders
@@ -322,6 +325,10 @@ export const getOrderById = async (req, res) => {
 export const cancelOrderHandler = async (req, res) => {
   try {
     const order = await cancelOrder(req.params.id, { reason: req.body.reason });
+    res.locals.activity = {
+      summary: `Cancelled order #${shortOrderId(order)}${req.body.reason ? ` (${req.body.reason})` : ""}${order.refund?.status === "pending" ? `; refund of ${naira(order.refund.amount)} due` : ""}`,
+      changes: { status: { to: "cancelled" }, reason: req.body.reason },
+    };
     res.json(order);
   } catch (error) {
     if (error instanceof OrderCancelError) {
@@ -337,6 +344,10 @@ export const cancelOrderHandler = async (req, res) => {
 export const markRefundedHandler = async (req, res) => {
   try {
     const order = await markRefunded(req.params.id, req.body);
+    res.locals.activity = {
+      summary: `Refund recorded for order #${shortOrderId(order)}: ${naira(order.refund?.amount)}${order.refund?.reference ? `, ref ${order.refund.reference}` : ""}`,
+      changes: { refund: { status: order.refund?.status, amount: order.refund?.amount, reference: order.refund?.reference } },
+    };
     res.json(order);
   } catch (error) {
     if (error instanceof OrderCancelError) {
@@ -367,6 +378,11 @@ export const updateOrderStatus = async (req, res) => {
 
   try {
     const order = await advanceOrderStatus(req.params.id, status, note);
+    const from = order.statusHistory?.at(-2)?.status;
+    res.locals.activity = {
+      summary: `Order #${shortOrderId(order)}: ${from || "?"} → ${status}${note ? ` (${note})` : ""}`,
+      changes: { status: { from: from ?? null, to: status } },
+    };
     res.json(order.depopulate("user"));
   } catch (error) {
     if (error instanceof OrderStatusError) {
@@ -396,5 +412,9 @@ export const bulkUpdateOrderStatus = async (req, res) => {
       failed.push({ id, message: error instanceof OrderStatusError ? error.message : "Couldn't update this order" });
     }
   }
+  res.locals.activity = {
+    summary: `${updated.length} order(s) → ${status}${failed.length ? ` (${failed.length} couldn't be moved)` : ""}`,
+    changes: { status: { to: status }, orders: updated, failed: failed.map((x) => x.id) },
+  };
   res.json({ updated, failed });
 };

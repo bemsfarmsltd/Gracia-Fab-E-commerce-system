@@ -60,7 +60,7 @@ export const googleLogin = async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       avatar: user.avatar,
-      token: generateToken(user._id)
+      token: generateToken(user._id, { isAdmin: user.isAdmin })
     })
 
   } catch (error) {
@@ -104,7 +104,7 @@ export const facebookLogin = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id)
+      token: generateToken(user._id, { isAdmin: user.isAdmin })
     })
 
   } catch (error) {

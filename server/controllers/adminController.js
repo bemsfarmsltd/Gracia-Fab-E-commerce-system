@@ -9,6 +9,7 @@ import {
 import { sendServerError } from '../utils/httpErrors.js'
 import { LOW_STOCK_THRESHOLD } from '../config/inventory.js'
 import { ALLOWED_UPLOAD_MIME_TYPES } from '../validators/adminValidators.js'
+import { naira, fieldChanges, describeProductChanges } from '../utils/activityText.js'
 
 const MIME_TO_EXTENSION = {
   'image/jpeg': 'jpg',
@@ -110,6 +111,11 @@ export const createProduct = async (req, res) => {
       suitableFor: {}
     })
 
+    res.locals.activity = {
+      targetId: String(product._id),
+      summary: `Added "${product.name}" at ${naira(product.price)}, stock ${product.stock}`,
+      changes: { name: product.name, price: product.price, stock: product.stock, category: product.category },
+    }
     res.status(201).json(product)
   } catch (error) {
     return sendServerError(res, error, "adminController error");
@@ -124,6 +130,7 @@ export const updateProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' })
     }
+    const before = product.toObject()
 
     const {
       name, description, price, image, secondaryImage,
@@ -144,7 +151,11 @@ product.image = image ?? product.image
       : product.tags
     product.isFeatured = isFeatured ?? product.isFeatured
 
+    // Before/after for the activity log, read before saving.
+    const changes = fieldChanges(before, product, ['name', 'price', 'stock', 'category', 'brand', 'isFeatured', 'image', 'secondaryImage', 'description'])
+
     const updatedProduct = await product.save()
+    res.locals.activity = { changes, summary: describeProductChanges(updatedProduct.name, changes) }
     res.json(updatedProduct)
   } catch (error) {
     return sendServerError(res, error, "adminController error");
@@ -157,6 +168,10 @@ product.image = image ?? product.image
 export const bulkUpdateStock = async (req, res) => {
   try {
     const { updates } = req.body
+
+    // Counts before the change, for the activity log.
+    const before = await Product.find({ _id: { $in: updates.map((u) => u.id) } }).select('name stock').lean()
+    const beforeById = new Map(before.map((p) => [String(p._id), p]))
 
     // bulkWrite skips the save hook, so set isInStock alongside stock here.
     const result = await Product.bulkWrite(
@@ -174,6 +189,16 @@ export const bulkUpdateStock = async (req, res) => {
     const foundSet = new Set(found.map(String))
     const notFound = ids.filter((id) => !foundSet.has(id))
 
+    const changed = updates
+      .filter(({ id, stock }) => beforeById.has(id) && beforeById.get(id).stock !== stock)
+      .map(({ id, stock }) => ({ product: id, name: beforeById.get(id).name, from: beforeById.get(id).stock ?? 0, to: stock }))
+    res.locals.activity = {
+      targetId: changed.length === 1 ? changed[0].product : undefined,
+      summary: changed.length === 1
+        ? `Stock of "${changed[0].name}" ${changed[0].from} → ${changed[0].to}`
+        : `Stock counts changed for ${changed.length} product(s)`,
+      changes: { stock: changed },
+    }
     res.json({ updated: result.matchedCount, notFound })
   } catch (error) {
     return sendServerError(res, error, "adminController error");
@@ -189,6 +214,10 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' })
     }
     await product.deleteOne()
+    res.locals.activity = {
+      summary: `Deleted "${product.name}" (${naira(product.price)}, stock ${product.stock ?? 0})`,
+      changes: { name: product.name, price: product.price, stock: product.stock },
+    }
     res.json({ message: 'Product deleted successfully' })
   } catch (error) {
     return sendServerError(res, error, "adminController error");
