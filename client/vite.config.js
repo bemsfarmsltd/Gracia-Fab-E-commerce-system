@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 // The public site address: VITE_SITE_URL on Vercel (https://graciafab.com once
 // the domain is connected). Fills %SITE_URL% in index.html and writes
@@ -46,10 +47,37 @@ function siteUrlPlugin() {
   };
 }
 
+// The admin portal is a separate app (admin/index.html). In dev and preview,
+// send /admin/<anything> to it instead of the shop (Hostinger does the same
+// with client/public/.htaccess).
+function adminAppPlugin() {
+  const rewrite = (req, _res, next) => {
+    const path = (req.url || "").split("?")[0];
+    if (/^\/admin(\/|$)/.test(path) && !/\.[a-z0-9]+$/i.test(path)) req.url = "/admin/index.html";
+    next();
+  };
+  return {
+    name: "gracia-admin-app",
+    configureServer: (server) => { server.middlewares.use(rewrite); },
+    configurePreviewServer: (server) => { server.middlewares.use(rewrite); },
+  };
+}
+
 export default defineConfig({
+  // Two apps from one build: the shop (index.html) and the admin portal
+  // (admin/index.html → dist/admin/). They share only common libraries.
+  build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        admin: fileURLToPath(new URL("./admin/index.html", import.meta.url)),
+      },
+    },
+  },
   plugins: [
     react(),
     siteUrlPlugin(),
+    adminAppPlugin(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
@@ -93,13 +121,19 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // The shop's offline copy must never answer for the admin portal.
+        navigateFallbackDenylist: [/^\/admin(\/|$)/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         // Don't pre-download product photos or the large logo on install:
         // that was ~4.5 MB in the background for every first-time visitor.
         // They're cached when actually viewed (runtimeCaching below).
         // Also skip the crash-alert code (Sentry): it only loads when
         // VITE_SENTRY_DSN is set and isn't needed offline.
-        globIgnores: ["**/images/products/**", "**/logo.png", "**/assets/sentryLoader-*.js"],
+        // And never the admin portal: customers' phones shouldn't download it.
+        globIgnores: [
+          "**/images/products/**", "**/logo.png", "**/assets/sentryLoader-*.js",
+          "admin/**", "**/assets/admin-*", "**/assets/AdminDashboard-*",
+        ],
         runtimeCaching: [
           {
             // Product photos shipped with the site (client/public/images/products).

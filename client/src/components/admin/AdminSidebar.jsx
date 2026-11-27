@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 
 const NAV_SECTIONS = [
   {
@@ -121,9 +120,10 @@ export default function AdminSidebar({
 
         {/* Sidebar Footer: Admin profile & quick store view */}
         <div className="admin-sidebar-footer">
-          <Link to="/" className="admin-nav-view-store">
+          {/* A plain link: the shop is a different app from the admin. */}
+          <a href="/" className="admin-nav-view-store">
             <span aria-hidden="true">←</span> View Storefront
-          </Link>
+          </a>
           <div className="admin-sidebar-user">
             <div className="admin-user-avatar" aria-hidden="true">
               {user?.name ? user.name.charAt(0).toUpperCase() : "A"}

@@ -28,6 +28,12 @@ DirectoryIndex index.html
   RewriteRule ^sitemap\.xml$ https://api.graciafab.com/sitemap.xml [R=302,L]
   RewriteRule ^api/(.*)$ https://api.graciafab.com/api/$1 [R=307,L]
 
+  # Admin portal: a separate app in /admin (dist/admin/index.html). Any
+  # /admin/... page that isn't a real file opens the admin app, never the shop.
+  RewriteRule ^admin/index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^admin(/.*)?$ /admin/index.html [L]
+
   # SPA client-side routing fallback
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f

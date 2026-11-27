@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 const TAB_TITLES = {
   overview: { title: "Store Overview", subtitle: "Performance, real sales figures and inventory health" },
   orders: { title: "Orders Management", subtitle: "Filter, track and process customer orders" },
@@ -21,7 +19,6 @@ export default function AdminHeader({
   adminNotice,
   user,
 }) {
-  const navigate = useNavigate();
   const current = TAB_TITLES[activeTab] || { title: "Admin Console", subtitle: "Manage your Gracia Fab store" };
 
   return (
@@ -64,7 +61,7 @@ export default function AdminHeader({
           <button
             type="button"
             className="admin-back-to-store"
-            onClick={() => navigate("/")}
+            onClick={() => window.location.assign("/")}
             title="Return to the storefront"
           >
             ← <span className="admin-back-label">Back to </span>Store

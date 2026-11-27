@@ -23,14 +23,13 @@ import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
 import AiConciergeChat from "./components/AiConciergeChat";
 import { startMotion } from "./utils/motion";
-import { afterLoginPath, homePath, shouldOpenAdminOnLaunch } from "./utils/afterLogin";
+import { afterLoginPath, shouldOpenAdminOnLaunch } from "./utils/afterLogin";
 import "./styles/motion.css";
 
 // Code-split pages. Only the core shopping path (home, shop, product page,
 // cart, login, 404) ships in the first download; everything else loads when
 // visited. lazyWithReload recovers when a stale cached app asks for a code
 // file a newer deploy replaced (that once left /admin blank).
-const AdminDashboard = lazyWithReload(() => import("./pages/AdminDashboard"));
 const Register = lazyWithReload(() => import("./pages/Register"));
 const VerifyCode = lazyWithReload(() => import("./pages/VerifyCode"));
 const About = lazyWithReload(() => import("./pages/About"));
@@ -95,14 +94,30 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// ── Admin route — redirects non-admins ──
-function AdminRoute({ children }) {
-  const { user, loading } = useAuth();
+// ── /admin belongs to the separate admin app: leave the shop and load it ──
+export function OpenAdminApp() {
   const location = useLocation();
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
-  if (!user.isAdmin) return <Navigate to={homePath(user)} replace />;
-  return children;
+  // If the host served the shop again for /admin (misconfigured rewrite or an
+  // old offline copy), don't reload forever: try once, then explain.
+  const [failed] = useState(() => {
+    let last = 0;
+    try { last = Number(sessionStorage.getItem("adminRedirectAt")) || 0; } catch { /* private mode */ }
+    return Date.now() - last < 10000;
+  });
+  useEffect(() => {
+    if (failed) return;
+    try { sessionStorage.setItem("adminRedirectAt", String(Date.now())); } catch { /* private mode */ }
+    const rest = location.pathname.replace(/^\/admin\/?/, "");
+    window.location.replace(`/admin/${rest}${location.search}`);
+  }, [failed, location.pathname, location.search]);
+  if (failed) {
+    return (
+      <p role="alert" style={{ padding: "48px 16px", textAlign: "center", minHeight: "60vh" }}>
+        The admin portal couldn't open. Please refresh the page, or close and reopen the app.
+      </p>
+    );
+  }
+  return <PageLoading />;
 }
 
 // ── Public only route — sends signed-in users on (My Vanity, or where they were going) ──
@@ -243,17 +258,10 @@ function App() {
           // first-time visitors, so they must not sit behind the login.
           element={<BeautyLanding onCartOpen={openCart} />}
         />
-        {/* ── Admin only ── */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <Suspense fallback={<p className="admin-loading" style={{ padding: "48px 16px", textAlign: "center" }}>Loading admin dashboard…</p>}>
-                <AdminDashboard />
-              </Suspense>
-            </AdminRoute>
-          }
-        />
+        {/* ── Admin: a separate app (client/admin/index.html, src/admin/).
+            The shop has no admin code; a link to /admin from inside the shop
+            loads that app with a full page load. ── */}
+        <Route path="/admin/*" element={<OpenAdminApp />} />
         {/* Skin Tone Detector runs entirely client-side and calls only
             public endpoints — no reason to gate it behind login. */}
         <Route
