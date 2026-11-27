@@ -2,6 +2,33 @@
 
 A shared, prioritized task list for every assistant on this repo (Claude Code, Antigravity, Codex). Claim an item in `docs/WORKING_NOW.md` before starting it, and tick it here in the same commit as the fix.
 
+## Status, 27 Nov 2026 (CC): start here
+
+Since the first audits: the site moved to **Hostinger** (graciafab.com, api.graciafab.com) and the database to the **company MongoDB Atlas** account; the admin became a separate app at `/admin` with staff accounts, 8-hour sign-ins, an activity log and a full inventory system (stock history, till, barcodes, stock take, suppliers and costs); guided tours and iPhone install were added. Anything below that says Render or Vercel now means Hostinger (settings: `docs/DEPLOYMENT.md`, check `https://api.graciafab.com/health`).
+
+Checked live just now: database connected; **payments still off** (Monnify keys missing); **16 of 89 products buyable**; **AI chat 503 and Routine Generator 500** (keys are set but rejected); WhatsApp (Twilio) not set; public vouchers GLOW05 and LUXE5K (no BEAUTY20).
+
+**P0: before taking real online orders**
+- [ ] **Monnify keys on Hostinger** (`YOU`/COO): `MONNIFY_API_KEY`, `MONNIFY_SECRET_KEY`, `MONNIFY_CONTRACT_CODE`; webhook URL `https://api.graciafab.com/api/webhooks/monnify` in the Monnify dashboard; then one real small test payment with CC watching.
+- [ ] **Real stock counts** (`MD`/staff): use Stock Take (scan the shelves, MD approves). Only 16 products can be bought.
+- [ ] **Rotate secrets that reached chat** (`YOU`): the Cloudinary API secret (24 Nov), the company MongoDB `gracia-fab-app` password (24 Nov), and, if not done yet, the earlier MongoDB, Vercel and COO GitHub passwords. Update Hostinger and `server/.env` after each.
+
+**P1: soon**
+- [ ] **AI keys rejected** (`YOU`/AI automator): chat 503, routine 500. Hostinger's app log names the reason (invalid key, quota or retired model). See the AI briefing doc.
+- [ ] **WhatsApp updates off** (`YOU`): add the three `TWILIO_*` settings on Hostinger.
+- [ ] **Google sign-in on the new domain** (`YOU`): add `https://graciafab.com` and `https://www.graciafab.com` to the Google OAuth client's allowed origins, then try "Continue with Google".
+- [ ] **MD: enter cost prices** for stock already on the shelf (Suppliers & Costs → Costs & margins), or profit is incomplete.
+- [ ] **Uptime monitor** (`YOU`): UptimeRobot (free) on `https://api.graciafab.com/health` every 5 min. It alerts on outages and keeps the API process awake for the hourly unpaid-order cleanup and the 10:00 marketing emails.
+- [ ] **Staging on Hostinger** (`YOU`/Henry): a second site from the `staging` branch with its own database and Monnify sandbox keys.
+- [ ] **DMARC to quarantine around 3 Dec** (`CC`), after two weeks of clean sending.
+- [ ] **Owner decisions** (`MD`): contact email, legal page wording, the "100% Authentic" badge, BEAUTY20, real photos for the hero.
+
+**P2: improvements CC can do next (ask)**
+- [ ] Shop-till sales in the Overview and Sales pages (today they're in the Till totals and the Profit report only).
+- [ ] Loyalty points for shop sales (match customers by phone number).
+- [ ] Show the deployed commit on `/health` (set `APP_VERSION` at build on Hostinger) so a deploy can be confirmed.
+- [ ] Delete the old personal MongoDB cluster after **24 Dec** (kept as a fallback).
+
 **How this was checked:** CI checks run locally, `npm audit` on production dependencies, live checks against the production API (`gracia-fab.onrender.com`) and site (`gracia-fab.vercel.app`), a code and content scan, and an axe accessibility and performance pass in headless Chrome over five live pages at desktop and mobile sizes.
 
 ## Overall
@@ -95,7 +122,7 @@ What's left is mostly **data, content and trust** (things a customer would notic
 
 ## P1: fix soon
 
-- [ ] **Shop by Category images with Gemini** (`AG`, owner request 21 Nov). Brief: `docs/CATEGORY_IMAGES_BRIEF.md`. Category tiles only; product photos stay real.
+- [x] **Shop by Category images with Gemini** (`AG`, owner request 21 Nov; done 21 Nov). Brief: `docs/CATEGORY_IMAGES_BRIEF.md`. Category tiles only; product photos stay real.
 
 - [x] **Homepage showed invented products, photos and claims** (`CC`, 21 Nov, owner report). Now built from the real catalogue: New in Store, featured product, category tiles, feature cards and the compare preview all use real products, photos, prices and stock. Removed: 5 invented products (fake ratings, fake discount, and they could be added to the bag under fake IDs), the "Gracia Privé Club", purity/accuracy guarantees, "single-donor raw hair", "zero white cast", foundation shades, all Unsplash photos. The same claims were removed from the cart, Shop, Compare, AI Advisor, account page and a beauty guide.
 - [x] **Homepage redesigned around real content** (`AG`, 21 Nov, 701631c): uncropped product photos, loading states, a "Visit our store" section.
