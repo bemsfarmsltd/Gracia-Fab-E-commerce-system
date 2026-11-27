@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Activity Log + Stock History screens (and a History button in Inventory) | client/src/components/admin/AdminActivity*, client/src/components/admin/AdminStockHistory*, client/src/components/InventoryPanel.jsx (History button only), AdminSidebar.jsx, AdminHeader.jsx, AdminDashboard.jsx, client/src/utils/portal.js, client/src/components/tour/adminSteps.jsx | 27 Nov |
 
 ## Open questions
 
