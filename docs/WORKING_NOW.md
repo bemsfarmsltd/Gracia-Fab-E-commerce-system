@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Restyle Section 3: Suppliers & Costs | client/src/components/admin/AdminSuppliers.jsx, client/src/components/admin/AdminSuppliers.css | 27 Nov |
 
 ## Open questions
 
