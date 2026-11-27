@@ -18,6 +18,8 @@ import AdminTill from "../components/admin/AdminTill";
 import AdminLabels from "../components/admin/AdminLabels";
 import AdminStockTake from "../components/admin/AdminStockTake";
 import AdminSuppliers from "../components/admin/AdminSuppliers";
+import AdminStockHistory from "../components/admin/AdminStockHistory";
+import AdminActivity from "../components/admin/AdminActivity";
 import AdminTour from "../components/tour/AdminTour";
 import InstallApp from "../components/install/InstallApp";
 import { tourSeen } from "../components/tour/useFirstRunTour";
@@ -33,6 +35,8 @@ function AdminDashboard() {
   // Staff start on the Order Board; the owner on the Overview.
   const [activeTab, setActiveTab] = useState(() => homeTab(user));
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Product opened from Inventory's History button (Stock History screen).
+  const [historyProduct, setHistoryProduct] = useState("");
   const [ordersStatusFilter, setOrdersStatusFilter] = useState("all");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -239,6 +243,7 @@ function AdminDashboard() {
         setActiveTab={(tab) => {
           setActiveTab(tab);
           if (tab === "orders") setOrdersStatusFilter("all");
+          if (tab === "stockhistory") setHistoryProduct("");
         }}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
@@ -270,7 +275,13 @@ function AdminDashboard() {
         {activeTab === "staff" && canSeeTab(user, "staff") && (
           <AdminStaff setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
         )}
-        {activeTab === "inventory" && <InventoryPanel />}
+        {activeTab === "inventory" && (
+          <InventoryPanel onShowHistory={canSeeTab(user, "stockhistory") ? (p) => { setHistoryProduct(p._id); setActiveTab("stockhistory"); } : undefined} />
+        )}
+        {activeTab === "stockhistory" && canSeeTab(user, "stockhistory") && (
+          <AdminStockHistory productId={historyProduct} setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
+        )}
+        {activeTab === "activity" && canSeeTab(user, "activity") && <AdminActivity setAdminError={setAdminError} />}
 
         {/* ── SALES ── */}
         {activeTab === "sales" && <SalesPanel />}

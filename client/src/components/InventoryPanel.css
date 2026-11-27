@@ -197,3 +197,19 @@
     overflow-x: auto;
   }
 }
+
+/* Opens the product's stock history. */
+.inventory-history-link {
+  display: inline-block;
+  margin-top: 0.2rem;
+  padding: 0.2rem 0;
+  min-height: 28px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -28,6 +28,7 @@ export const TAB_PERMISSIONS = {
   till: "store.sell",
   labels: "stock.count",
   stocktake: "stock.count",
+  stockhistory: "stock.count",
   suppliers: "costs",
   staff: "staff.manage",
   activity: "activity.view",

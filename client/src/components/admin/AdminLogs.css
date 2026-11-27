@@ -1,0 +1,94 @@
+/* Activity Log and Stock History. Built in the admin look; Antigravity may refine. */
+.logs { display: grid; gap: 1rem; }
+.logs-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg);
+  padding: 1rem 1.1rem; box-shadow: var(--shadow-sm); position: relative;
+}
+.logs-heading { font-family: var(--font-display); font-size: 1.1rem; margin: 0 0 0.75rem; color: var(--text); }
+.logs-muted { color: var(--text-muted); font-size: 0.85rem; margin: 0; font-weight: 400; }
+.logs-eyebrow { margin: 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8A6A1F; }
+.logs input, .logs select {
+  min-height: 44px; padding: 0.45rem 0.7rem; border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font: inherit; width: 100%; box-sizing: border-box;
+}
+.logs label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; font-weight: 600; color: var(--text); }
+
+.logs-filters { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr; gap: 0.75rem; align-items: start; }
+.logs-filter-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+.logs-product-pick { position: relative; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; font-weight: 600; }
+.logs-chosen { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; min-height: 44px; font-weight: 400; color: var(--text); }
+.logs-matches {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 5; list-style: none; margin: 4px 0 0; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+}
+.logs-matches button {
+  width: 100%; text-align: left; min-height: 40px; padding: 0.4rem 0.6rem; border: none; border-radius: 8px;
+  background: none; color: var(--text); font: inherit; font-weight: 400; cursor: pointer;
+}
+.logs-matches button:hover { background: var(--surface-2); }
+
+.logs-chips { display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+.logs-chip {
+  flex-shrink: 0; min-height: 38px; padding: 0 0.85rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+}
+.logs-chip.is-on { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
+
+.logs-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; }
+.logs-stat {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); padding: 0.85rem 1rem;
+  box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 0.25rem;
+}
+.logs-stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+.logs-stat-value { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.logs-stat-value.is-in, .logs-change.is-in { color: var(--success); }
+.logs-stat-value.is-out, .logs-change.is-out { color: var(--error); }
+
+.logs-product-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.75rem; margin-bottom: 1rem; }
+.logs-big { margin: 0; font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+.logs-ok { margin: 0; color: var(--success); font-weight: 600; font-size: 0.9rem; }
+.logs-warn { margin: 0; max-width: 520px; padding: 0.6rem 0.8rem; border-radius: var(--radius-md); background: var(--warning-bg); color: var(--warning); font-weight: 600; font-size: 0.88rem; }
+.logs-record { display: grid; grid-template-columns: 1.6fr 0.7fr 1.6fr auto; gap: 0.75rem; align-items: end; }
+
+.logs-list { list-style: none; margin: 0 0 0.75rem; padding: 0; }
+.logs-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.75rem; align-items: start; padding: 0.75rem 0; border-bottom: 1px solid var(--border-soft); }
+.logs-row:last-child { border-bottom: none; }
+.logs-row-main { min-width: 0; }
+.logs-row-title { margin: 0 0 0.15rem; color: var(--text); font-weight: 600; font-size: 0.93rem; overflow-wrap: anywhere; }
+.logs-inline { font-weight: 600; padding: 0; min-height: 0; }
+.logs-change {
+  min-width: 3.2rem; text-align: center; padding: 0.3rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem;
+  background: var(--surface-2);
+}
+.logs-change.is-in { background: var(--success-bg); }
+.logs-change.is-out { background: var(--error-bg); }
+.logs-balance { font-weight: 700; color: var(--text); white-space: nowrap; }
+
+.logs-day + .logs-day { margin-top: 0.75rem; }
+.logs-day-label {
+  margin: 0 0 0.25rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A6A1F;
+}
+.logs-timeline .logs-row { grid-template-columns: auto minmax(0, 1fr); }
+.logs-avatar {
+  width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent); color: #FFFFFF; font-weight: 700; font-size: 0.85rem; box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.5);
+}
+.logs-details { margin-top: 0.35rem; font-size: 0.85rem; color: var(--text-muted); }
+.logs-details summary { cursor: pointer; color: var(--accent); font-weight: 600; min-height: 28px; display: inline-flex; align-items: center; }
+.logs-details table { border-collapse: collapse; margin-top: 0.35rem; }
+.logs-details th { text-align: left; padding: 0.2rem 0.75rem 0.2rem 0; color: var(--text); font-weight: 600; vertical-align: top; }
+.logs-details td { padding: 0.2rem 0; overflow-wrap: anywhere; }
+.logs-from { text-decoration: line-through; color: var(--text-muted); }
+.logs-to { color: var(--text); font-weight: 600; }
+
+@media (max-width: 1000px) {
+  .logs-filters { grid-template-columns: 1fr 1fr; }
+  .logs-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .logs-record { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .logs-filters, .logs-filter-row, .logs-record { grid-template-columns: 1fr; }
+  .logs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .logs-row { grid-template-columns: auto minmax(0, 1fr); }
+  .logs-balance { grid-column: 2; }
+}

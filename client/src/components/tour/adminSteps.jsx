@@ -59,6 +59,13 @@ export const adminSteps = (user) => {
       body: <p>How many of each product are on the shelf. The shop and the website sell from the same shelf, so every sale (online or in the shop) takes stock off here automatically, and every change is recorded.</p>,
     },
     {
+      id: "stockhistory",
+      target: nav("stockhistory"),
+      placement: "right",
+      title: "Stock history",
+      body: <p>Every stock movement with who made it and why. Record deliveries, customer returns and damaged or expired stock here too.</p>,
+    },
+    {
       id: "till",
       target: nav("till"),
       placement: "right",
@@ -99,6 +106,13 @@ export const adminSteps = (user) => {
       placement: "right",
       title: "Your team",
       body: <p>Add staff with their email: they get their own sign-in and only see what they need. Remove access any time; it ends immediately.</p>,
+    },
+    {
+      id: "activity",
+      target: nav("activity"),
+      placement: "right",
+      title: "Activity log",
+      body: <p>Every change anyone makes in the portal (prices, stock, orders, refunds, staff), with who did it and when.</p>,
     },
     {
       id: "help",

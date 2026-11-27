@@ -16,6 +16,7 @@ const NAV_SECTIONS = [
       { id: "orderboard", label: "Order Board", icon: "📋" },
       { id: "products", label: "Products", icon: "🛍️" },
       { id: "inventory", label: "Inventory", icon: "🏷️" },
+      { id: "stockhistory", label: "Stock History", icon: "📜" },
       { id: "labels", label: "Barcode Labels", icon: "🔖" },
       { id: "stocktake", label: "Stock Take", icon: "🧮" },
     ],
@@ -47,6 +48,7 @@ const NAV_SECTIONS = [
     heading: "Team",
     items: [
       { id: "staff", label: "Staff", icon: "🧑‍💼" },
+      { id: "activity", label: "Activity Log", icon: "🕘" },
     ],
   },
 ];

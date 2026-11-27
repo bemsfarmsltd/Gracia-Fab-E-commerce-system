@@ -75,14 +75,8 @@ Used by the MD on a laptop and her phone.
   - `customers.export`: CSV exports, note delete
   - `messages.delete`: message delete
 
-### 7. New screens (functional + styled), owner only
-The APIs exist; no screen yet.
-- **Activity** (menu item `activity`, permission `activity.view`; add it to `NAV_SECTIONS` in `AdminSidebar.jsx` and a title in `AdminHeader.jsx`).
-  - Data: `GET /api/admin/activity?action=&from=&to=&page=`.
-  - Show a timeline list: time, who (`actorName`), the readable `summary`; filter chips for Products / Stock / Orders / Sales / Staff (`action=product|stock|order|sale|staff`).
-- **Stock history** in Inventory: a "History" button per product.
-  - Data: `GET /api/admin/stock/movements?product=<id>`; show `reasonLabel`, `change` (+ green / − red), `balanceAfter`, `actorName`, `orderNumber`, date.
-  - If `reconciliation.matches` is false, show a small warning.
+### 7. Activity Log and Stock History: built by Claude Code (27 Nov)
+No longer yours to build. Both exist and are styled in the admin look, in `components/admin/AdminActivity.jsx`, `AdminStockHistory.jsx` and `AdminLogs.css`, plus a History button in `InventoryPanel.jsx`. Refine them if you like, keeping their behaviour and tests (`__tests__/AdminLogs.test.jsx`).
 
 ## When you finish a section
 

@@ -10,6 +10,8 @@ const TAB_TITLES = {
   bookings: { title: "In-Store & Bridal Bookings", subtitle: "Manage salon appointments, wig installs, bridal makeup and MD consultations" },
   messages: { title: "Customer Inquiries", subtitle: "Messages submitted via the contact and support form" },
   suppliers: { title: "Suppliers & Costs", subtitle: "Deliveries, cost prices and margins, what to reorder, and profit" },
+  stockhistory: { title: "Stock History", subtitle: "Every stock movement, and recording deliveries, returns and write-offs" },
+  activity: { title: "Activity Log", subtitle: "Every change made in the admin: who, what and when" },
   stocktake: { title: "Stock Take", subtitle: "Count the shelves; the owner approves the differences" },
   labels: { title: "Barcode Labels", subtitle: "Print price and barcode stickers on A4 sheets; set product barcodes" },
   till: { title: "Shop Till", subtitle: "Sell in the shop: stock comes off the same count the website uses" },

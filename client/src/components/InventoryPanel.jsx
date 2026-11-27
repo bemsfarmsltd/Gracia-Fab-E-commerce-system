@@ -30,7 +30,8 @@ function authHeaders(extra = {}) {
 //  - edit counts inline and save the changed rows in one go
 //  - download the sheet, fill it in elsewhere, upload it back
 // Both go through PUT /api/admin/products/stock.
-function InventoryPanel() {
+// onShowHistory(product): opens that product's stock history (Stock History screen).
+function InventoryPanel({ onShowHistory }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -305,6 +306,11 @@ function InventoryPanel() {
                 <td className="product-name-cell">
                   <p>{product.name}</p>
                   {product.brand && <span>{product.brand}</span>}
+                  {onShowHistory && (
+                    <button type="button" className="inventory-history-link" onClick={() => onShowHistory(product)} aria-label={`Stock history of ${product.name}`}>
+                      History
+                    </button>
+                  )}
                 </td>
                 <td>
                   <span className="category-pill">{product.category}</span>
