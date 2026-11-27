@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { startTour } from "./tour/useFirstRunTour";
+import { openInstall } from "./install/installPlatform";
 import { Link } from "react-router-dom";
 import API_URL from "../config";
 import "./Footer.css";
@@ -164,6 +165,8 @@ function Footer() {
           <Link to="/shipping-returns">Shipping &amp; Returns</Link>
           <span aria-hidden="true">·</span>
           <button type="button" className="ysl-footer-tour-link" onClick={() => startTour("shop")}>Take the tour</button>
+          <span aria-hidden="true">·</span>
+          <button type="button" className="ysl-footer-tour-link" onClick={openInstall}>Get the app</button>
         </div>
       </div>
     </footer>

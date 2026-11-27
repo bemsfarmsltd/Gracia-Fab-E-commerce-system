@@ -1,5 +1,6 @@
 import { canSeeTab } from "../../utils/portal";
 import { startTour } from "../tour/useFirstRunTour";
+import { openInstall } from "../install/installPlatform";
 
 const NAV_SECTIONS = [
   {
@@ -145,6 +146,9 @@ export default function AdminSidebar({
           </a>
           <button type="button" className="admin-nav-view-store admin-tour-link" data-tour="admin-help" onClick={() => startTour("admin")}>
             <span aria-hidden="true">✦</span> Take the tour
+          </button>
+          <button type="button" className="admin-nav-view-store admin-tour-link" data-tour="admin-install" onClick={openInstall}>
+            <span aria-hidden="true">📲</span> Install on this phone
           </button>
           <div className="admin-sidebar-user">
             <div className="admin-user-avatar" aria-hidden="true">

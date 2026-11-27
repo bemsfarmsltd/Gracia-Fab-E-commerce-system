@@ -19,6 +19,9 @@ import AdminLabels from "../components/admin/AdminLabels";
 import AdminStockTake from "../components/admin/AdminStockTake";
 import AdminSuppliers from "../components/admin/AdminSuppliers";
 import AdminTour from "../components/tour/AdminTour";
+import InstallApp from "../components/install/InstallApp";
+import { tourSeen } from "../components/tour/useFirstRunTour";
+import { adminTourKey } from "../components/tour/adminSteps";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
@@ -230,6 +233,7 @@ function AdminDashboard() {
   return (
     <div className="admin-dashlite-layout">
       <AdminTour user={user} onOpenMenu={setMobileOpen} />
+      <InstallApp appName="Gracia Fab Admin" icon="/icons/admin-icon-192.png" storageKey="gf-install-admin" delay={4000} waitFor={() => tourSeen(adminTourKey(user))} />
       <AdminSidebar
         activeTab={activeTab}
         setActiveTab={(tab) => {

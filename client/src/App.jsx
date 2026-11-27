@@ -17,7 +17,9 @@ import Cart from "./pages/Cart";
 import lazyWithReload from "./utils/lazyWithReload";
 import ErrorBoundary from "./components/ErrorBoundary";
 import BackToTop from "./components/BackToTop";
-import InstallPrompt from "./components/InstallPrompt";
+import InstallApp from "./components/install/InstallApp";
+import { tourSeen } from "./components/tour/useFirstRunTour";
+import { SHOP_TOUR_KEY } from "./components/tour/shopSteps";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
@@ -303,7 +305,7 @@ function App() {
       </Suspense>
       </ErrorBoundary>
       <BackToTop />
-      <InstallPrompt />
+      <InstallApp appName="Gracia Fab" icon="/icons/icon-192.png" storageKey="gf-install-shop" delay={30000} waitFor={() => window.location.pathname !== "/" || tourSeen(SHOP_TOUR_KEY)} />
       <AiConciergeChat onCartOpen={openCart} />
     </Router>
   );

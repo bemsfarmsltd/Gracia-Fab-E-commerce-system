@@ -28,6 +28,8 @@ export default function useFirstRunTour({ name, storageKey, enabled = true, dela
   const close = useCallback(() => {
     markSeen(storageKey);
     setOpen(false);
+    // Lets things that wait for the tour (the install banner) go next.
+    window.dispatchEvent(new Event("gf:tour-closed"));
   }, [storageKey]);
 
   return { open, close, start: () => setOpen(true) };

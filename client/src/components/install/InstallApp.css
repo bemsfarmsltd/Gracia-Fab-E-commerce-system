@@ -1,0 +1,98 @@
+/* Add to home screen: Gracia Fab cream, wine and gold (matches the tour). */
+.install-banner {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 15000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px 12px 12px 14px;
+  background: var(--surface, #FFFFFF);
+  color: var(--text, #241310);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 18px;
+  box-shadow: 0 18px 44px rgba(28, 12, 14, 0.22);
+  font-family: var(--font-body, "DM Sans", sans-serif);
+  animation: install-up 320ms cubic-bezier(.2,.8,.2,1) both;
+}
+.install-banner-icon { width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(122, 36, 50, 0.2); }
+.install-banner-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.install-banner-text strong { font-size: 0.92rem; line-height: 1.25; }
+.install-banner-text span { font-size: 0.8rem; color: var(--text-muted, #6E4F45); }
+.install-banner-btn {
+  min-height: 40px; padding: 0 16px; border: none; border-radius: 999px;
+  background: var(--accent, #7A2432); color: #FFFFFF; font: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+  white-space: nowrap;
+}
+.install-banner-close {
+  width: 36px; height: 36px; border: none; border-radius: 50%;
+  background: transparent; color: var(--text-muted, #6E4F45); font-size: 1.4rem; line-height: 1; cursor: pointer;
+}
+.install-banner-close:hover { background: rgba(122, 36, 50, 0.07); }
+
+.install-backdrop {
+  position: fixed; inset: 0; z-index: 15001;
+  background: rgba(28, 12, 14, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 12px;
+  animation: install-fade 220ms ease both;
+}
+.install-sheet {
+  position: relative;
+  width: min(440px, 100%);
+  margin-bottom: max(8px, env(safe-area-inset-bottom));
+  padding: 26px 24px 18px;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(212, 175, 55, 0.16), transparent 55%),
+    var(--surface, #FFFFFF);
+  color: var(--text, #241310);
+  border-radius: 22px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 24px 60px rgba(28, 12, 14, 0.3);
+  font-family: var(--font-body, "DM Sans", sans-serif);
+  text-align: center;
+  animation: install-up 320ms cubic-bezier(.2,.8,.2,1) both;
+}
+.install-sheet::before {
+  content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 3px;
+  border-radius: 0 0 3px 3px; background: linear-gradient(90deg, var(--accent, #7A2432), #D4AF37);
+}
+.install-sheet-icon { width: 64px; height: 64px; border-radius: 16px; border: 1.5px solid rgba(212, 175, 55, 0.6); box-shadow: 0 10px 24px rgba(122, 36, 50, 0.22); }
+.install-eyebrow { margin: 12px 0 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #8A6A1F; }
+.install-title { margin: 0 0 14px; font-family: var(--font-display, "Playfair Display", serif); font-size: 1.35rem; line-height: 1.25; }
+.install-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; text-align: left; }
+.install-steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 0.94rem; line-height: 1.5; color: var(--text-muted, #6E4F45); }
+.install-steps strong { color: var(--text, #241310); }
+.install-step-num {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent, #7A2432); color: #FFFFFF; font-weight: 700; font-size: 0.82rem;
+}
+.install-share-icon { display: inline-block; vertical-align: -4px; color: #007AFF; }
+.install-actions { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+.install-btn-primary {
+  min-height: 44px; padding: 0 24px; border: none; border-radius: 999px;
+  background: var(--accent, #7A2432); color: #FFFFFF; font: inherit; font-weight: 700; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(122, 36, 50, 0.28);
+}
+.install-btn-text { min-height: 44px; padding: 0 16px; border: none; background: none; color: var(--accent, #7A2432); font: inherit; font-weight: 600; cursor: pointer; border-radius: 999px; }
+.install-btn-primary:focus-visible, .install-btn-text:focus-visible, .install-banner-btn:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
+
+/* iPhone Safari: a small gold arrow pointing down towards the Share button. */
+.install-pointer {
+  position: absolute; left: 50%; bottom: -26px; width: 16px; height: 16px; margin-left: -8px;
+  border-right: 3px solid #D4AF37; border-bottom: 3px solid #D4AF37; transform: rotate(45deg);
+  animation: install-bob 1.4s ease-in-out infinite;
+}
+
+@keyframes install-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes install-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes install-bob { 0%, 100% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(6px) rotate(45deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .install-banner, .install-sheet, .install-backdrop { animation: none; }
+  .install-pointer { animation: none; }
+}

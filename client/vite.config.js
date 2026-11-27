@@ -95,8 +95,9 @@ export default defineConfig({
         short_name: "Gracia Fab",
         description:
           "Your AI-powered beauty advisor for skincare, haircare, wigs and bridal beauty in Nigeria.",
-        theme_color: "#FCA311",
-        background_color: "#000000",
+        // Wine bar and cream splash screen, like the site.
+        theme_color: "#7A2432",
+        background_color: "#FBF3E7",
         display: "standalone",
         scope: "/",
         start_url: "/",

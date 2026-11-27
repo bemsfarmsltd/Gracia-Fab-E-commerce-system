@@ -4,6 +4,9 @@ import "../index.css";
 import AdminApp from "./AdminApp.jsx";
 import { AuthProvider } from "../context/AuthContext.jsx";
 import { initMonitoring } from "../utils/monitoring";
+// Listens for the browser's install offer (Android/Chrome) from the very start;
+// the dashboard that shows the button loads a moment later.
+import "../components/install/InstallApp";
 
 // The admin portal: a separate app at /admin with its own entry, login and
 // home-screen icon. None of this code is part of the shop's bundle, and the
