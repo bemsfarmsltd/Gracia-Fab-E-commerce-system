@@ -919,3 +919,44 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* ── Phone pay bar (added in the restyle check) ──
+   While the sale has items and the payment section is off screen, the total
+   and a Pay button stay at the bottom of the screen. */
+.till-paybar { display: none; }
+@media (max-width: 768px) {
+  .till-paybar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.6rem 0.6rem 1rem;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 999px;
+    box-shadow: 0 14px 34px rgba(36, 19, 16, 0.24);
+    animation: tillPaybarUp 240ms cubic-bezier(.2,.8,.2,1) both;
+  }
+  .till-paybar-text { font-size: 0.95rem; }
+  .till-paybar-text strong { font-family: var(--font-display); font-size: 1.1rem; color: var(--accent); }
+  .till-paybar-btn {
+    min-height: 44px;
+    padding: 0 1.5rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #FFFFFF;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .till { padding-bottom: 5.5rem; }
+}
+@keyframes tillPaybarUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .till-paybar { animation: none; } }

@@ -104,6 +104,16 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
   const [lastSale, setLastSale] = useState(null);
   const [today, setToday] = useState({ items: [], summary: null });
   const [scanning, setScanning] = useState(false);
+  // Phones: is the payment section on screen? If not, a slim pay bar shows
+  // the total at the bottom with a button that jumps to it.
+  const [checkoutInView, setCheckoutInView] = useState(true);
+  useEffect(() => {
+    const el = document.querySelector(".till-checkout-bar");
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    const io = new IntersectionObserver(([entry]) => setCheckoutInView(entry.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const loadToday = useCallback(async () => {
     try {
@@ -383,6 +393,20 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
           </div>
         </div>
       </section>
+
+      {/* Phones: total and a Pay button always at hand while the sale has items. */}
+      {itemCount > 0 && !checkoutInView && (
+        <div className="till-paybar" role="region" aria-label="Sale total">
+          <span className="till-paybar-text">{itemCount} item{itemCount === 1 ? "" : "s"} · <strong>{naira(total)}</strong></span>
+          <button
+            type="button"
+            className="till-paybar-btn"
+            onClick={() => document.querySelector(".till-checkout-bar")?.scrollIntoView({ behavior: "smooth", block: "end" })}
+          >
+            Pay
+          </button>
+        </div>
+      )}
 
       {/* ── COLUMN 3: TODAY'S CASH-UP & HISTORY ── */}
       <section className="till-card till-side" aria-label="Receipt and today's sales">

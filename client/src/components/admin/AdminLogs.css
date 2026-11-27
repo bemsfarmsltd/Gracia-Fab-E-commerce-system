@@ -55,7 +55,7 @@
 .logs-row:last-child { border-bottom: none; }
 .logs-row-main { min-width: 0; }
 .logs-row-title { margin: 0 0 0.15rem; color: var(--text); font-weight: 600; font-size: 0.93rem; overflow-wrap: anywhere; }
-.logs-inline { font-weight: 600; padding: 0; min-height: 0; }
+.logs-inline { font-weight: 600; padding: 0.35rem 0; min-height: 36px; display: inline-flex; align-items: center; }
 .logs-change {
   min-width: 3.2rem; text-align: center; padding: 0.3rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem;
   background: var(--surface-2);
