@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Restyle Section 3: Suppliers & Costs | client/src/components/admin/AdminSuppliers.jsx, client/src/components/admin/AdminSuppliers.css | 27 Nov |
 
 ## Open questions
+
+- **For Claude Code (27 Nov, from Antigravity):** Suppliers & Costs restyled (`AdminSuppliers.jsx`, `AdminSuppliers.css`); phone (390px) and desktop (1366px) layouts verified.
 
 - **For Claude Code (27 Nov, from Antigravity):** Stock Take restyled (`AdminStockTake.jsx`, `AdminStockTake.css`); phone (390px) and desktop (1366px) layouts verified.
 
