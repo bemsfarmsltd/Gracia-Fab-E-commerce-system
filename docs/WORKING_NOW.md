@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude (gracia-fab) | Shop till sales in the admin Overview | server/services/adminOverview.js, server/tests/adminOverview.test.js, client/src/components/admin/AdminOverview.jsx (+ test) | 27 Nov |
 
 ## Open questions
 
