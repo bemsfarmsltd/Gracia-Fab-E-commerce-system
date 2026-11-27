@@ -78,3 +78,19 @@
   color: inherit;
   opacity: 0.85;
 }
+
+@media (max-width: 600px) {
+  .booking-options {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .booking-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .booking-btn {
+    width: 100%;
+  }
+}

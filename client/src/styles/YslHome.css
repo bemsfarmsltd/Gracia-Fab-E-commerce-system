@@ -1170,9 +1170,77 @@
 }
 
 @media (max-width: 960px) {
+  .ysl-new-store-section {
+    padding: 3.75rem 2rem;
+  }
+
   .ysl-new-store-split {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .ysl-new-store-section {
+    padding: 3rem 1.15rem 3.5rem;
+  }
+
+  .ysl-new-store-header {
+    margin-bottom: 1.75rem;
+    gap: 0.75rem;
+  }
+
+  .ysl-new-items-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .new-item-media {
+    height: 150px;
+    padding: 0.7rem;
+  }
+
+  .new-item-quick-add {
+    top: 116px;
+    right: 0.5rem;
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
+  }
+
+  .new-item-info {
+    padding: 0.85rem 0.75rem 0.95rem;
+  }
+
+  .new-item-tag {
+    font-size: 0.68rem;
+  }
+
+  .new-item-name {
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+
+  .new-item-meta {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .new-item-price {
+    font-size: 0.9rem;
+  }
+
+  .spotlight-media {
+    height: 250px;
+    padding: 1.25rem;
+  }
+
+  .spotlight-info {
+    padding: 1.35rem 1.2rem 1.5rem;
+  }
+
+  .spotlight-title {
+    font-size: 1.35rem;
   }
 }
 
@@ -1992,7 +2060,28 @@
   }
   .ysl-undertone-showcase-section,
   .ysl-comparator-showcase-section {
-    padding: 3rem 1.25rem;
+    padding: 3rem 1.15rem;
+  }
+  .ysl-undertone-cards-grid {
+    gap: 1.1rem;
+  }
+  .undertone-swatch {
+    height: 115px;
+  }
+  .undertone-card-body {
+    padding: 1.15rem 1.15rem 1.3rem;
+  }
+  .ysl-comparator-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .mini-table-header,
+  .mini-table-row {
+    grid-template-columns: 0.72fr 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem 0.8rem;
+    font-size: 0.78rem;
+    align-items: start;
   }
 }
 
@@ -3785,8 +3874,8 @@
   }
 
   .ysl-shopcat-grid {
-    flex-direction: column;
-    gap: 3rem;
+    flex-direction: row;
+    gap: 0.9rem;
   }
 
   .ysl-shopcat-col.offset {
@@ -3794,19 +3883,26 @@
   }
 
   .ysl-shopcat-col {
-    gap: 2.5rem;
+    flex: 1;
+    min-width: 0;
+    gap: 1.25rem;
+  }
+
+  .ysl-shopcat-img-wrap {
+    aspect-ratio: 4 / 5;
   }
 
   .ysl-shopcat-heading-strip {
-    padding: 3rem 1.5rem 2rem;
+    padding: 2.75rem 1.15rem 1.75rem;
   }
 
   .ysl-shopcat-grid-wrap {
-    padding: 2rem 1.5rem 3rem;
+    padding: 1.5rem 1.15rem 2.75rem;
   }
 
   .ysl-shopcat-label {
-    font-size: 2.1rem;
+    font-size: 1.25rem;
+    margin-top: 0.55rem;
   }
 
   .ysl-commitment-section {
