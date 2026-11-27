@@ -6,8 +6,7 @@ import { can } from "../../utils/portal";
 import "./AdminLabels.css";
 
 // Barcode labels on A4 sticker sheets (3 × 8 = 24 labels of 70 × 37 mm, the
-// common "24 per sheet" size). Functional first version (Claude Code);
-// Antigravity owns the look.
+// common "24 per sheet" size).
 const PER_SHEET = 24;
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` });
 
@@ -84,60 +83,156 @@ export default function AdminLabels({ user, setAdminError, setAdminNotice }) {
 
   return (
     <div className="labels">
-      <div className="labels-controls">
-        <input className="labels-search" type="search" placeholder="Find a product, code or barcode" aria-label="Find a product" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <button type="button" className="btn-admin-cancel" onClick={() => setCounts(Object.fromEntries(products.filter((p) => p.stock > 0).map((p) => [p._id, p.stock])))}>
-          One label per item in stock
-        </button>
-        <button type="button" className="btn-admin-cancel" onClick={() => setCounts({})}>Clear</button>
-        <label className="labels-skip">Labels already used on the first sheet
-          <input type="number" min="0" max={PER_SHEET - 1} value={skip} onChange={(e) => setSkip(Math.max(0, Math.min(PER_SHEET - 1, parseInt(e.target.value, 10) || 0)))} />
-        </label>
-        <button type="button" className="btn-admin-save" disabled={!total} onClick={() => { setPreview(true); setTimeout(() => window.print(), 600); }}>
-          Print {total} label{total === 1 ? "" : "s"}{total ? ` (${sheets.length} sheet${sheets.length === 1 ? "" : "s"})` : ""}
-        </button>
-      </div>
+      <section className="labels-card">
+        <div className="labels-card-head">
+          <div>
+            <span className="labels-eyebrow">A4 Sticker Sheets · 24 per Sheet</span>
+            <h3 className="labels-heading">Barcode labels</h3>
+          </div>
+          <button
+            type="button"
+            className="labels-btn-primary"
+            disabled={!total}
+            onClick={() => { setPreview(true); setTimeout(() => window.print(), 600); }}
+          >
+            Print {total} label{total === 1 ? "" : "s"}{total ? ` (${sheets.length} sheet${sheets.length === 1 ? "" : "s"})` : ""}
+          </button>
+        </div>
 
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead><tr><th>Product</th><th>Price</th><th>Shop code</th><th>Scans as</th><th>In stock</th><th>Labels</th></tr></thead>
-          <tbody>
-            {shown.map((p) => (
-              <tr key={p._id}>
-                <td>{p.name}</td>
-                <td>{naira(p.price)}</td>
-                <td>{p.sku || "—"}</td>
-                <td>
-                  {p.barcode ? <>{p.barcode} <span className="labels-type">{barcodeFormat(p.barcode) === "CODE128" ? "shop code" : "product barcode"}</span></> : "No code yet"}
-                  {canEdit && (
-                    <button type="button" className="labels-link" onClick={() => (p.sku ? askBarcode(p) : setBarcode(p, null))}>
-                      {p.sku ? "Change" : "Give code"}
-                    </button>
-                  )}
-                </td>
-                <td>{p.stock ?? 0}</td>
-                <td>
-                  <input
-                    className="labels-count" type="number" min="0" max="500" inputMode="numeric" disabled={!p.barcode}
-                    aria-label={`Labels for ${p.name}`} value={counts[p._id] || ""} placeholder="0"
-                    onChange={(e) => setCount(p._id, parseInt(e.target.value, 10))}
-                  />
-                </td>
+        <div className="labels-toolbar">
+          <input
+            className="labels-search"
+            type="search"
+            placeholder="Find a product, code or barcode"
+            aria-label="Find a product"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <div className="labels-toolbar-actions">
+            <button
+              type="button"
+              className="labels-btn-secondary"
+              onClick={() => setCounts(Object.fromEntries(products.filter((p) => p.stock > 0).map((p) => [p._id, p.stock])))}
+            >
+              One label per item in stock
+            </button>
+            <button type="button" className="labels-btn-secondary" onClick={() => setCounts({})}>
+              Clear
+            </button>
+          </div>
+
+          <label className="labels-skip">
+            <span>Labels already used on the first sheet</span>
+            <input
+              type="number"
+              min="0"
+              max={PER_SHEET - 1}
+              value={skip}
+              onChange={(e) => setSkip(Math.max(0, Math.min(PER_SHEET - 1, parseInt(e.target.value, 10) || 0)))}
+            />
+          </label>
+        </div>
+
+        <div className="labels-table-wrap">
+          <table className="admin-table labels-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Shop code</th>
+                <th>Scans as</th>
+                <th>In stock</th>
+                <th>Labels</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {shown.map((p) => {
+                const isShopCode = p.barcode && barcodeFormat(p.barcode) === "CODE128";
+                const stock = p.stock ?? 0;
+                return (
+                  <tr key={p._id}>
+                    <td className="labels-cell-name" data-label="Product">
+                      <span className="labels-prod-name">{p.name}</span>
+                    </td>
+                    <td className="labels-cell-price" data-label="Price">{naira(p.price)}</td>
+                    <td className="labels-cell-sku" data-label="Shop code">
+                      <span className="labels-code-chip">{p.sku || "—"}</span>
+                    </td>
+                    <td className="labels-cell-barcode" data-label="Scans as">
+                      <div className="labels-barcode-meta">
+                        {p.barcode ? (
+                          <>
+                            <span className="labels-code-text">{p.barcode}</span>
+                            <span className={`labels-type ${isShopCode ? "is-shop" : "is-ean"}`}>
+                              {isShopCode ? "shop code" : "product barcode"}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="labels-muted">No code yet</span>
+                        )}
+                        {canEdit && (
+                          <button
+                            type="button"
+                            className="labels-link"
+                            onClick={() => (p.sku ? askBarcode(p) : setBarcode(p, null))}
+                          >
+                            {p.sku ? "Change" : "Give code"}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td data-label="In stock">
+                      <span className={`labels-stock-pill ${stock === 0 ? "is-out" : stock <= 5 ? "is-low" : "is-ok"}`}>
+                        {stock}
+                      </span>
+                    </td>
+                    <td className="labels-cell-count" data-label="Labels">
+                      <input
+                        className="labels-count"
+                        type="number"
+                        min="0"
+                        max="500"
+                        inputMode="numeric"
+                        disabled={!p.barcode}
+                        aria-label={`Labels for ${p.name}`}
+                        value={counts[p._id] || ""}
+                        placeholder="0"
+                        onChange={(e) => setCount(p._id, parseInt(e.target.value, 10))}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+              {shown.length === 0 && (
+                <tr className="labels-empty-row">
+                  <td colSpan={6}>
+                    {search.trim() ? `No products match "${search.trim()}".` : "No products found."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {preview && total > 0 && (
         <div className="label-sheets" aria-label="Label sheets">
-          <p className="labels-preview-note">Print preview below. In the print window choose A4, scale 100% (no "fit to page"), no margins.</p>
-          {sheets.map((sheet, i) => (
-            <div className="label-sheet" key={i}>
-              {sheet.map((p, j) => (p ? <Label key={j} product={p} /> : <div key={j} className="label label-empty" />))}
-            </div>
-          ))}
-          <button type="button" className="btn-admin-cancel labels-close" onClick={() => setPreview(false)}>Close preview</button>
+          <div className="labels-preview-bar">
+            <p className="labels-preview-note">
+              Print preview below. In the print window choose A4, scale 100% (no &ldquo;fit to page&rdquo;), no margins.
+            </p>
+            <button type="button" className="labels-btn-secondary labels-close" onClick={() => setPreview(false)}>
+              Close preview
+            </button>
+          </div>
+          <div className="label-sheets-scroll">
+            {sheets.map((sheet, i) => (
+              <div className="label-sheet" key={i}>
+                {sheet.map((p, j) => (p ? <Label key={j} product={p} /> : <div key={j} className="label label-empty" />))}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

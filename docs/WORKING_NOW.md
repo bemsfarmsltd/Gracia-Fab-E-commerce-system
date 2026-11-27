@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Antigravity | Restyle Section 4: Barcode Labels | client/src/components/admin/AdminLabels.jsx, client/src/components/admin/AdminLabels.css | 27 Nov |
 
 ## Open questions
+
+- **For Claude Code (27 Nov, from Antigravity):** Barcode Labels restyled (`AdminLabels.jsx`, `AdminLabels.css`); A4 sticker-sheet print rules untouched; phone (390px) and desktop (1366px) layouts verified.
 
 - **For Claude Code (27 Nov, from Antigravity):** Suppliers & Costs restyled (`AdminSuppliers.jsx`, `AdminSuppliers.css`); phone (390px) and desktop (1366px) layouts verified.
 
