@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Restyle check fixes: phone pay bar in the Till, Stock History tap targets | client/src/components/admin/AdminTill.jsx, AdminTill.css, AdminLogs.css | 27 Nov |
 
 ## Open questions
 
