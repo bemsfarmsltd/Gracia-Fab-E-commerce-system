@@ -52,6 +52,42 @@
   }
 }
 
+/* Mobile (<=768px) uses a Cloudinary 9:16 still frame instead of the video.
+   No zoom needed, and a stronger bottom + top scrim keeps both the transparent
+   navbar and the hero headline clearly readable over the portrait. */
+.ysl-hero-still {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  transform: none;
+  background-color: #1A0609;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .ysl-hero-still {
+    object-position: center 18%;
+    transform: none;
+  }
+
+  .ysl-hero-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(26, 6, 9, 0.56) 0%,
+        rgba(26, 6, 9, 0.12) 22%,
+        rgba(26, 6, 9, 0.14) 46%,
+        rgba(26, 6, 9, 0.84) 74%,
+        rgba(26, 6, 9, 0.96) 100%
+      );
+  }
+
+  .ysl-hero-watermark-mask {
+    display: none;
+  }
+}
+
 /* Lighter overall so the video reads clearly; darkens at bottom, left and right edge
    so the book edge on the right seamlessly blends into the background */
 .ysl-hero-overlay {

@@ -12,6 +12,7 @@ export default function AdminLogin() {
   const [step, setStep] = useState("password"); // "password" | "code"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [code, setCode] = useState("");
   const [devCode, setDevCode] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -80,49 +81,141 @@ export default function AdminLogin() {
   return (
     <main className="admin-login">
       <div className="admin-login-card">
-        <div className="admin-login-brand">
-          <span className="admin-login-logo" aria-hidden="true">
-            <img src="/icons/icon-192.png" alt="" width="56" height="56" />
-          </span>
-          <div>
-            <p className="admin-login-title">GRACIA FAB</p>
-            <p className="admin-login-tag">ADMIN PORTAL</p>
+        {/* Wine Crest Header Banner */}
+        <div className="admin-login-banner">
+          <div className="admin-login-brand">
+            <span className="admin-login-logo" aria-hidden="true">
+              <img src="/icons/admin-icon-192.png" alt="" width="56" height="56" />
+            </span>
+            <div className="admin-login-brand-text">
+              <p className="admin-login-title">GRACIA FAB</p>
+              <p className="admin-login-tag">ADMIN PORTAL</p>
+            </div>
+          </div>
+
+          <div className="admin-login-steps" aria-label="Sign-in steps">
+            <span className={`admin-login-step ${step === "password" ? "is-active" : "is-done"}`}>
+              <span className="step-num" aria-hidden="true">{step === "code" ? "✓" : "1"}</span>
+              Sign in
+            </span>
+            <span className="admin-login-step-sep" aria-hidden="true" />
+            <span className={`admin-login-step ${step === "code" ? "is-active" : ""}`}>
+              <span className="step-num" aria-hidden="true">2</span>
+              Email code
+            </span>
           </div>
         </div>
 
-        {user && !user.isAdmin && step === "password" && (
-          <p className="admin-login-note">
-            You're signed in to the shop as {user.email}, which isn't an admin account. Sign in with an admin account below.
-          </p>
-        )}
-        {notice && <p className="admin-login-note" role="status">{notice}</p>}
-        {error && <p className="admin-login-error" role="alert">{error}</p>}
+        {/* Form Body */}
+        <div className="admin-login-body">
+          <div className="admin-login-intro">
+            <h1 className="admin-login-heading">
+              {step === "password" ? "Welcome back" : "Check your email"}
+            </h1>
+            <p className="admin-login-sub">
+              {step === "password"
+                ? "Sign in with your Gracia Fab staff account to manage orders, stock and bookings."
+                : "Enter the 6-digit verification code sent to your admin email address."}
+            </p>
+          </div>
 
-        {step === "password" ? (
-          <form onSubmit={submitPassword} className="admin-login-form">
-            <label htmlFor="admin-email">Email</label>
-            <input id="admin-email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
-            <label htmlFor="admin-password">Password</label>
-            <input id="admin-password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-            <button type="submit" className="admin-login-btn" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
-          </form>
-        ) : (
-          <form onSubmit={submitCode} className="admin-login-form">
-            <label htmlFor="admin-code">6-digit code</label>
-            <input
-              id="admin-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required
-              value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            />
-            {devCode && <p className="admin-login-note">Development code: {devCode}</p>}
-            <button type="submit" className="admin-login-btn" disabled={busy}>{busy ? "Checking…" : "Verify and open dashboard"}</button>
-            <div className="admin-login-links">
-              <button type="button" className="admin-login-link" onClick={resend}>Send a new code</button>
-              <button type="button" className="admin-login-link" onClick={() => { setStep("password"); setCode(""); setNotice(""); setError(""); }}>Use a different account</button>
-            </div>
-          </form>
-        )}
+          {user && !user.isAdmin && step === "password" && (
+            <p className="admin-login-note">
+              You're signed in to the shop as {user.email}, which isn't an admin account. Sign in with an admin account below.
+            </p>
+          )}
+          {notice && <p className="admin-login-note" role="status">{notice}</p>}
+          {error && <p className="admin-login-error" role="alert">{error}</p>}
 
-        <a className="admin-login-store" href="/">← Go to the shop</a>
+          {step === "password" ? (
+            <form onSubmit={submitPassword} className="admin-login-form">
+              <div className="admin-login-field">
+                <label htmlFor="admin-email">Email</label>
+                <input
+                  id="admin-email"
+                  type="email"
+                  autoComplete="username"
+                  placeholder="admin@graciafab.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="admin-login-field">
+                <label htmlFor="admin-password">Password</label>
+                <div className="admin-login-password-wrap">
+                  <input
+                    id="admin-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="admin-login-eye"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" className="admin-login-btn" disabled={busy}>
+                {busy ? "Signing in…" : "Sign in"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={submitCode} className="admin-login-form">
+              <div className="admin-login-field">
+                <label htmlFor="admin-code">6-digit code</label>
+                <input
+                  id="admin-code"
+                  className="admin-login-otp"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  placeholder="000000"
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                />
+              </div>
+              {devCode && <p className="admin-login-note">Development code: {devCode}</p>}
+              <button type="submit" className="admin-login-btn" disabled={busy}>
+                {busy ? "Checking…" : "Verify and open dashboard"}
+              </button>
+              <div className="admin-login-links">
+                <button type="button" className="admin-login-link" onClick={resend}>
+                  Send a new code
+                </button>
+                <button
+                  type="button"
+                  className="admin-login-link"
+                  onClick={() => {
+                    setStep("password");
+                    setCode("");
+                    setNotice("");
+                    setError("");
+                  }}
+                >
+                  Use a different account
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="admin-login-footer">
+          <a className="admin-login-store" href="/">← Go to the shop</a>
+          <span className="admin-login-security">Staff access only</span>
+        </div>
       </div>
     </main>
   );
