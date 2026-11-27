@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Staff accounts + roles (server, invites, permissions; client gate, set-password page, menu filtering) | server/models/User.js, server/config/permissions.js, server/utils/roles.js, server/middleware/, server/routes/{admin,auth,contact,search}Routes.js, server/controllers/{staff,auth,oauth}Controller.js, server/validators/staffValidators.js, server/services/emailService.js, client/src/context/AuthContext.jsx, client/src/utils/portal.js, client/src/admin/AdminApp.jsx, client/src/admin/SetPassword.*, client/src/pages/AdminDashboard.jsx, client/src/components/admin/AdminSidebar.jsx | 27 Nov |
 | Antigravity | Mobile hero still (<=768px), AdminLogin restyle & Admin home-screen icon | client/src/components/HeroVideo.jsx, client/src/styles/YslHome.css, client/src/admin/AdminLogin.jsx, client/src/admin/AdminLogin.css, client/admin/index.html, client/public/admin/manifest.webmanifest, client/public/icons/admin-icon* | 27 Nov |
 
 ## Open questions
