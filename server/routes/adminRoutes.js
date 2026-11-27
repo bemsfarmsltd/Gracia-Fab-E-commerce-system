@@ -28,6 +28,8 @@ import protect from '../middleware/authMiddleware.js'
 import { portal, can } from '../middleware/portalMiddleware.js'
 import { listStaff, addStaff, resendInvite, removeStaff } from '../controllers/staffController.js'
 import { addStaffSchema } from '../validators/staffValidators.js'
+import { postMovement, getMovements, getStockSummary } from '../controllers/stockController.js'
+import { stockMovementSchema } from '../validators/stockValidators.js'
 import activityLog from '../middleware/activityLog.js'
 import { getActivity } from '../controllers/activityController.js'
 import validate from '../middleware/validate.js'
@@ -74,6 +76,10 @@ router.post('/products', can('products.edit'), validate(createProductSchema), cr
 router.post('/upload', can('products.edit'), validate(uploadImageSchema), uploadImage)
 // Must come before /products/:id so "stock" isn't read as a product id.
 router.put('/products/stock', can('stock.count'), validate(bulkStockSchema), bulkUpdateStock)
+// Stock history: deliveries, returns, write-offs; every change is listed.
+router.get('/stock/movements', can('stock.count'), getMovements)
+router.post('/stock/movements', can('stock.count'), validate(stockMovementSchema), postMovement)
+router.get('/stock/summary', can('stock.count'), getStockSummary)
 router.put('/products/:id', can('products.edit'), validate(updateProductSchema), updateProduct)
 router.delete('/products/:id', can('products.edit'), deleteProduct)
 router.get('/users', can('customers.export'), getAllUsers)

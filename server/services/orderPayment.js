@@ -1,5 +1,5 @@
 import Order from "../models/Order.js";
-import Product from "../models/Product.js";
+import { changeStock } from "./stock.js";
 import Voucher from "../models/Voucher.js";
 import { pointsQueue, addToQueue } from "../queues/index.js";
 import { queryTransaction } from "./monnify.js";
@@ -105,14 +105,16 @@ export async function markOrderPaid(filter, paymentResult) {
   const committed = []; // what was actually taken, for cancellations
 
   for (const item of order.orderItems) {
-    // Conditional decrement: never takes stock below zero.
-    const product = await Product.findOneAndUpdate(
-      { _id: item.product, stock: { $gte: item.quantity } },
-      { $inc: { stock: -item.quantity } },
-      { new: true },
-    );
+    // Never takes stock below zero; recorded in the stock history as an
+    // online sale against this order.
+    const taken = await changeStock({
+      productId: item.product,
+      change: -item.quantity,
+      reason: "online_sale",
+      order: order._id,
+    });
 
-    if (!product) {
+    if (!taken) {
       // Someone else bought the last units while this customer was paying.
       // The money is already taken, so the order stays paid — record the
       // shortfall where the admin will see it instead of failing silently.
@@ -120,11 +122,6 @@ export async function markOrderPaid(filter, paymentResult) {
       continue;
     }
     committed.push({ product: item.product, quantity: item.quantity });
-
-    if (product.stock <= 0 && product.isInStock) {
-      product.isInStock = false;
-      await product.save();
-    }
   }
 
   order.stockCommitted = committed;

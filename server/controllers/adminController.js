@@ -10,6 +10,7 @@ import { sendServerError } from '../utils/httpErrors.js'
 import { LOW_STOCK_THRESHOLD } from '../config/inventory.js'
 import { ALLOWED_UPLOAD_MIME_TYPES } from '../validators/adminValidators.js'
 import { naira, fieldChanges, describeProductChanges } from '../utils/activityText.js'
+import { setStockCount, recordInitialStock, StockError } from '../services/stock.js'
 
 const MIME_TO_EXTENSION = {
   'image/jpeg': 'jpg',
@@ -110,6 +111,7 @@ export const createProduct = async (req, res) => {
       isFeatured: isFeatured || false,
       suitableFor: {}
     })
+    await recordInitialStock(product, req.user)
 
     res.locals.activity = {
       targetId: String(product._id),
@@ -145,19 +147,27 @@ product.image = image ?? product.image
     product.secondaryImage = secondaryImage ?? product.secondaryImage
     product.category = category || product.category
     product.brand = brand || product.brand
-    product.stock = stock ?? product.stock
+    // Stock isn't saved here: it changes through the stock service below so
+    // the change is recorded in the stock history.
     product.tags = tags
       ? tags.split(',').map(t => t.trim())
       : product.tags
     product.isFeatured = isFeatured ?? product.isFeatured
 
     // Before/after for the activity log, read before saving.
-    const changes = fieldChanges(before, product, ['name', 'price', 'stock', 'category', 'brand', 'isFeatured', 'image', 'secondaryImage', 'description'])
+    const changes = fieldChanges(before, product, ['name', 'price', 'category', 'brand', 'isFeatured', 'image', 'secondaryImage', 'description'])
 
-    const updatedProduct = await product.save()
+    let updatedProduct = await product.save()
+    if (stock !== undefined && stock !== null && Number(stock) !== (Number(before.stock) || 0)) {
+      const result = await setStockCount({ productId: product._id, count: Number(stock), reason: 'count', note: 'Edited on the product', actor: req.user })
+      changes.stock = { from: Number(before.stock) || 0, to: Number(stock) }
+      updatedProduct = await Product.findById(product._id)
+      if (!result) return res.status(404).json({ message: 'Product not found' })
+    }
     res.locals.activity = { changes, summary: describeProductChanges(updatedProduct.name, changes) }
     res.json(updatedProduct)
   } catch (error) {
+    if (error instanceof StockError) return res.status(error.status).json({ message: error.message })
     return sendServerError(res, error, "adminController error");
   }
 }
@@ -169,29 +179,17 @@ export const bulkUpdateStock = async (req, res) => {
   try {
     const { updates } = req.body
 
-    // Counts before the change, for the activity log.
-    const before = await Product.find({ _id: { $in: updates.map((u) => u.id) } }).select('name stock').lean()
-    const beforeById = new Map(before.map((p) => [String(p._id), p]))
-
-    // bulkWrite skips the save hook, so set isInStock alongside stock here.
-    const result = await Product.bulkWrite(
-      updates.map(({ id, stock }) => ({
-        updateOne: {
-          filter: { _id: id },
-          update: { $set: { stock, isInStock: stock > 0 } },
-        },
-      })),
-    )
-
-    // Report ids that didn't match a product (e.g. a stale CSV row).
-    const ids = updates.map((u) => u.id)
-    const found = await Product.find({ _id: { $in: ids } }).distinct('_id')
-    const foundSet = new Set(found.map(String))
-    const notFound = ids.filter((id) => !foundSet.has(id))
-
-    const changed = updates
-      .filter(({ id, stock }) => beforeById.has(id) && beforeById.get(id).stock !== stock)
-      .map(({ id, stock }) => ({ product: id, name: beforeById.get(id).name, from: beforeById.get(id).stock ?? 0, to: stock }))
+    // Each count goes through the stock service, so every change is in the
+    // stock history ("count") with who entered it.
+    const changed = []
+    const notFound = [] // e.g. a stale CSV row
+    let updated = 0
+    for (const { id, stock } of updates) {
+      const result = await setStockCount({ productId: id, count: stock, reason: 'count', actor: req.user })
+      if (!result) { notFound.push(id); continue }
+      updated++
+      if (!result.unchanged) changed.push({ product: id, name: result.product.name, from: result.before, to: stock })
+    }
     res.locals.activity = {
       targetId: changed.length === 1 ? changed[0].product : undefined,
       summary: changed.length === 1
@@ -199,8 +197,9 @@ export const bulkUpdateStock = async (req, res) => {
         : `Stock counts changed for ${changed.length} product(s)`,
       changes: { stock: changed },
     }
-    res.json({ updated: result.matchedCount, notFound })
+    res.json({ updated, notFound })
   } catch (error) {
+    if (error instanceof StockError) return res.status(error.status).json({ message: error.message })
     return sendServerError(res, error, "adminController error");
   }
 }

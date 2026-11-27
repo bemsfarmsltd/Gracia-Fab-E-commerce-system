@@ -324,7 +324,7 @@ export const getOrderById = async (req, res) => {
 // @route  PUT /api/admin/orders/:id/cancel
 export const cancelOrderHandler = async (req, res) => {
   try {
-    const order = await cancelOrder(req.params.id, { reason: req.body.reason });
+    const order = await cancelOrder(req.params.id, { reason: req.body.reason, actor: req.user });
     res.locals.activity = {
       summary: `Cancelled order #${shortOrderId(order)}${req.body.reason ? ` (${req.body.reason})` : ""}${order.refund?.status === "pending" ? `; refund of ${naira(order.refund.amount)} due` : ""}`,
       changes: { status: { to: "cancelled" }, reason: req.body.reason },

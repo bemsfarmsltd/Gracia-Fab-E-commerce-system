@@ -1,5 +1,5 @@
 import Order from "../models/Order.js";
-import Product from "../models/Product.js";
+import { changeStock } from "./stock.js";
 import User from "../models/User.js";
 import Voucher from "../models/Voucher.js";
 import { whatsappQueue, emailQueue, addToQueue } from "../queues/index.js";
@@ -17,15 +17,12 @@ const shortId = (order) => order._id.toString().slice(-8).toUpperCase();
 // Same formula markOrderPaid uses to award points.
 const pointsFor = (order) => Math.max(1, Math.floor(order.totalPrice * 0.01));
 
-// Puts stock back, keeping isInStock in step (and coping with older products
-// that have no stock field at all).
-async function returnStock(items) {
+// Puts stock back (recorded in the stock history against the order). Copes
+// with older products that have no stock field at all.
+async function returnStock(items, { order, actor }) {
   for (const { product, quantity } of items) {
     if (!product || !(quantity > 0)) continue;
-    const newStock = { $add: [{ $ifNull: ["$stock", 0] }, quantity] };
-    await Product.updateOne({ _id: product }, [
-      { $set: { stock: newStock, isInStock: { $gt: [newStock, 0] } } },
-    ]);
+    await changeStock({ productId: product, change: quantity, reason: "online_cancel", order, actor });
   }
 }
 
@@ -50,7 +47,7 @@ async function notifyCustomer(order, { email, whatsapp }) {
 //     dashboard, then recorded with markRefunded)
 // and tells the customer. The status change is a conditional update, so two
 // simultaneous cancels can't return stock twice.
-export async function cancelOrder(orderId, { reason }) {
+export async function cancelOrder(orderId, { reason, actor } = {}) {
   const current = await Order.findById(orderId);
   if (!current) throw new OrderCancelError("Order not found");
   if (current.status === "cancelled") throw new OrderCancelError("This order is already cancelled");
@@ -86,7 +83,7 @@ export async function cancelOrder(orderId, { reason }) {
     const taken = order.stockCommitted?.length
       ? order.stockCommitted
       : order.orderItems.map((i) => ({ product: i.product, quantity: i.quantity }));
-    await returnStock(taken);
+    await returnStock(taken, { order: order._id, actor });
 
     if (order.voucher?.code) {
       await Voucher.updateOne({ code: order.voucher.code, usedCount: { $gt: 0 } }, { $inc: { usedCount: -1 } });

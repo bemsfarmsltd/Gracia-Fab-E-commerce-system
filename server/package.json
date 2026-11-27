@@ -11,7 +11,8 @@
     "catalog:sync": "node data/syncCatalog.js",
     "email:preview": "node scripts/previewEmails.js",
     "admin:grant": "node scripts/grantAdmin.js",
-    "db:copy-to-company": "node scripts/copyMongoDatabase.js"
+    "db:copy-to-company": "node scripts/copyMongoDatabase.js",
+    "stock:opening": "node scripts/recordOpeningStock.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
