@@ -5304,3 +5304,59 @@ body:has(.admin-dashlite-layout) .ysl-chat-modal,
   min-height: 32px;
 }
 .admin-tour-link:hover { text-decoration: underline; }
+
+/* ── Product Shop Code & Barcode Read-Only Chips ───────────────────────── */
+.admin-prod-codes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.admin-prod-code-chip {
+  display: inline-block;
+  padding: 0.14rem 0.45rem;
+  border-radius: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tbl-prod-codes {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.prod-readonly-codes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.84rem;
+  color: var(--text);
+}
+
+.prod-readonly-codes-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.prod-readonly-codes-hint {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
