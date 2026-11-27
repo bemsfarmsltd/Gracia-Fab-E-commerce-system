@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Stock history (movement ledger, receive/write-off API, history API) | server/models/StockMovement.js, server/services/stock.js, server/services/orderPayment.js, server/services/orderCancel.js, server/controllers/adminController.js, server/controllers/stockController.js, server/routes/adminRoutes.js, server/validators/stockValidators.js | 27 Nov |
 
 ## Open questions
 
