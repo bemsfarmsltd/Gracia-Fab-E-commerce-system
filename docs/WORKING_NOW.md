@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Barcodes (SKUs, barcode field + lookup API, label sheets, camera/handheld scanning in the till) | server/models/Product.js, server/services/barcodes.js, server/controllers/barcodeController.js, server/controllers/adminController.js (createProduct), server/routes/adminRoutes.js, server/scripts/assignSkus.js, client/src/components/admin/AdminLabels*, client/src/components/admin/BarcodeScanner*, AdminTill.jsx, client/src/utils/barcode.js, AdminSidebar.jsx, AdminHeader.jsx, AdminDashboard.jsx, client/package.json | 27 Nov |
 
 ## Open questions
 
