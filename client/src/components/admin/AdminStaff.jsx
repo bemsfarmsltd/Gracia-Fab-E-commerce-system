@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import API_URL from "../../config";
+import "./AdminStaff.css";
 
-// Owner only: add and remove staff. Functional first version (Claude Code);
-// Antigravity owns the look.
+// Owner only: add and remove staff.
 const headers = () => ({
   "Content-Type": "application/json",
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
+
+function initialsOf(name = "") {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 export default function AdminStaff({ setAdminError, setAdminNotice }) {
   const [people, setPeople] = useState([]);
@@ -81,60 +88,126 @@ export default function AdminStaff({ setAdminError, setAdminNotice }) {
   };
 
   return (
-    <section>
-      <div className="admin-form-card">
-        <h3>Add a staff member</h3>
-        <form onSubmit={add}>
-          <div className="admin-form-grid">
-            <div className="form-group">
-              <label htmlFor="staff-name">Name</label>
-              <input id="staff-name" required minLength={2} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label htmlFor="staff-email">Email</label>
-              <input id="staff-email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-            </div>
+    <section className="staff-screen">
+      <div className="staff-top-grid">
+        {/* Compact Add staff form card */}
+        <div className="staff-card staff-form-card">
+          <div className="staff-card-head">
+            <span className="staff-eyebrow">Team Access</span>
+            <h3 className="staff-heading">Add a staff member</h3>
           </div>
-          <div className="admin-form-actions">
-            <button type="submit" className="btn-admin-save" disabled={busy}>{busy ? "Adding…" : "Add staff"}</button>
-          </div>
-        </form>
+          <form className="staff-form" onSubmit={add}>
+            <div className="staff-form-fields">
+              <div className="staff-field">
+                <label htmlFor="staff-name">Name</label>
+                <input
+                  id="staff-name"
+                  required
+                  minLength={2}
+                  placeholder="Full name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </div>
+              <div className="staff-field">
+                <label htmlFor="staff-email">Email</label>
+                <input
+                  id="staff-email"
+                  type="email"
+                  required
+                  placeholder="name@example.com"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="staff-form-actions">
+              <button type="submit" className="staff-btn-primary" disabled={busy}>
+                {busy ? "Adding…" : "Add staff"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* What staff can do — neat checklist */}
         {staffPermissions.length > 0 && (
-          <details style={{ marginTop: "1rem" }}>
-            <summary>What staff can do</summary>
-            <ul style={{ margin: "0.5rem 0 0 1.2rem" }}>
-              {staffPermissions.map((p) => <li key={p.key}>{p.label}</li>)}
+          <div className="staff-card staff-perms-card">
+            <div className="staff-card-head">
+              <span className="staff-eyebrow">Permissions</span>
+              <h3 className="staff-heading">What staff can do</h3>
+            </div>
+            <ul className="staff-perms-list">
+              {staffPermissions.map((p) => (
+                <li key={p.key} className="staff-perm-item">
+                  <span className="staff-perm-check" aria-hidden="true">✓</span>
+                  <span>{p.label}</span>
+                </li>
+              ))}
             </ul>
-            <p style={{ marginTop: "0.5rem" }}>Everything else (prices, cancellations and refunds, vouchers, sales figures, staff and the activity log) is for the owner only.</p>
-          </details>
+            <p className="staff-perms-note">
+              Everything else (prices, cancellations and refunds, vouchers, sales figures, staff and the activity log) is for the owner only.
+            </p>
+          </div>
         )}
       </div>
 
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th aria-label="Actions"></th></tr>
-          </thead>
-          <tbody>
-            {loading && <tr><td colSpan={5}>Loading…</td></tr>}
-            {!loading && people.map((p) => (
-              <tr key={p._id}>
-                <td>{p.name}</td>
-                <td>{p.email}</td>
-                <td>{p.role === "owner" ? "Owner" : "Staff"}</td>
-                <td>{p.invitePending ? "Invite sent, password not set yet" : "Active"}</td>
-                <td>
+      {/* Owner & Staff person cards */}
+      <div className="staff-card staff-team-card">
+        <div className="staff-card-head">
+          <span className="staff-eyebrow">People</span>
+          <h3 className="staff-heading">Portal team</h3>
+        </div>
+
+        {loading ? (
+          <p className="staff-muted">Loading…</p>
+        ) : people.length === 0 ? (
+          <p className="staff-muted">No team members yet.</p>
+        ) : (
+          <div className="staff-people-grid">
+            {people.map((p) => {
+              const isOwner = p.role === "owner";
+              return (
+                <article key={p._id} className={`staff-person-card ${isOwner ? "is-owner" : ""}`}>
+                  <div className="staff-person-main">
+                    <div className={`staff-avatar ${isOwner ? "is-owner" : ""}`} aria-hidden="true">
+                      {initialsOf(p.name)}
+                    </div>
+                    <div className="staff-person-info">
+                      <div className="staff-person-top">
+                        <h4 className="staff-person-name">{p.name}</h4>
+                        <span className={`staff-role-pill ${isOwner ? "is-owner" : "is-staff"}`}>
+                          {isOwner ? "Owner" : "Staff"}
+                        </span>
+                      </div>
+                      <p className="staff-person-email">{p.email}</p>
+                      <div className="staff-person-status-row">
+                        <span className={`staff-status-pill ${p.invitePending ? "is-pending" : "is-active"}`}>
+                          {p.invitePending ? "Invite sent" : "Active"}
+                        </span>
+                        {p.invitePending && (
+                          <span className="staff-status-hint">Password not set yet</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   {p.role === "staff" && (
-                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                      {p.invitePending && <button type="button" className="btn-admin-cancel" onClick={() => resend(p)}>Resend link</button>}
-                      <button type="button" className="btn-admin-cancel" onClick={() => remove(p)}>Remove</button>
+                    <div className="staff-person-actions">
+                      {p.invitePending && (
+                        <button type="button" className="staff-btn-secondary" onClick={() => resend(p)}>
+                          Resend link
+                        </button>
+                      )}
+                      <button type="button" className="staff-btn-danger" onClick={() => remove(p)}>
+                        Remove
+                      </button>
                     </div>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );
