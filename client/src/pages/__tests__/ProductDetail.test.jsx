@@ -292,8 +292,12 @@ describe("ProductDetail (GLOWIFY Inspired Architecture)", () => {
       expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
     });
 
+    // react-helmet-async writes the head tags after the page renders, so on a
+    // slow machine (CI) the script can appear a moment after the heading.
+    await waitFor(() => {
+      expect(document.querySelector('script[type="application/ld+json"]')).not.toBeNull();
+    });
     const script = document.querySelector('script[type="application/ld+json"]');
-    expect(script).not.toBeNull();
     const parsed = JSON.parse(script.textContent);
     expect(parsed["@type"]).toBe("Product");
     expect(parsed.name).toBe("Pure Glow Vitamin C Elixir");
