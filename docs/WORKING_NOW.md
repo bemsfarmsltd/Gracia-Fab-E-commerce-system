@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Restyle Section 6: Products & permissions | client/src/pages/AdminDashboard.jsx, client/src/components/admin/AdminProducts.jsx, client/src/components/admin/AdminOrders.jsx, client/src/components/admin/AdminCustomers.jsx, client/src/components/admin/AdminCustomerDetail.jsx, client/src/components/admin/AdminMessages.jsx, client/src/components/admin/AdminDashLite.css | 27 Nov |
 
 ## Open questions
 
