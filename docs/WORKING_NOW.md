@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Stock take (count sessions API + functional screen) | server/models/StockTake.js, server/services/stockTake.js, server/controllers/stockTakeController.js, server/validators/stockTakeValidators.js, server/config/permissions.js, server/routes/adminRoutes.js, client/src/components/admin/AdminStockTake*, client/src/utils/portal.js, AdminSidebar.jsx, AdminHeader.jsx, AdminDashboard.jsx | 27 Nov |
 
 ## Open questions
 
