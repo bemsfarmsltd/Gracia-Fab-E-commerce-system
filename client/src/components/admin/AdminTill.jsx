@@ -7,8 +7,7 @@ import BarcodeScanner from "./BarcodeScanner";
 import "./AdminTill.css";
 
 // In-store till: pick products, take payment, stock comes off the shared
-// count at once. Functional first version (Claude Code); Antigravity owns the
-// look. Barcode scanning plugs into the search box later.
+// count at once.
 const headers = () => ({
   "Content-Type": "application/json",
   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -22,10 +21,27 @@ async function api(path, options = {}) {
   return data;
 }
 
-export function Receipt({ sale, onVoid, canVoid }) {
+export function Receipt({ sale, onVoid, canVoid, onClose }) {
   const wa = receiptWhatsAppUrl(sale);
   return (
     <div className="till-receipt" aria-label={`Receipt ${sale.numberLabel}`}>
+      <div className="till-receipt-header">
+        <div>
+          <span className="till-eyebrow">In-Store Receipt</span>
+          <h3 className="till-heading">{sale.numberLabel}</h3>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            className="till-receipt-close"
+            onClick={onClose}
+            aria-label="Close receipt"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
       <div className="till-receipt-paper">
         <p className="till-receipt-brand">GRACIA FAB</p>
         <p className="till-receipt-small">{STORE.area}<br />{STORE.phoneDisplay}</p>
@@ -59,10 +75,16 @@ export function Receipt({ sale, onVoid, canVoid }) {
         {sale.customerName && <p className="till-receipt-small">Customer: {sale.customerName}</p>}
         <p className="till-receipt-small till-receipt-thanks">Thank you for shopping with us.</p>
       </div>
+
       <div className="till-receipt-actions">
-        <button type="button" className="btn-admin-cancel" onClick={() => window.print()}>Print</button>
-        {wa && <a className="btn-admin-cancel" href={wa} target="_blank" rel="noreferrer">Send on WhatsApp</a>}
-        {canVoid && sale.status === "completed" && onVoid && <button type="button" className="btn-admin-cancel" onClick={() => onVoid(sale)}>Void sale</button>}
+        <button type="button" className="till-btn-primary" onClick={() => window.print()}>Print</button>
+        {wa && <a className="till-btn-outline" href={wa} target="_blank" rel="noreferrer">Send on WhatsApp</a>}
+        {canVoid && sale.status === "completed" && onVoid && (
+          <button type="button" className="till-btn-danger" onClick={() => onVoid(sale)}>Void sale</button>
+        )}
+        {onClose && (
+          <button type="button" className="till-btn-ghost" onClick={onClose}>New sale</button>
+        )}
       </div>
     </div>
   );
@@ -112,6 +134,15 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
     loadToday();
   }, [loadProducts, loadToday, setAdminError]);
 
+  useEffect(() => {
+    if (!lastSale) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLastSale(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lastSale]);
+
   const matches = useMemo(() => {
     const q = search.trim().toLowerCase();
     return products
@@ -151,6 +182,7 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
     return quantity ? [{ ...l, quantity }] : [];
   }));
 
+  const itemCount = cart.reduce((n, l) => n + l.quantity, 0);
   const subtotal = cart.reduce((t, l) => t + l.product.price * l.quantity, 0);
   const discountAmount = options.canDiscount ? Math.min(subtotal, Math.max(0, parseInt(discount.amount, 10) || 0)) : 0;
   const total = subtotal - discountAmount;
@@ -180,8 +212,6 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
         }),
       });
       setLastSale(sale);
-      // On a phone the receipt sits below the sale: bring it into view.
-      setTimeout(() => document.querySelector(".till-receipt")?.scrollIntoView?.({ behavior: "smooth", block: "start" }), 50);
       setAdminNotice?.(`Sale ${sale.numberLabel} done: ${naira(sale.total)}${sale.change ? `, give ${naira(sale.change)} change` : ""}.`);
       reset();
     } catch (err) {
@@ -209,78 +239,96 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
 
   return (
     <div className="till">
-      <section className="till-pick" aria-label="Products">
-        <label htmlFor="till-search" className="till-label">Find or scan a product</label>
-        <div className="till-search-row">
-          <input
-            id="till-search" className="till-search" type="search" autoComplete="off" enterKeyHint="go"
-            placeholder="Name, brand or barcode" value={search} onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key !== "Enter") return;
-              e.preventDefault();
-              // A code goes straight in; a name with one match adds it too.
-              if (!search.trim()) return;
-              if (findProductByCode(products, search)) { addByCode(search); return; }
-              if (matches.length === 1 && matches[0].stock > 0) { setAdminError?.(""); add(matches[0]); setSearch(""); return; }
-              if (matches.length === 0) addByCode(search); // explains "no product has the code"
-            }}
-          />
-          <button type="button" className="btn-admin-cancel till-scan" onClick={() => setScanning(true)}>📷 Scan</button>
+      {/* ── COLUMN 1: PRODUCT PICKER & BARCODE SCAN ── */}
+      <section className="till-card till-pick" aria-label="Products">
+        <div className="till-sticky-search">
+          <div className="till-card-head">
+            <span className="till-eyebrow">Counter Catalogue</span>
+            <label htmlFor="till-search" className="till-heading">Find or scan a product</label>
+          </div>
+          <div className="till-search-row">
+            <input
+              id="till-search" className="till-search" type="search" autoComplete="off" enterKeyHint="go"
+              placeholder="Name, brand or barcode" value={search} onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                // A code goes straight in; a name with one match adds it too.
+                if (!search.trim()) return;
+                if (findProductByCode(products, search)) { addByCode(search); return; }
+                if (matches.length === 1 && matches[0].stock > 0) { setAdminError?.(""); add(matches[0]); setSearch(""); return; }
+                if (matches.length === 0) addByCode(search); // explains "no product has the code"
+              }}
+            />
+            <button type="button" className="till-scan-btn" onClick={() => setScanning(true)}>📷 Scan</button>
+          </div>
         </div>
         {scanning && <BarcodeScanner onCode={onScanned} onClose={() => setScanning(false)} />}
         <ul className="till-products">
-          {matches.map((p) => (
-            <li key={p._id}>
-              <button type="button" className="till-product" onClick={() => add(p)} disabled={!(p.stock > 0)}>
-                <span className="till-product-name">{p.name}</span>
-                <span className="till-product-meta">{naira(p.price)} · {p.stock > 0 ? `${p.stock} in stock` : "Out of stock"}</span>
-              </button>
-            </li>
-          ))}
+          {matches.map((p) => {
+            const qty = inCart(p._id);
+            const stockTone = !(p.stock > 0) ? "out" : p.stock <= 5 ? "low" : "ok";
+            return (
+              <li key={p._id}>
+                <button
+                  type="button"
+                  className={`till-product ${qty > 0 ? "is-in-cart" : ""}`}
+                  onClick={() => add(p)}
+                  disabled={!(p.stock > 0)}
+                >
+                  <span className="till-product-top">
+                    <span className="till-product-name">{p.name}</span>
+                    {qty > 0 && <span className="till-in-cart-badge">×{qty}</span>}
+                  </span>
+                  <span className="till-product-bottom">
+                    <span className="till-product-price">{naira(p.price)}</span>
+                    <span className={`till-stock-pill is-${stockTone}`}>
+                      {p.stock > 0 ? `${p.stock} in stock` : "Out of stock"}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
           {matches.length === 0 && <li className="till-empty">No products match "{search}".</li>}
         </ul>
       </section>
 
-      <section className="till-cart" aria-label="Sale">
-        <h3 className="till-heading">This sale</h3>
-        {cart.length === 0 && <p className="till-empty">Tap products to add them.</p>}
-        {cart.map((l) => (
-          <div className="till-line" key={l.product._id}>
-            <span className="till-line-name">{l.product.name}<br /><span className="till-product-meta">{naira(l.product.price)} each</span></span>
-            <span className="till-qty">
-              <button type="button" aria-label={`One less ${l.product.name}`} onClick={() => setQty(l.product._id, l.quantity - 1)}>−</button>
-              <span aria-label="Quantity">{l.quantity}</span>
-              <button type="button" aria-label={`One more ${l.product.name}`} onClick={() => setQty(l.product._id, l.quantity + 1)} disabled={l.quantity >= l.product.stock}>+</button>
-            </span>
-            <span className="till-line-total">{naira(l.product.price * l.quantity)}</span>
+      {/* ── COLUMN 2: CURRENT SALE + STICKY CHECKOUT BAR ── */}
+      <section className="till-card till-cart" aria-label="Sale">
+        <div className="till-card-head till-sale-head">
+          <div>
+            <span className="till-eyebrow">Active Basket</span>
+            <h3 className="till-heading">This sale</h3>
           </div>
-        ))}
+          {itemCount > 0 && (
+            <span className="till-count-pill">{itemCount} item{itemCount === 1 ? "" : "s"}</span>
+          )}
+        </div>
 
-        {options.canDiscount && cart.length > 0 && (
-          <div className="till-row2">
-            <label>Discount (₦)<input inputMode="numeric" value={discount.amount} onChange={(e) => setDiscount({ ...discount, amount: e.target.value.replace(/\D/g, "") })} /></label>
-            {discountAmount > 0 && <label>Reason<input value={discount.reason} onChange={(e) => setDiscount({ ...discount, reason: e.target.value })} /></label>}
-          </div>
-        )}
-
-        <p className="till-total"><span>Total</span><span>{naira(total)}</span></p>
-
-        <div className="till-methods" role="radiogroup" aria-label="Payment method">
-          {options.paymentMethods.map((m) => (
-            <button key={m.id} type="button" role="radio" aria-checked={method === m.id} className={`till-method ${method === m.id ? "is-active" : ""}`} onClick={() => setMethod(m.id)}>
-              {m.label}
-            </button>
+        <div className="till-lines-wrap">
+          {cart.length === 0 && <p className="till-empty">Tap products to add them.</p>}
+          {cart.map((l) => (
+            <div className="till-line" key={l.product._id}>
+              <div className="till-line-info">
+                <span className="till-line-name">{l.product.name}</span>
+                <span className="till-product-meta">{naira(l.product.price)} each</span>
+              </div>
+              <span className="till-qty">
+                <button type="button" aria-label={`One less ${l.product.name}`} onClick={() => setQty(l.product._id, l.quantity - 1)}>−</button>
+                <span className="till-qty-val" aria-label="Quantity">{l.quantity}</span>
+                <button type="button" aria-label={`One more ${l.product.name}`} onClick={() => setQty(l.product._id, l.quantity + 1)} disabled={l.quantity >= l.product.stock}>+</button>
+              </span>
+              <span className="till-line-total">{naira(l.product.price * l.quantity)}</span>
+            </div>
           ))}
         </div>
 
-        {method === "cash" && (
-          <div className="till-row2">
-            <label>Cash given (₦)<input inputMode="numeric" value={tendered} onChange={(e) => setTendered(e.target.value.replace(/\D/g, ""))} /></label>
-            <p className="till-change">{change !== null ? <>Change: <strong>{naira(change)}</strong></> : tendered ? "Not enough" : ""}</p>
+        {options.canDiscount && cart.length > 0 && (
+          <div className="till-row2 till-extra-field">
+            <label>Discount (₦)<input inputMode="numeric" value={discount.amount} onChange={(e) => setDiscount({ ...discount, amount: e.target.value.replace(/\D/g, "") })} /></label>
+            {discountAmount > 0 && <label>Reason<input value={discount.reason} onChange={(e) => setDiscount({ ...discount, reason: e.target.value })} /></label>}
           </div>
-        )}
-        {(method === "transfer" || method === "card") && (
-          <label className="till-block">Reference (optional)<input value={reference} onChange={(e) => setReference(e.target.value)} /></label>
         )}
 
         <details className="till-customer">
@@ -291,35 +339,102 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
           </div>
         </details>
 
-        <button type="button" className="btn-admin-save till-complete" disabled={!canComplete || busy} onClick={complete}>
-          {busy ? "Saving…" : `Complete sale${cart.length ? ` · ${naira(total)}` : ""}`}
-        </button>
-        {cart.length > 0 && <button type="button" className="btn-admin-cancel" onClick={reset}>Clear</button>}
+        {/* Sticky bottom checkout bar on phones: total + payment + Complete sale always in thumb reach */}
+        <div className="till-checkout-bar">
+          <p className="till-total">
+            <span className="till-total-label">Total</span>
+            <span className="till-total-amount">{naira(total)}</span>
+          </p>
+
+          <div className="till-methods" role="radiogroup" aria-label="Payment method">
+            {options.paymentMethods.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                role="radio"
+                aria-checked={method === m.id}
+                className={`till-method ${method === m.id ? "is-active" : ""}`}
+                onClick={() => setMethod(m.id)}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {method === "cash" && (
+            <div className="till-row2 till-cash-row">
+              <label>Cash given (₦)<input inputMode="numeric" value={tendered} onChange={(e) => setTendered(e.target.value.replace(/\D/g, ""))} /></label>
+              <p className={`till-change ${change !== null ? "is-ok" : tendered ? "is-short" : ""}`}>
+                {change !== null ? <>Change: <strong>{naira(change)}</strong></> : tendered ? "Not enough" : ""}
+              </p>
+            </div>
+          )}
+          {(method === "transfer" || method === "card") && (
+            <label className="till-block">Reference (optional)<input value={reference} onChange={(e) => setReference(e.target.value)} /></label>
+          )}
+
+          <div className="till-checkout-actions">
+            <button type="button" className="till-btn-primary till-complete" disabled={!canComplete || busy} onClick={complete}>
+              {busy ? "Saving…" : `Complete sale${cart.length ? ` · ${naira(total)}` : ""}`}
+            </button>
+            {cart.length > 0 && (
+              <button type="button" className="till-btn-ghost till-clear" onClick={reset}>Clear</button>
+            )}
+          </div>
+        </div>
       </section>
 
-      <section className="till-side" aria-label="Receipt and today's sales">
-        {lastSale && <Receipt sale={lastSale} canVoid={options.canVoid} onVoid={voidSale} />}
-        <h3 className="till-heading">{options.canVoid ? "Today's shop sales" : "My sales today"}</h3>
+      {/* ── COLUMN 3: TODAY'S CASH-UP & HISTORY ── */}
+      <section className="till-card till-side" aria-label="Receipt and today's sales">
+        <div className="till-card-head">
+          <span className="till-eyebrow">Daily Cash-Up</span>
+          <h3 className="till-heading">{options.canVoid ? "Today's shop sales" : "My sales today"}</h3>
+        </div>
         {today.summary && (
           <ul className="till-cashup">
             {today.summary.byMethod.map((m) => (
-              <li key={m.method}><span>{PAYMENT_LABELS[m.method] || m.method} ({m.sales})</span><span>{naira(m.total)}</span></li>
+              <li key={m.method}>
+                <span>{PAYMENT_LABELS[m.method] || m.method} ({m.sales})</span>
+                <span className="till-cashup-val">{naira(m.total)}</span>
+              </li>
             ))}
-            <li className="till-cashup-total"><span>Total ({today.summary.sales} sale{today.summary.sales === 1 ? "" : "s"})</span><span>{naira(today.summary.total)}</span></li>
+            <li className="till-cashup-total">
+              <span>Total ({today.summary.sales} sale{today.summary.sales === 1 ? "" : "s"})</span>
+              <span>{naira(today.summary.total)}</span>
+            </li>
           </ul>
         )}
         <ul className="till-history">
           {today.items.map((s) => (
             <li key={s._id}>
               <button type="button" className="till-history-item" onClick={() => setLastSale(s)}>
-                <span>{s.numberLabel} · {saleTime(s.createdAt).split(", ").pop()}</span>
-                <span>{s.status === "voided" ? "Voided" : naira(s.total)}</span>
+                <span className="till-history-meta">
+                  <strong>{s.numberLabel}</strong>
+                  <span>{saleTime(s.createdAt).split(", ").pop()}</span>
+                </span>
+                <span className={`till-history-total ${s.status === "voided" ? "is-voided" : ""}`}>
+                  {s.status === "voided" ? "Voided" : naira(s.total)}
+                </span>
               </button>
             </li>
           ))}
           {today.items.length === 0 && <li className="till-empty">No sales yet today.</li>}
         </ul>
       </section>
+
+      {/* ── RECEIPT SHEET / MODAL (opens above the fold on phones & desktop) ── */}
+      {lastSale && (
+        <div className="till-receipt-backdrop" onClick={() => setLastSale(null)}>
+          <div className="till-receipt-sheet" onClick={(e) => e.stopPropagation()}>
+            <Receipt
+              sale={lastSale}
+              canVoid={options.canVoid}
+              onVoid={voidSale}
+              onClose={() => setLastSale(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
