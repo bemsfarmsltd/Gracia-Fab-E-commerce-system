@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Restyle Section 2: Stock Take | client/src/components/admin/AdminStockTake.jsx, client/src/components/admin/AdminStockTake.css | 27 Nov |
 
 ## Open questions
 
