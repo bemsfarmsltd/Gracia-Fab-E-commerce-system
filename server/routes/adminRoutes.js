@@ -33,6 +33,8 @@ import { stockMovementSchema } from '../validators/stockValidators.js'
 import { getSaleOptions, postSale, getSales, getSalesSummary, getSale, postVoidSale } from '../controllers/storeSaleController.js'
 import { createSaleSchema, voidSaleSchema } from '../validators/storeSaleValidators.js'
 import { lookupProduct, setProductBarcode } from '../controllers/barcodeController.js'
+import { listSuppliers, postSupplier, putSupplier, postPurchase, listPurchases, getCosting, putCosting, getReorder, getProfit } from '../controllers/costingController.js'
+import { supplierSchema, updateSupplierSchema, purchaseSchema, costingSchema } from '../validators/costingValidators.js'
 import { getCurrent, listStockTakes, getStockTake, postStockTake, postScan, putLine, deleteLine, postComplete, postCancel } from '../controllers/stockTakeController.js'
 import { startStockTakeSchema, scanSchema, completeStockTakeSchema, setCountSchema, addCountSchema } from '../validators/stockTakeValidators.js'
 import activityLog from '../middleware/activityLog.js'
@@ -104,6 +106,17 @@ router.put('/stocktakes/:id/lines/:productId', can('stock.count'), validateCount
 router.delete('/stocktakes/:id/lines/:productId', can('stock.count'), deleteLine)
 router.post('/stocktakes/:id/complete', can('stocktake.approve'), validate(completeStockTakeSchema), postComplete)
 router.post('/stocktakes/:id/cancel', can('stocktake.approve'), postCancel)
+
+// Suppliers, deliveries with costs, cost prices, reorder list, profit (owner).
+router.get('/suppliers', can('costs'), listSuppliers)
+router.post('/suppliers', can('costs'), validate(supplierSchema), postSupplier)
+router.put('/suppliers/:id', can('costs'), validate(updateSupplierSchema), putSupplier)
+router.get('/purchases', can('costs'), listPurchases)
+router.post('/purchases', can('costs'), validate(purchaseSchema), postPurchase)
+router.get('/costing/products', can('costs'), getCosting)
+router.put('/costing/products/:id', can('costs'), validate(costingSchema), putCosting)
+router.get('/costing/reorder', can('costs'), getReorder)
+router.get('/reports/profit', can('costs'), getProfit)
 
 // Stock history: deliveries, returns, write-offs; every change is listed.
 router.get('/stock/movements', can('stock.count'), getMovements)

@@ -31,7 +31,7 @@ async function ensureOpening(product, balanceBefore, at) {
   });
 }
 
-async function record(product, { change, reason, order, sale, note, actor }) {
+async function record(product, { change, reason, order, sale, purchase, note, actor, unitPrice, unitCost }) {
   const now = new Date();
   try {
     await ensureOpening(product, product.stock - change, now);
@@ -43,6 +43,10 @@ async function record(product, { change, reason, order, sale, note, actor }) {
       reason,
       order,
       sale,
+      purchase,
+      // Owner-only, for the profit report: cost and price at this moment.
+      unitCost: unitCost ?? product.costPrice ?? undefined,
+      unitPrice,
       note,
       ...who(actor),
       createdAt: now,
@@ -56,7 +60,7 @@ async function record(product, { change, reason, order, sale, note, actor }) {
 
 // Add (change > 0) or take (change < 0) stock. Taking more than is there is
 // refused (returns null), never taken below 0.
-export async function changeStock({ productId, change, reason, order, sale, note, actor }) {
+export async function changeStock({ productId, change, reason, order, sale, purchase, note, actor, unitPrice, unitCost }) {
   if (!Number.isInteger(change) || change === 0) throw new StockError("Change must be a whole number, not 0");
   const filter = { _id: productId };
   if (change < 0) filter.stock = { $gte: -change };
@@ -65,9 +69,11 @@ export async function changeStock({ productId, change, reason, order, sale, note
     filter,
     [{ $set: { stock: newStock, isInStock: { $gt: [newStock, 0] } } }],
     { new: true },
-  );
+  ).select("+costPrice");
   if (!product) return null;
-  const movement = await record(product, { change, reason, order, sale, note, actor });
+  const movement = await record(product, { change, reason, order, sale, purchase, note, actor, unitPrice, unitCost });
+  // The cost stays inside the server: callers get the product without it.
+  product.costPrice = undefined;
   return { product, movement };
 }
 

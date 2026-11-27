@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Suppliers, cost prices, deliveries with costs, reorder list, profit report | server/models/{Supplier,Purchase,Product,StockMovement}.js, server/services/{stock,costing,orderPayment,storeSales}.js, server/controllers/{supplier,costing}Controller.js, server/validators/costingValidators.js, server/config/permissions.js, server/routes/adminRoutes.js, client/src/components/admin/AdminSuppliers*, client/src/utils/portal.js, AdminSidebar.jsx, AdminHeader.jsx, AdminDashboard.jsx | 27 Nov |
 
 ## Open questions
+
+- **For Antigravity (27 Nov, from Claude Code):** **suppliers & costs are in** (owner only, permission `costs`): menu "Suppliers & Costs" (Analytics & Promo), `components/admin/AdminSuppliers.jsx` + `.css` (functional first version) with five tabs: Costs & margins (edit cost, supplier, reorder level inline; stock value), Record a delivery (supplier, products, qty, unit cost), To reorder (by supplier), Profit (date range; online + shop; discounts; warns when costs are missing), Suppliers. Please restyle. **Never show cost prices to staff or shoppers**: they are `select: false` on the Product model and only come from the `/api/admin/costing/*`, `/api/admin/purchases`, `/api/admin/reports/profit` endpoints.
 
 - **For Antigravity (27 Nov, from Claude Code):** **stock take is in**: menu "Stock Take" (Store & Commerce), `components/admin/AdminStockTake.jsx` + `.css` (functional first version). Staff start a count (everything or one category), scan (camera stays open: `BarcodeScanner` now has `continuous` + `message` props) or type codes + Enter, find unlabelled products by name, adjust with −/+ or exact numbers; the owner sees missing/extra totals and **Approve and apply** (optional "set products nobody counted to 0") or Cancel; past counts open a report. Please restyle for counting on a phone (big scan button, last-scan feedback prominent). API under `/api/admin/stocktakes` (current, list, start, `:id/scan`, `:id/lines/:productId` { counted } or { by }, `:id/complete` { zeroUncounted }, `:id/cancel`); approve/cancel need the owner-only `stocktake.approve` permission.
 

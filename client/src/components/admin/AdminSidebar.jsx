@@ -31,6 +31,7 @@ const NAV_SECTIONS = [
     items: [
       { id: "sales", label: "Sales", icon: "📈" },
       { id: "vouchers", label: "Vouchers", icon: "🎟️" },
+      { id: "suppliers", label: "Suppliers & Costs", icon: "🚚" },
     ],
   },
   {

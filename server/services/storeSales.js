@@ -2,6 +2,7 @@ import Product from "../models/Product.js";
 import StoreSale, { saleNumber } from "../models/StoreSale.js";
 import { nextNumber } from "../models/Counter.js";
 import { changeStock } from "./stock.js";
+import StockMovement from "../models/StockMovement.js";
 import { STORE_PAYMENT_METHOD_IDS } from "../config/storeSales.js";
 import logger from "../utils/logger.js";
 
@@ -86,11 +87,11 @@ export async function createSale(input, actor) {
   const taken = [];
   for (const line of lines) {
     const result = await changeStock({
-      productId: line.product, change: -line.quantity, reason: "store_sale", sale: sale._id, actor, note: saleNumber(number),
+      productId: line.product, change: -line.quantity, reason: "store_sale", sale: sale._id, actor, note: saleNumber(number), unitPrice: line.unitPrice,
     });
     if (!result) {
       for (const t of taken) {
-        await changeStock({ productId: t.product, change: t.quantity, reason: "store_void", sale: sale._id, actor, note: `${saleNumber(number)} not completed: not enough stock` });
+        await changeStock({ productId: t.product, change: t.quantity, reason: "store_void", sale: sale._id, actor, note: `${saleNumber(number)} not completed: not enough stock`, unitPrice: t.unitPrice });
       }
       await StoreSale.deleteOne({ _id: sale._id });
       const now = await Product.findById(line.product).select("stock").lean();
@@ -116,7 +117,9 @@ export async function voidSale(id, { reason }, actor) {
     throw new SaleError(exists ? "This sale was already voided" : "Sale not found", exists ? 400 : 404);
   }
   for (const line of sale.items) {
-    const back = await changeStock({ productId: line.product, change: line.quantity, reason: "store_void", sale: sale._id, actor, note: `${saleNumber(sale.number)} voided: ${reason}` });
+    // Same cost and price as the sale itself, so the profit report nets to 0.
+    const original = await StockMovement.findOne({ sale: sale._id, product: line.product, reason: "store_sale" }).select("+unitCost").lean();
+    const back = await changeStock({ productId: line.product, change: line.quantity, reason: "store_void", sale: sale._id, actor, note: `${saleNumber(sale.number)} voided: ${reason}`, unitPrice: line.unitPrice, unitCost: original?.unitCost });
     if (!back) logger.error({ sale: sale._id, product: line.product }, "Couldn't return stock for a voided sale (product deleted?)");
   }
   return sale;

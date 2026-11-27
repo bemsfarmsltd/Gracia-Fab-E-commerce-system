@@ -31,6 +31,12 @@ const stockMovementSchema = new mongoose.Schema(
     order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
     // In-store sale (till) this movement belongs to.
     sale: { type: mongoose.Schema.Types.ObjectId, ref: "StoreSale" },
+    // Supplier delivery (Purchase) this movement belongs to.
+    purchase: { type: mongoose.Schema.Types.ObjectId, ref: "Purchase" },
+    // Owner-only figures for the profit report, fixed at the moment of the
+    // movement: the product's average cost, and (for sales) the price sold at.
+    unitCost: { type: Number, select: false },
+    unitPrice: { type: Number, select: false },
     note: { type: String, maxlength: 300 },
     // Who did it; empty for automatic changes (a customer's payment).
     actor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

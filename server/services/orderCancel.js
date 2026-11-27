@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import { changeStock } from "./stock.js";
+import StockMovement from "../models/StockMovement.js";
 import User from "../models/User.js";
 import Voucher from "../models/Voucher.js";
 import { whatsappQueue, emailQueue, addToQueue } from "../queues/index.js";
@@ -22,7 +23,9 @@ const pointsFor = (order) => Math.max(1, Math.floor(order.totalPrice * 0.01));
 async function returnStock(items, { order, actor }) {
   for (const { product, quantity } of items) {
     if (!product || !(quantity > 0)) continue;
-    await changeStock({ productId: product, change: quantity, reason: "online_cancel", order, actor });
+    // Same cost and price as the sale, so the profit report nets to 0.
+    const original = await StockMovement.findOne({ order, product, reason: "online_sale" }).select("+unitCost +unitPrice").lean();
+    await changeStock({ productId: product, change: quantity, reason: "online_cancel", order, actor, unitPrice: original?.unitPrice, unitCost: original?.unitCost });
   }
 }
 

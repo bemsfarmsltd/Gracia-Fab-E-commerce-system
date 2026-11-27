@@ -111,6 +111,7 @@ export async function markOrderPaid(filter, paymentResult) {
       productId: item.product,
       change: -item.quantity,
       reason: "online_sale",
+      unitPrice: item.price,
       order: order._id,
     });
 

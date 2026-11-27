@@ -1,0 +1,33 @@
+/* Suppliers & costs. Functional first version: Antigravity owns the look. */
+.costs-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.costs-tab {
+  min-height: 44px; padding: 0.5rem 0.9rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer;
+}
+.costs-tab.is-active { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
+.costs-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg);
+  padding: 1rem; box-shadow: var(--shadow-sm);
+}
+.costs-summary { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-bottom: 0.75rem; }
+.costs-summary p { margin: 0; color: var(--text); }
+.costs-muted { color: var(--text-muted); font-size: 0.88rem; }
+.costs-warn { color: var(--error); font-weight: 600; }
+.costs-row-due td:first-child { border-left: 3px solid var(--error); }
+.costs input, .costs select {
+  min-height: 40px; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font: inherit;
+}
+.costs-search { width: 100%; margin-bottom: 0.75rem; min-height: 44px !important; }
+.costs-input { width: 7rem; }
+.costs-small { width: 4.5rem; }
+.costs label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.delivery-head, .supplier-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
+.delivery-matches { list-style: none; padding: 0; margin: 0 0 0.75rem; display: grid; gap: 0.35rem; }
+.delivery-matches button {
+  width: 100%; min-height: 44px; text-align: left; padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--bg); color: var(--text); font: inherit; cursor: pointer;
+}
+.delivery-total { font-size: 1.1rem; margin: 0.75rem 0; color: var(--text); }
+.reorder-group h4 { margin: 0.75rem 0 0.3rem; color: var(--text); }
+.reorder-group ul { margin: 0; padding-left: 1.2rem; color: var(--text); }

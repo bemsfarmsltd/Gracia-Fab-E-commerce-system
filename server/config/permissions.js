@@ -20,6 +20,7 @@ export const PERMISSIONS = {
   "messages.delete": "Delete messages",
   "subscribers": "See and remove newsletter subscribers",
   "vouchers": "Create and change discount vouchers",
+  "costs": "Suppliers, deliveries with costs, cost prices, reorder list and profit",
   "reports": "See the overview, sales and revenue figures",
   "staff.manage": "Add and remove staff",
   "activity.view": "See the activity log",

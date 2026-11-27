@@ -17,6 +17,7 @@ import AdminStaff from "../components/admin/AdminStaff";
 import AdminTill from "../components/admin/AdminTill";
 import AdminLabels from "../components/admin/AdminLabels";
 import AdminStockTake from "../components/admin/AdminStockTake";
+import AdminSuppliers from "../components/admin/AdminSuppliers";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
@@ -248,6 +249,9 @@ function AdminDashboard() {
         />
 
         {/* ── INVENTORY ── */}
+        {activeTab === "suppliers" && canSeeTab(user, "suppliers") && (
+          <AdminSuppliers setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
+        )}
         {activeTab === "stocktake" && canSeeTab(user, "stocktake") && (
           <AdminStockTake user={user} setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
         )}
