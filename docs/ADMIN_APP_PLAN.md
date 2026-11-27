@@ -2,34 +2,21 @@
 
 The boss asked for (1) the admin portal moved off the customer website, for security and so the MD can open it directly, and (2) the admin to grow into an inventory management system. Also (3) a still picture instead of the video in the home hero on phones.
 
-## 1. Separate admin app: `admin.graciafab.com`
+## 1. Separate admin app: done (27 Nov)
 
-**What changes**
+The boss didn't want another domain, so the admin stayed at **graciafab.com/admin** but is now a separate app:
 
-| Today | After |
-|---|---|
-| Admin lives at `graciafab.com/admin`, inside the customer website | Its own address, `admin.graciafab.com`, its own build |
-| Admin code downloads with the shop (lazy-loaded, but it's there to read) | The shop contains no admin code at all; `/admin` on the shop forwards to the new address |
-| MD opens the shop, logs in, then goes to the dashboard | MD opens "Gracia Fab Admin" from her home screen (its own installable app and icon), straight to the dashboard |
+- its own build entry (`client/admin/index.html`) and sign-in
+- its own installable app, "Gracia Fab Admin"
+- not indexed by search engines
+- none of its code in the shop
 
-**What actually protects it** (moving the address alone doesn't stop attackers; the server is what does):
+Also done:
 
-- Already in place: every admin API call needs a logged-in admin account (checked on the server), login needs a code sent by email, rate limits on login.
-- New:
-  - the API accepts admin calls only from `admin.graciafab.com`
-  - the admin site isn't listed on Google (noindex)
-  - it gets a strict security policy of its own
-  - admin sessions are shorter (8 hours, not 30 days)
-  - an activity log of who changed stock, prices and orders, and when
-  - optional: an extra Hostinger password in front of the whole admin site
+- **8-hour admin sessions.** Renewing doesn't extend them, and the server refuses older admin tokens.
+- **Activity log.** Every admin change is recorded: who, what, when, and before → after for prices, stock, order status, cancellations and refunds. It's read with `GET /api/admin/activity`.
 
-**Who does what**
-
-- Claude Code: second build (`client/admin.html`, its own entry and app manifest), shop forwarding, API origin rule, shorter admin sessions, activity log, Hostinger build settings.
-- Antigravity: the admin login screen and home-screen icon in the admin look.
-- Needs from the boss or Henry: create the subdomain `admin.graciafab.com` in Hostinger, pointing at the same GitHub repo (build command and output folder will be given).
-
-Size: about 2 days. The shop and admin keep working the whole time; the old `/admin` forwards once the new address is live.
+The Activity screen in the admin is next (Antigravity).
 
 ## 2. Inventory management
 
@@ -42,14 +29,41 @@ The admin already has the base of one: products with stock counts, CSV stock upl
 | C. In-store sales | A simple till screen on the MD's phone: pick products, take payment (cash/transfer/POS), stock comes off | If the shop and the website sell from the same shelf, in-store sales must be recorded or the website will sell items that are already gone |
 | D. Stock take | Count mode on a phone, optionally scanning barcodes with the camera | Faster counting, fewer typing mistakes |
 
-Recommended order: A → C → B → D. Each phase is about 2–4 days (Claude Code: data and APIs; Antigravity: screens).
+### Decided (27 Nov)
 
-**Questions for the boss before starting:**
+- **The shop and the website sell from the same shelf.** In-store sales must take stock off the same count the website uses, at the moment of sale.
+- **Staff get their own portal access.**
+- **Barcode generation is part of it.**
 
-1. Do the physical shop and the website sell from the **same stock**? If yes, in-store sales (phase C) are needed early.
-2. Should staff other than the MD use it, and should they see everything (e.g. cost prices, profit)? This decides whether we need staff roles.
-3. Do products have **barcodes**?
-4. Do you track **cost price** and suppliers today (on paper, Excel)?
+### Build order
+
+| Step | What | Who | Size |
+|---|---|---|---|
+| 1. Staff accounts and roles | MD (owner) adds staff in a Staff screen; staff sign in at /admin with their own email, password and emailed code; each sees only what their role allows; 8-hour sessions and the activity log apply to them too. Two roles to start (table below) | CC: roles, permissions on every API, staff invites. AG: Staff screen, menu that hides what a role can't use | ~2 days |
+| 2. Stock history (ledger) | Every stock change is a recorded movement: sold online, sold in store, received, returned, damaged/expired, counted. The product's count is the sum of its movements, so it can always be explained | CC | ~1.5 days |
+| 3. In-store till | On a phone or tablet: scan or search products, quantity, payment method (cash, transfer, POS card), optional customer phone. Completing the sale takes stock off immediately (refuses to sell what isn't there), prints a receipt or sends it by WhatsApp. Sales reports combine shop and online | CC: sales API and stock. AG: till screen and receipt | ~3 days |
+| 4. Barcodes | Each product gets a code (SKU, e.g. GF-000123) and a printable barcode (Code 128); products that already have a manufacturer barcode keep theirs. Print label sheets (name, price, barcode). Scan with the phone camera in the till and stock-take | CC: codes, label sheet. AG: label layout, scanning screen | ~2 days |
+| 5. Stock take | Count mode: scan each item, see the difference from the system count, confirm; differences become "counted" movements in the ledger | CC + AG | ~1.5 days |
+| 6. Suppliers and cost prices | Receiving stock from a supplier with cost price; reorder levels; profit per product (MD only) | CC + AG | ~2–3 days |
+
+**Roles (proposed; the boss can adjust):**
+
+| Can… | Owner / MD | Staff |
+|---|---|---|
+| See and move orders (packing, shipping), Order Board | ✓ | ✓ |
+| In-store till (sell), receipts | ✓ | ✓ |
+| Bookings, Messages | ✓ | ✓ |
+| Count stock, receive deliveries | ✓ | ✓ |
+| Add/edit products, change prices, delete | ✓ | ✗ |
+| Cancel orders and record refunds | ✓ | ✗ |
+| Vouchers, sales reports, cost prices and profit | ✓ | ✗ |
+| Customers' contact details and export | ✓ | view only |
+| Add/remove staff, activity log | ✓ | ✗ |
+
+**Still to answer:**
+- Do you track cost prices and suppliers today? (Needed for step 6 only.)
+- Will you print labels on plain A4 sticker sheets, or buy a label printer? (A4 sheets work from day one.)
+- In-store payment methods: cash, bank transfer and POS card. Anything else?
 
 ## 3. Home hero: still picture on phones
 
