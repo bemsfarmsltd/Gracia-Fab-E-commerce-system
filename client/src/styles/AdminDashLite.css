@@ -556,6 +556,20 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+.wine-card-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.wine-card-split strong {
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
 .wine-card-comparison {
   display: flex;
   flex-direction: column;

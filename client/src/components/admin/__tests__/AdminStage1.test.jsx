@@ -17,10 +17,10 @@ const mockOverviewData = {
     customers: 8,
     products: 15,
   },
-  last7: { revenue: 62500, paidOrders: 1, newCustomers: 3 },
-  prev7: { revenue: 0, paidOrders: 0, newCustomers: 0 },
-  last30: { revenue: 125000, paidOrders: 2, newCustomers: 6 },
-  prev30: { revenue: 0, paidOrders: 0, newCustomers: 0 },
+  last7: { revenue: 62500, onlineRevenue: 62500, shopRevenue: 0, paidOrders: 1, shopSales: 0, newCustomers: 3 },
+  prev7: { revenue: 0, onlineRevenue: 0, shopRevenue: 0, paidOrders: 0, shopSales: 0, newCustomers: 0 },
+  last30: { revenue: 125000, onlineRevenue: 100000, shopRevenue: 25000, paidOrders: 1, shopSales: 1, newCustomers: 6 },
+  prev30: { revenue: 0, onlineRevenue: 0, shopRevenue: 0, paidOrders: 0, shopSales: 0, newCustomers: 0 },
   daily: [
     { date: "2026-11-21", revenue: 62500, paidOrders: 1, newCustomers: 2 },
     { date: "2026-11-22", revenue: 62500, paidOrders: 1, newCustomers: 1 },
@@ -182,7 +182,14 @@ describe("Admin Stage 1 Components", () => {
       expect(await screen.findByText(/net store revenue/i)).toBeInTheDocument();
       expect(screen.getByText("₦125,000")).toBeInTheDocument();
       // Earlier period was 0, so must state "No orders last week", not an invented percentage
+      expect(screen.getByText(/no sales last week/i)).toBeInTheDocument();
       expect(screen.getAllByText(/no orders last week/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText(/no shop sales last week/i)).toBeInTheDocument();
+
+      // Combined revenue is split into online and shop till
+      expect(screen.getByText("From 1 paid online order and 1 shop sale")).toBeInTheDocument();
+      expect(screen.getByTestId("revenue-split")).toHaveTextContent("Online ₦100,000·Shop till ₦25,000");
+      expect(screen.getByText("SHOP SALES (7 DAYS)")).toBeInTheDocument();
 
       // Check metric cards
       expect(screen.getByText(/average order value/i)).toBeInTheDocument();

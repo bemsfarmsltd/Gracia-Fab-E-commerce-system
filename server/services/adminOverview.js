@@ -5,22 +5,25 @@
 // Shape of buildOverview():
 // {
 //   generatedAt, timezone: "Africa/Lagos",
-//   totals: { revenue, paidOrders, averageOrderValue, customers, products },
-//   last7:  { revenue, paidOrders, newCustomers },   // the last 7 days incl. today
-//   prev7:  { revenue, paidOrders, newCustomers },   // the 7 days before that
-//   last30: { revenue, paidOrders, newCustomers },
-//   prev30: { revenue, paidOrders, newCustomers },
-//   daily: [{ date: "2026-11-22", revenue, paidOrders, newCustomers }], // 30 days, oldest first
+//   totals: { revenue, onlineRevenue, shopRevenue, paidOrders, shopSales,
+//             averageOrderValue, customers, products },
+//   last7:  { revenue, onlineRevenue, shopRevenue, paidOrders, shopSales, newCustomers }, // last 7 days incl. today
+//   prev7, last30, prev30: same shape (prev7 = the 7 days before last7),
+//   daily: [{ date: "2026-11-22", ...same shape }], // 30 days, oldest first
 //   statusCounts: { pending, paid, processing, shipped, delivered, cancelled },
 //   recentOrders: [...5 newest, with user name/email],
 //   lowStockThreshold, lowStock: [{ name, stock, category }], outOfStockCount,
 // }
 // Revenue = paid orders that weren't cancelled (cancelled paid orders are
-// refunded), counted on the day they were paid. Comparisons are left to the
+// refunded), counted on the day they were paid, plus completed shop-till
+// sales (voided ones are excluded), counted on the day they were rung up.
+// revenue = onlineRevenue + shopRevenue. paidOrders and averageOrderValue are
+// online orders only; shopSales counts till receipts. Comparisons are left to the
 // client, which must not show a percentage when the earlier period is 0.
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
+import StoreSale from "../models/StoreSale.js";
 import { LOW_STOCK_THRESHOLD } from "../config/inventory.js";
 
 const LAGOS_OFFSET_MS = 60 * 60 * 1000; // UTC+1
@@ -36,13 +39,19 @@ const startOfLagosDay = (now, daysAgo) => {
   return new Date(today - daysAgo * DAY_MS);
 };
 
-const empty = () => ({ revenue: 0, paidOrders: 0, newCustomers: 0 });
+const FIELDS = ["revenue", "onlineRevenue", "shopRevenue", "paidOrders", "shopSales", "newCustomers"];
+const empty = () => Object.fromEntries(FIELDS.map((k) => [k, 0]));
 
 export async function buildOverview(now = new Date()) {
   const since = startOfLagosDay(now, 59); // 60 days: last30 + prev30
 
-  const [paid, newUsers, statusAgg, totalsAgg, customers, products, recentOrders, lowStock, outOfStockCount] = await Promise.all([
+  const [paid, shopSales, shopTotalsAgg, newUsers, statusAgg, totalsAgg, customers, products, recentOrders, lowStock, outOfStockCount] = await Promise.all([
     Order.find({ isPaid: true, status: { $ne: "cancelled" }, paidAt: { $gte: since } }).select("totalPrice paidAt").lean(),
+    StoreSale.find({ status: "completed", createdAt: { $gte: since } }).select("total createdAt").lean(),
+    StoreSale.aggregate([
+      { $match: { status: "completed" } },
+      { $group: { _id: null, revenue: { $sum: "$total" }, n: { $sum: 1 } } },
+    ]),
     User.find({ isAdmin: { $ne: true }, createdAt: { $gte: since } }).select("createdAt").lean(),
     Order.aggregate([{ $group: { _id: "$status", n: { $sum: 1 } } }]),
     Order.aggregate([
@@ -61,20 +70,24 @@ export async function buildOverview(now = new Date()) {
   for (let i = 59; i >= 0; i--) byDay.set(lagosDay(startOfLagosDay(now, i)), empty());
   for (const o of paid) {
     const b = byDay.get(lagosDay(o.paidAt));
-    if (b) { b.revenue += o.totalPrice || 0; b.paidOrders += 1; }
+    if (b) { b.revenue += o.totalPrice || 0; b.onlineRevenue += o.totalPrice || 0; b.paidOrders += 1; }
+  }
+  for (const s of shopSales) {
+    const b = byDay.get(lagosDay(s.createdAt));
+    if (b) { b.revenue += s.total || 0; b.shopRevenue += s.total || 0; b.shopSales += 1; }
   }
   for (const u of newUsers) {
     const b = byDay.get(lagosDay(u.createdAt));
     if (b) b.newCustomers += 1;
   }
   const days = [...byDay.entries()].map(([date, v]) => ({ date, ...v }));
-  const sum = (list) => list.reduce((acc, d) => ({
-    revenue: acc.revenue + d.revenue,
-    paidOrders: acc.paidOrders + d.paidOrders,
-    newCustomers: acc.newCustomers + d.newCustomers,
-  }), empty());
+  const sum = (list) => list.reduce((acc, d) => {
+    for (const k of FIELDS) acc[k] += d[k];
+    return acc;
+  }, empty());
 
   const totals = totalsAgg[0] || { revenue: 0, n: 0 };
+  const shopTotals = shopTotalsAgg[0] || { revenue: 0, n: 0 };
   const statusCounts = Object.fromEntries(STATUSES.map((s) => [s, 0]));
   for (const { _id, n } of statusAgg) if (_id in statusCounts) statusCounts[_id] = n;
 
@@ -82,8 +95,11 @@ export async function buildOverview(now = new Date()) {
     generatedAt: now.toISOString(),
     timezone: "Africa/Lagos",
     totals: {
-      revenue: totals.revenue,
+      revenue: totals.revenue + shopTotals.revenue,
+      onlineRevenue: totals.revenue,
+      shopRevenue: shopTotals.revenue,
       paidOrders: totals.n,
+      shopSales: shopTotals.n,
       averageOrderValue: totals.n ? Math.round(totals.revenue / totals.n) : 0,
       customers,
       products,

@@ -15,6 +15,7 @@ const { default: app } = await import("../app.js");
 const { default: User } = await import("../models/User.js");
 const { default: Product } = await import("../models/Product.js");
 const { default: Order } = await import("../models/Order.js");
+const { default: StoreSale } = await import("../models/StoreSale.js");
 const { buildOverview, lagosDay } = await import("../services/adminOverview.js");
 
 let mongod;
@@ -29,7 +30,7 @@ afterAll(async () => {
 });
 beforeEach(async () => {
   queued.length = 0;
-  await Promise.all([User.deleteMany({}), Product.deleteMany({}), Order.deleteMany({})]);
+  await Promise.all([User.deleteMany({}), Product.deleteMany({}), Order.deleteMany({}), StoreSale.deleteMany({})]);
 });
 
 async function register(email, isAdmin = false) {
@@ -65,21 +66,45 @@ describe("buildOverview", () => {
     await makeOrder(buyer._id, { isPaid: true, status: "processing", paidAt: new Date("2026-11-21T23:30:00Z"), totalPrice: 5000 });
 
     const o = await buildOverview(NOW);
-    expect(o.totals).toEqual({ revenue: 35000, paidOrders: 3, averageOrderValue: 11667, customers: 1, products: 1 });
-    expect(o.last7).toEqual({ revenue: 15000, paidOrders: 2, newCustomers: 1 });
-    expect(o.prev7).toEqual({ revenue: 20000, paidOrders: 1, newCustomers: 0 });
+    const online = (revenue, paidOrders, newCustomers) => ({ revenue, onlineRevenue: revenue, shopRevenue: 0, paidOrders, shopSales: 0, newCustomers });
+    expect(o.totals).toEqual({ revenue: 35000, onlineRevenue: 35000, shopRevenue: 0, paidOrders: 3, shopSales: 0, averageOrderValue: 11667, customers: 1, products: 1 });
+    expect(o.last7).toEqual(online(15000, 2, 1));
+    expect(o.prev7).toEqual(online(20000, 1, 0));
     expect(o.daily).toHaveLength(30);
-    expect(o.daily.at(-1)).toEqual({ date: "2026-11-22", revenue: 5000, paidOrders: 1, newCustomers: 0 });
+    expect(o.daily.at(-1)).toEqual({ date: "2026-11-22", ...online(5000, 1, 0) });
     expect(o.statusCounts).toEqual({ pending: 1, paid: 1, processing: 1, shipped: 0, delivered: 1, cancelled: 1 });
     expect(o.lowStock.map((p) => p.name)).toEqual(["P"]);
     expect(o.recentOrders).toHaveLength(5);
+  });
+
+  it("adds completed shop-till sales on their Lagos day and leaves out voided ones", async () => {
+    const buyer = await User.create({ name: "B", email: "b@example.com", password: "password123" });
+    const cashier = await User.create({ name: "Till", email: "t@example.com", password: "password123", role: "staff" });
+    let n = 0;
+    const sale = (total, createdAt, status = "completed") => StoreSale.create({
+      number: ++n, items: [{ product: new mongoose.Types.ObjectId(), name: "Shea Body Butter", unitPrice: total, quantity: 1, lineTotal: total }],
+      subtotal: total, total, paymentMethod: "cash", soldBy: cashier._id, status, createdAt,
+    });
+    await makeOrder(buyer._id, { isPaid: true, status: "paid", paidAt: new Date(NOW - 1 * DAY), totalPrice: 10000 });
+    await sale(4000, new Date(NOW - 1 * DAY));
+    await sale(6000, new Date("2026-11-21T23:30:00Z")); // 22 Nov in Lagos
+    await sale(8000, new Date(NOW - 10 * DAY));
+    await sale(50000, new Date(NOW - 1 * DAY), "voided");
+    await sale(30000, new Date(NOW - 1 * DAY), "processing"); // not finished
+
+    const o = await buildOverview(NOW);
+    expect(o.totals).toMatchObject({ revenue: 28000, onlineRevenue: 10000, shopRevenue: 18000, paidOrders: 1, shopSales: 3, averageOrderValue: 10000 });
+    expect(o.last7).toMatchObject({ revenue: 20000, onlineRevenue: 10000, shopRevenue: 10000, paidOrders: 1, shopSales: 2 });
+    expect(o.prev7).toMatchObject({ revenue: 8000, onlineRevenue: 0, shopRevenue: 8000, shopSales: 1 });
+    expect(o.daily.at(-1)).toMatchObject({ date: "2026-11-22", revenue: 6000, shopRevenue: 6000, shopSales: 1, paidOrders: 0 });
+    expect(o.daily.at(-2)).toMatchObject({ date: "2026-11-21", revenue: 14000, onlineRevenue: 10000, shopRevenue: 4000 });
   });
 
   it("returns zeros, not invented trends, for an empty store", async () => {
     const o = await buildOverview(NOW);
     expect(o.totals.revenue).toBe(0);
     expect(o.totals.averageOrderValue).toBe(0);
-    expect(o.prev7).toEqual({ revenue: 0, paidOrders: 0, newCustomers: 0 });
+    expect(o.prev7).toEqual({ revenue: 0, onlineRevenue: 0, shopRevenue: 0, paidOrders: 0, shopSales: 0, newCustomers: 0 });
     expect(o.daily.every((d) => d.revenue === 0)).toBe(true);
   });
 

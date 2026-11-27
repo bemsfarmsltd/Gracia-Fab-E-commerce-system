@@ -76,10 +76,12 @@ export default function AdminOverview({
     );
   }
 
-  const totals = data?.totals || { revenue: 0, paidOrders: 0, averageOrderValue: 0, customers: 0, products: 0 };
-  const last7 = data?.last7 || { revenue: 0, paidOrders: 0, newCustomers: 0 };
-  const prev7 = data?.prev7 || { revenue: 0, paidOrders: 0, newCustomers: 0 };
-  const last30 = data?.last30 || { revenue: 0, paidOrders: 0, newCustomers: 0 };
+  // revenue = online + shop till. Older API responses had no shop fields.
+  const noSales = { revenue: 0, onlineRevenue: 0, shopRevenue: 0, paidOrders: 0, shopSales: 0, newCustomers: 0 };
+  const totals = { ...noSales, averageOrderValue: 0, customers: 0, products: 0, ...data?.totals };
+  const last7 = { ...noSales, ...data?.last7 };
+  const prev7 = { ...noSales, ...data?.prev7 };
+  const last30 = { ...noSales, ...data?.last30 };
   const daily = data?.daily || [];
   const statusCounts = data?.statusCounts || {};
   const recentOrders = data?.recentOrders || [];
@@ -90,7 +92,7 @@ export default function AdminOverview({
   // Comparison helpers (never invent numbers when earlier period was 0)
   const calcRevComparison = () => {
     if (prev7.revenue <= 0) {
-      return "No orders last week";
+      return "No sales last week";
     }
     const diff = last7.revenue - prev7.revenue;
     const pct = ((diff / prev7.revenue) * 100).toFixed(1);
@@ -106,6 +108,17 @@ export default function AdminOverview({
     const sign = diff >= 0 ? "+" : "";
     return `${sign}${diff} vs previous 7 days`;
   };
+
+  const calcShopComparison = () => {
+    if (prev7.shopSales <= 0) {
+      return "No shop sales last week";
+    }
+    const diff = last7.shopSales - prev7.shopSales;
+    const sign = diff >= 0 ? "+" : "";
+    return `${sign}${diff} vs previous 7 days`;
+  };
+
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
   const calcCustomersComparison = () => {
     if (prev7.newCustomers <= 0) {
@@ -143,10 +156,15 @@ export default function AdminOverview({
             <div className="wine-card-figures">
               <div className="wine-card-primary">
                 <span className="wine-card-amount">
-                  {formatPrice(last30.revenue || totals.revenue || 0)}
+                  {formatPrice(last30.revenue)}
                 </span>
                 <span className="wine-card-sub">
-                  Total revenue collected from {last30.paidOrders || totals.paidOrders || 0} paid order(s)
+                  From {plural(last30.paidOrders, "paid online order")} and {plural(last30.shopSales, "shop sale")}
+                </span>
+                <span className="wine-card-split" data-testid="revenue-split">
+                  <span>Online <strong>{formatPrice(last30.onlineRevenue)}</strong></span>
+                  <span aria-hidden="true">·</span>
+                  <span>Shop till <strong>{formatPrice(last30.shopRevenue)}</strong></span>
                 </span>
               </div>
 
@@ -189,7 +207,7 @@ export default function AdminOverview({
               <div className="stat-icon-wrap" aria-hidden="true">💎</div>
             </div>
             <div className="stat-card-bottom">
-              <span className="stat-note">Based on {totals.paidOrders || 0} completed order(s)</span>
+              <span className="stat-note">Online only, from {plural(totals.paidOrders, "paid order")}</span>
             </div>
           </div>
 
@@ -210,6 +228,28 @@ export default function AdminOverview({
                 height={26}
                 width={80}
                 ariaLabel="7-day orders trend"
+              />
+            </div>
+          </div>
+
+          {/* Card: Shop Till Sales (7 Days) */}
+          <div className="stat-card modern-stat-card">
+            <div className="stat-card-top">
+              <div>
+                <p className="stat-label">SHOP SALES (7 DAYS)</p>
+                <h3 className="stat-value">{last7.shopSales}</h3>
+                <span className="stat-note">{formatPrice(last7.shopRevenue)} taken at the till</span>
+              </div>
+              <div className="stat-icon-wrap" aria-hidden="true">🛍️</div>
+            </div>
+            <div className="stat-card-bottom">
+              <span className="stat-badge">{calcShopComparison()}</span>
+              <AdminMiniChart
+                data={daily.slice(-7).map((d) => d.shopSales || 0)}
+                strokeColor="#7A2432"
+                height={26}
+                width={80}
+                ariaLabel="7-day shop sales trend"
               />
             </div>
           </div>
