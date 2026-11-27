@@ -7,21 +7,30 @@ import { useEffect, useRef, useState } from "react";
 // this: they type the code into the search box and press Enter.
 const FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
 
-export default function BarcodeScanner({ onCode, onClose }) {
+// continuous: keep the camera open and hand back every read (stock take).
+// The same code read again within 1.5 s is ignored, so holding the camera on
+// one item doesn't count it twice. `message` shows the last result.
+export default function BarcodeScanner({ onCode, onClose, continuous = false, message = "" }) {
   const videoRef = useRef(null);
   const [status, setStatus] = useState("Starting the camera…");
   const [error, setError] = useState("");
+  const onCodeRef = useRef(onCode);
+  useEffect(() => { onCodeRef.current = onCode; }, [onCode]);
 
   useEffect(() => {
     let stream;
     let stopped = false;
     let zxingControls;
     let timer;
+    let last = { code: null, at: 0 };
     const done = (code) => {
       if (stopped) return;
-      stopped = true;
+      const now = Date.now();
+      if (continuous && code === last.code && now - last.at < 1500) return;
+      last = { code, at: now };
+      if (!continuous) stopped = true;
       if (navigator.vibrate) navigator.vibrate(80);
-      onCode(code);
+      onCodeRef.current(code);
     };
 
     (async () => {
@@ -39,7 +48,10 @@ export default function BarcodeScanner({ onCode, onClose }) {
             if (stopped) return;
             try {
               const found = await detector.detect(videoRef.current);
-              if (found[0]?.rawValue) return done(found[0].rawValue);
+              if (found[0]?.rawValue) {
+                done(found[0].rawValue);
+                if (!continuous) return;
+              }
             } catch { /* frame not ready */ }
             timer = setTimeout(tick, 150);
           };
@@ -68,14 +80,14 @@ export default function BarcodeScanner({ onCode, onClose }) {
       zxingControls?.stop?.();
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, [onCode]);
+  }, [continuous]);
 
   return (
     <div className="scanner-backdrop" role="dialog" aria-modal="true" aria-label="Scan a barcode">
       <div className="scanner">
         <video ref={videoRef} className="scanner-video" muted playsInline />
         <div className="scanner-frame" aria-hidden="true" />
-        <p className="scanner-status" role="status">{error || status}</p>
+        <p className="scanner-status" role="status">{error || message || status}</p>
         <button type="button" className="btn-admin-cancel scanner-close" onClick={onClose}>Close</button>
       </div>
     </div>

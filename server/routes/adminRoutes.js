@@ -33,6 +33,8 @@ import { stockMovementSchema } from '../validators/stockValidators.js'
 import { getSaleOptions, postSale, getSales, getSalesSummary, getSale, postVoidSale } from '../controllers/storeSaleController.js'
 import { createSaleSchema, voidSaleSchema } from '../validators/storeSaleValidators.js'
 import { lookupProduct, setProductBarcode } from '../controllers/barcodeController.js'
+import { getCurrent, listStockTakes, getStockTake, postStockTake, postScan, putLine, deleteLine, postComplete, postCancel } from '../controllers/stockTakeController.js'
+import { startStockTakeSchema, scanSchema, completeStockTakeSchema, setCountSchema, addCountSchema } from '../validators/stockTakeValidators.js'
 import activityLog from '../middleware/activityLog.js'
 import { getActivity } from '../controllers/activityController.js'
 import validate from '../middleware/validate.js'
@@ -45,6 +47,10 @@ import {
 import { updateOrderStatusSchema, cancelOrderSchema, markRefundedSchema, bulkOrderStatusSchema } from '../validators/orderValidators.js'
 
 const router = express.Router()
+
+// A count line: { counted } (exact) or { by } (+1 / −1 taps).
+const validateCountBody = (req, res, next) =>
+  validate(typeof req.body?.by === 'number' ? addCountSchema : setCountSchema)(req, res, next)
 
 // The admin portal: the owner and staff (8-hour sessions). Each route names
 // the permission it needs (config/permissions.js); the owner has them all.
@@ -87,6 +93,17 @@ router.get('/sales', can('store.sell'), getSales)
 router.post('/sales', can('store.sell'), validate(createSaleSchema), postSale)
 router.get('/sales/:id', can('store.sell'), getSale)
 router.post('/sales/:id/void', can('store.void'), validate(voidSaleSchema), postVoidSale)
+
+// Stock take: staff count, the owner approves. /current before /:id.
+router.get('/stocktakes/current', can('stock.count'), getCurrent)
+router.get('/stocktakes', can('stock.count'), listStockTakes)
+router.post('/stocktakes', can('stock.count'), validate(startStockTakeSchema), postStockTake)
+router.get('/stocktakes/:id', can('stock.count'), getStockTake)
+router.post('/stocktakes/:id/scan', can('stock.count'), validate(scanSchema), postScan)
+router.put('/stocktakes/:id/lines/:productId', can('stock.count'), validateCountBody, putLine)
+router.delete('/stocktakes/:id/lines/:productId', can('stock.count'), deleteLine)
+router.post('/stocktakes/:id/complete', can('stocktake.approve'), validate(completeStockTakeSchema), postComplete)
+router.post('/stocktakes/:id/cancel', can('stocktake.approve'), postCancel)
 
 // Stock history: deliveries, returns, write-offs; every change is listed.
 router.get('/stock/movements', can('stock.count'), getMovements)

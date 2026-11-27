@@ -9,6 +9,7 @@ export const PERMISSIONS = {
   "products.view": "See products",
   "products.edit": "Add, edit and delete products, change prices and photos",
   "stock.count": "Set stock counts (counting, receiving deliveries)",
+  "stocktake.approve": "Approve a stock take (apply its differences) or cancel one",
   "store.sell": "Sell at the shop till and see their own sales today",
   "store.void": "Void shop sales",
   "customers.view": "See customers and their order history",
