@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import API_URL from "../../config";
 
 const CATEGORIES = [
@@ -54,6 +54,15 @@ export default function AdminProducts({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingSecondaryImage, setUploadingSecondaryImage] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+
+  useEffect(() => {
+    if (!showProductForm) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setShowProductForm(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showProductForm]);
 
   // Filtered & Sorted products
   const filteredProducts = useMemo(() => {
