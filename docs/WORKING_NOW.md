@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Restyle Section 4: Barcode Labels | client/src/components/admin/AdminLabels.jsx, client/src/components/admin/AdminLabels.css | 27 Nov |
 
 ## Open questions
 
