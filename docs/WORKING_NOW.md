@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Separate admin app at /admin (own entry, login, manifest) | client/admin/, client/src/admin/, client/vite.config.js, client/src/App.jsx, client/public/.htaccess, client/public/admin/, AdminHeader.jsx + AdminSidebar.jsx (store links only) | 27 Nov |
 
 ## Open questions
 
