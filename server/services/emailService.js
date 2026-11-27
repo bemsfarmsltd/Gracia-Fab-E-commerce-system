@@ -307,6 +307,45 @@ export const emailTemplates = {
     }),
   }),
 
+  // A new staff member with no account: set a password to start.
+  staffInvite: (name, ownerName, link) => ({
+    subject: "You've been added to the Gracia Fab staff portal",
+    html: emailShell({
+      headline: "Welcome to the Team",
+      reason: `You're receiving this because ${escapeHtml(ownerName)} added you as Gracia Fab staff.`,
+      cta: { label: "Set my password", url: link },
+      content: `
+        <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #241310;">
+          Hi <strong style="color: #7A2432;">${escapeHtml(name)}</strong>,
+        </p>
+        <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #3A241E;">
+          ${escapeHtml(ownerName)} has given you access to the Gracia Fab staff portal. Choose a password with the button below, then sign in at <strong>${escapeHtml(siteHost())}/admin</strong>. Each time you sign in we'll also email you a 6-digit code.
+        </p>
+        <p style="margin: 0 0 0 0; font-size: 13px; line-height: 1.5; color: #6E4F45;">
+          The link works once and expires in 48 hours. If you weren't expecting this, you can ignore this email.
+        </p>
+      `,
+    }),
+  }),
+
+  // An existing account was given staff access: same password as before.
+  staffAccessGranted: (name, ownerName) => ({
+    subject: "You now have access to the Gracia Fab staff portal",
+    html: emailShell({
+      headline: "Staff Access Added",
+      reason: `You're receiving this because ${escapeHtml(ownerName)} gave your account staff access.`,
+      cta: { label: "Open the staff portal", url: `${siteUrl()}/admin` },
+      content: `
+        <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #241310;">
+          Hi <strong style="color: #7A2432;">${escapeHtml(name)}</strong>,
+        </p>
+        <p style="margin: 0 0 0 0; font-size: 15px; line-height: 1.6; color: #3A241E;">
+          ${escapeHtml(ownerName)} has given your Gracia Fab account access to the staff portal. Sign in at <strong>${escapeHtml(siteHost())}/admin</strong> with your usual email and password, plus the 6-digit code we email you.
+        </p>
+      `,
+    }),
+  }),
+
   welcome: (name) => ({
     subject: `Welcome to Gracia Fab, ${name}`,
     html: emailShell({

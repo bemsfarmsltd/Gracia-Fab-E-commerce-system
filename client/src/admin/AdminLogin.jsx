@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { canUsePortal } from "../utils/portal";
 import "./AdminLogin.css";
 
 // The admin portal's own sign-in: email + password, then the code emailed to
-// the admin (same second step as the shop). Accounts without admin access are
-// signed straight back out.
+// the admin (same second step as the shop). The owner and staff get in;
+// other accounts are signed straight back out.
 export default function AdminLogin() {
   const { user, login, verifyOtp, resendOtp, logout } = useAuth();
   const navigate = useNavigate();
@@ -19,15 +20,15 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  if (user?.isAdmin) return <Navigate to="/" replace />;
+  if (canUsePortal(user)) return <Navigate to="/" replace />;
 
   const finish = (data) => {
-    if (!data?.isAdmin) {
+    if (!canUsePortal(data)) {
       logout();
       setStep("password");
       setCode("");
       setPassword("");
-      setError("This account doesn't have admin access.");
+      setError("This account doesn't have staff or admin access.");
       return;
     }
     navigate("/", { replace: true });
@@ -119,9 +120,9 @@ export default function AdminLogin() {
             </p>
           </div>
 
-          {user && !user.isAdmin && step === "password" && (
+          {user && !canUsePortal(user) && step === "password" && (
             <p className="admin-login-note">
-              You're signed in to the shop as {user.email}, which isn't an admin account. Sign in with an admin account below.
+              You're signed in to the shop as {user.email}, which isn't a staff account. Sign in with your staff account below.
             </p>
           )}
           {notice && <p className="admin-login-note" role="status">{notice}</p>}

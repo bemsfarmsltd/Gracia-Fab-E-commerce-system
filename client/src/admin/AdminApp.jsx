@@ -4,6 +4,8 @@ import { useAuth } from "../hooks/useAuth";
 import lazyWithReload from "../utils/lazyWithReload";
 import ErrorBoundary from "../components/ErrorBoundary";
 import AdminLogin from "./AdminLogin.jsx";
+import SetPassword from "./SetPassword.jsx";
+import { canUsePortal } from "../utils/portal";
 
 const AdminDashboard = lazyWithReload(() => import("../pages/AdminDashboard"));
 
@@ -15,11 +17,11 @@ function Loading({ text = "Loading admin dashboard…" }) {
   );
 }
 
-// Only admins get past here; everyone else sees the admin login.
+// Only the owner and staff get past here; everyone else sees the sign-in.
 function Gate() {
   const { user, loading } = useAuth();
   if (loading) return <Loading text="Loading…" />;
-  if (!user || !user.isAdmin) return <Navigate to="/login" replace />;
+  if (!canUsePortal(user)) return <Navigate to="/login" replace />;
   return (
     <Suspense fallback={<Loading />}>
       <AdminDashboard />
@@ -32,6 +34,7 @@ export function AdminRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<AdminLogin />} />
+      <Route path="/set-password" element={<SetPassword />} />
       <Route path="/*" element={<Gate />} />
     </Routes>
   );

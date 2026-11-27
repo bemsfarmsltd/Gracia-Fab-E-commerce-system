@@ -109,6 +109,21 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    // ── Staff access to the admin portal. The owner is isAdmin above; "staff"
+    // get the permissions in config/permissions.js. Removing access sets it
+    // back to "customer" (the account itself stays).
+    role: {
+      type: String,
+      enum: ["customer", "staff"],
+      default: "customer",
+    },
+    staffAddedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    staffAddedAt: Date,
+    // Set-password link for a staff member invited without an account. Only
+    // the hash is stored; the link expires after 48 hours.
+    inviteTokenHash: String,
+    inviteExpiresAt: Date,
+
     // ── Loyalty System
     loyaltyPoints: {
       type: Number,

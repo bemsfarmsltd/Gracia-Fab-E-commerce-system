@@ -1,3 +1,4 @@
+import { canSeeTab } from "../../utils/portal";
 
 const NAV_SECTIONS = [
   {
@@ -36,6 +37,12 @@ const NAV_SECTIONS = [
       { id: "bookings", label: "Bookings", icon: "📅" },
     ],
   },
+  {
+    heading: "Team",
+    items: [
+      { id: "staff", label: "Staff", icon: "🧑‍💼" },
+    ],
+  },
 ];
 
 export default function AdminSidebar({
@@ -51,6 +58,12 @@ export default function AdminSidebar({
     setActiveTab(tabId);
     if (mobileOpen) setMobileOpen(false);
   };
+
+  // Only the sections this person's role allows (staff see fewer); groups
+  // left empty are hidden.
+  const sections = NAV_SECTIONS
+    .map((section) => ({ ...section, items: section.items.filter((item) => canSeeTab(user, item.id)) }))
+    .filter((section) => section.items.length > 0);
 
   return (
     <>
@@ -87,7 +100,7 @@ export default function AdminSidebar({
 
         {/* Navigation Groups */}
         <nav className="admin-sidebar-nav">
-          {NAV_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <div key={section.heading} className="admin-nav-group">
               <span className="admin-nav-heading">{section.heading}</span>
               <ul className="admin-nav-list">
@@ -130,7 +143,7 @@ export default function AdminSidebar({
             </div>
             <div className="admin-user-info">
               <span className="admin-user-name">{user?.name || "Administrator"}</span>
-              <span className="admin-user-role">Store Manager</span>
+              <span className="admin-user-role">{user?.isAdmin ? "Owner" : "Staff"}</span>
             </div>
             {logout && (
               <button

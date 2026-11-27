@@ -13,14 +13,17 @@ import AdminProducts from "../components/admin/AdminProducts";
 import AdminCustomers from "../components/admin/AdminCustomers";
 import AdminBookings from "../components/admin/AdminBookings";
 import AdminMessages from "../components/admin/AdminMessages";
+import AdminStaff from "../components/admin/AdminStaff";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
+import { canUsePortal, canSeeTab, homeTab } from "../utils/portal";
 
 function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("overview");
+  // Staff start on the Order Board; the owner on the Overview.
+  const [activeTab, setActiveTab] = useState(() => homeTab(user));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ordersStatusFilter, setOrdersStatusFilter] = useState("all");
   const [products, setProducts] = useState([]);
@@ -128,17 +131,19 @@ function AdminDashboard() {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!user) return navigate("/login");
-    if (!user.isAdmin) return navigate("/");
-    fetchStats();
+    if (!canUsePortal(user)) return navigate("/");
+    // Sales figures are owner-only; staff never request them.
+    if (canSeeTab(user, "overview")) fetchStats();
   }, [user, navigate, fetchStats]);
 
   useEffect(() => {
+    if (!canSeeTab(user, activeTab)) return;
     if (activeTab === "overview") fetchStats();
     if (activeTab === "products") fetchProducts();
     if (activeTab === "orders" || activeTab === "orderboard") fetchOrders();
     if (activeTab === "messages") fetchMessages();
     if (activeTab === "subscribers") fetchSubscribers();
-  }, [activeTab, fetchStats, fetchProducts, fetchOrders, fetchMessages, fetchSubscribers]);
+  }, [user, activeTab, fetchStats, fetchProducts, fetchOrders, fetchMessages, fetchSubscribers]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDeleteSubscriber = async (id) => {
@@ -215,7 +220,7 @@ function AdminDashboard() {
       minimumFractionDigits: 0,
     }).format(price);
 
-  if (!user?.isAdmin) return null;
+  if (!canUsePortal(user)) return null;
 
   return (
     <div className="admin-dashlite-layout">
@@ -240,6 +245,9 @@ function AdminDashboard() {
         />
 
         {/* ── INVENTORY ── */}
+        {activeTab === "staff" && canSeeTab(user, "staff") && (
+          <AdminStaff setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
+        )}
         {activeTab === "inventory" && <InventoryPanel />}
 
         {/* ── SALES ── */}

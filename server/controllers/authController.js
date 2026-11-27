@@ -6,6 +6,7 @@ import logger from "../utils/logger.js";
 import { sendServerError } from "../utils/httpErrors.js";
 
 import generateToken from "../utils/generateToken.js";
+import { roleOf, permissionsOf, canUsePortal } from "../utils/roles.js";
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -35,8 +36,12 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id, { isAdmin: user.isAdmin }),
+        isAdmin: Boolean(user.isAdmin),
+
+        role: roleOf(user),
+
+        permissions: permissionsOf(user),
+        token: generateToken(user._id, { isAdmin: canUsePortal(user) }),
       });
     }
   } catch (error) {
@@ -103,8 +108,12 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id, { isAdmin: user.isAdmin }),
+        isAdmin: Boolean(user.isAdmin),
+
+        role: roleOf(user),
+
+        permissions: permissionsOf(user),
+        token: generateToken(user._id, { isAdmin: canUsePortal(user) }),
       });
     }
   } catch (error) {
@@ -153,8 +162,12 @@ export const verifyOtp = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
-      token: generateToken(user._id, { isAdmin: user.isAdmin }),
+      isAdmin: Boolean(user.isAdmin),
+
+      role: roleOf(user),
+
+      permissions: permissionsOf(user),
+      token: generateToken(user._id, { isAdmin: canUsePortal(user) }),
     });
   } catch (error) {
     return sendServerError(res, error, "verifyOtp error");
@@ -202,7 +215,11 @@ export const getUserProfile = async (req, res) => {
       email: user.email,
       skinType: user.skinType || "normal",
       hairType: user.hairType || "straight",
-      isAdmin: user.isAdmin || false,
+      isAdmin: Boolean(user.isAdmin),
+
+      role: roleOf(user),
+
+      permissions: permissionsOf(user),
       wishlist: user.wishlist || [],
       savedRecommendations: user.savedRecommendations || [],
       marketingEmails: user.emailPreferences?.marketing !== false,
@@ -252,9 +269,13 @@ export const updateUserProfile = async (req, res) => {
       email: updatedUser.email,
       skinType: updatedUser.skinType,
       hairType: updatedUser.hairType,
-      isAdmin: updatedUser.isAdmin,
+      isAdmin: Boolean(updatedUser.isAdmin),
+
+      role: roleOf(updatedUser),
+
+      permissions: permissionsOf(updatedUser),
       marketingEmails: updatedUser.emailPreferences?.marketing !== false,
-      token: generateToken(updatedUser._id, { isAdmin: updatedUser.isAdmin, authTime: req.authTime }),
+      token: generateToken(updatedUser._id, { isAdmin: canUsePortal(updatedUser), authTime: req.authTime }),
     });
   } catch (error) {
     return sendServerError(res, error, "authController error");
@@ -271,7 +292,11 @@ export const refreshSession = (req, res) => {
     _id: req.user._id,
     name: req.user.name,
     email: req.user.email,
-    isAdmin: req.user.isAdmin,
-    token: generateToken(req.user._id, { isAdmin: req.user.isAdmin, authTime: req.authTime }),
+    isAdmin: Boolean(req.user.isAdmin),
+
+    role: roleOf(req.user),
+
+    permissions: permissionsOf(req.user),
+    token: generateToken(req.user._id, { isAdmin: canUsePortal(req.user), authTime: req.authTime }),
   });
 };

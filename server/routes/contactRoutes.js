@@ -9,7 +9,7 @@ import {
   deleteSubscriber
 } from '../controllers/contactController.js'
 import protect from '../middleware/authMiddleware.js'
-import admin from '../middleware/adminMiddleware.js'
+import { portal, can } from '../middleware/portalMiddleware.js'
 import activityLog from '../middleware/activityLog.js'
 import validate from '../middleware/validate.js'
 import {
@@ -25,10 +25,10 @@ router.post('/', validate(submitContactSchema), submitContact)
 router.post('/subscribe', validate(subscribeSchema), subscribe)
 
 // Admin only
-router.get('/', protect, admin, getContacts)
-router.put('/:id', protect, admin, activityLog, validate(updateContactStatusSchema), updateContactStatus)
-router.delete('/:id', protect, admin, activityLog, deleteContact)
-router.get('/subscribers', protect, admin, getSubscribers)
-router.delete('/subscribers/:id', protect, admin, activityLog, deleteSubscriber)
+router.get('/', protect, portal, can('messages'), getContacts)
+router.put('/:id', protect, portal, can('messages'), activityLog, validate(updateContactStatusSchema), updateContactStatus)
+router.delete('/:id', protect, portal, can('messages.delete'), activityLog, deleteContact)
+router.get('/subscribers', protect, portal, can('subscribers'), getSubscribers)
+router.delete('/subscribers/:id', protect, portal, can('subscribers'), activityLog, deleteSubscriber)
 
 export default router

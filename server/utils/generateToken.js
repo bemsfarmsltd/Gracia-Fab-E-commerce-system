@@ -14,6 +14,7 @@ export const ADMIN_SESSION_SECONDS = ADMIN_SESSION_HOURS * 60 * 60;
 const nowSeconds = () => Math.floor(Date.now() / 1000);
 
 // generateToken(user._id, { isAdmin, authTime })
+//   isAdmin: anyone using the admin portal (owner or staff) gets the 8-hour sign-in.
 //   authTime: when the person actually signed in (seconds). Pass it when
 //   renewing; leave it out at sign-in.
 const generateToken = (id, { isAdmin = false, authTime } = {}) => {

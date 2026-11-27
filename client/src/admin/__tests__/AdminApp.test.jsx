@@ -50,14 +50,25 @@ describe("admin portal sign-in", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("lets staff in too, and remembers their role and permissions", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      jsonResponse(200, { _id: "3", name: "Chioma", email: "chioma@example.com", isAdmin: false, role: "staff", permissions: ["orders.view"], token: TOKEN }));
+    renderLogin();
+    fill("Email", "chioma@example.com");
+    fill("Password", "secret123");
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await screen.findByText("ADMIN HOME");
+    expect(JSON.parse(localStorage.getItem("user"))).toMatchObject({ role: "staff", permissions: ["orders.view"] });
+  });
+
   it("refuses a customer account and signs it straight back out", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(() =>
-      jsonResponse(200, { _id: "2", name: "Ada", email: "ada@example.com", isAdmin: false, token: TOKEN }));
+      jsonResponse(200, { _id: "2", name: "Ada", email: "ada@example.com", isAdmin: false, role: "customer", token: TOKEN }));
     renderLogin();
     fill("Email", "ada@example.com");
     fill("Password", "secret123");
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    await screen.findByText("This account doesn't have admin access.");
+    await screen.findByText("This account doesn't have staff or admin access.");
     expect(localStorage.getItem("token")).toBeNull();
     expect(screen.queryByText("ADMIN HOME")).toBeNull();
   });

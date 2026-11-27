@@ -15,23 +15,19 @@ export function AuthProvider({ children }) {
 
   // Saves a successful login/register response and establishes the session.
   const persistSession = (data) => {
-    localStorage.setItem("token", data.token);
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        _id: data._id,
-        name: data.name,
-        email: data.email,
-        isAdmin: data.isAdmin,
-      }),
-    );
-
-    setUser({
+    // role and permissions decide what the admin portal shows (staff accounts);
+    // the server checks them again on every request.
+    const account = {
       _id: data._id,
       name: data.name,
       email: data.email,
       isAdmin: data.isAdmin,
-    });
+      role: data.role,
+      permissions: data.permissions,
+    };
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(account));
+    setUser(account);
   };
 
   // On app load, check if user is already logged in

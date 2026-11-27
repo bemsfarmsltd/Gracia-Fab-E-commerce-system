@@ -9,6 +9,7 @@ const TAB_TITLES = {
   users: { title: "Customers & Accounts", subtitle: "Registered customer directory and contact details" },
   bookings: { title: "In-Store & Bridal Bookings", subtitle: "Manage salon appointments, wig installs, bridal makeup and MD consultations" },
   messages: { title: "Customer Inquiries", subtitle: "Messages submitted via the contact and support form" },
+  staff: { title: "Staff", subtitle: "Who can use the staff portal, and what they can do" },
   subscribers: { title: "Newsletter Subscribers", subtitle: "Email list subscriptions from storefront footer" },
 };
 
@@ -67,7 +68,7 @@ export default function AdminHeader({
             ← <span className="admin-back-label">Back to </span>Store
           </button>
           <div className="admin-topbar-user" title={`Logged in as ${user?.email || "Admin"}`}>
-            <span className="topbar-user-badge">👑 Admin</span>
+            <span className="topbar-user-badge">{user?.isAdmin ? "👑 Owner" : "Staff"}</span>
           </div>
         </div>
       </div>

@@ -147,6 +147,7 @@ app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 app.use("/api/auth/verify-otp", authLimiter);
 app.use("/api/auth/resend-otp", authLimiter);
+app.use("/api/auth/set-password", authLimiter);
 app.use("/api/recommend", aiLimiter);
 app.use("/api/search/suggestions", suggestionsLimiter);
 // Only the AI-powered searches (POST / and /personalized) are expensive.

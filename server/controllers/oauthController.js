@@ -5,6 +5,7 @@ import logger from '../utils/logger.js'
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 import generateToken from '../utils/generateToken.js'
+import { roleOf, permissionsOf, canUsePortal } from '../utils/roles.js'
 
 // @desc  Google OAuth login
 // @route POST /api/auth/google
@@ -58,9 +59,13 @@ export const googleLogin = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
+      isAdmin: Boolean(user.isAdmin),
+
+      role: roleOf(user),
+
+      permissions: permissionsOf(user),
       avatar: user.avatar,
-      token: generateToken(user._id, { isAdmin: user.isAdmin })
+      token: generateToken(user._id, { isAdmin: canUsePortal(user) })
     })
 
   } catch (error) {
@@ -103,8 +108,12 @@ export const facebookLogin = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
-      token: generateToken(user._id, { isAdmin: user.isAdmin })
+      isAdmin: Boolean(user.isAdmin),
+
+      role: roleOf(user),
+
+      permissions: permissionsOf(user),
+      token: generateToken(user._id, { isAdmin: canUsePortal(user) })
     })
 
   } catch (error) {

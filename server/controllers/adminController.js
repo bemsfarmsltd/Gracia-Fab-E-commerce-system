@@ -229,7 +229,7 @@ export const deleteProduct = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     // Never send password or login-code hashes to the browser.
-    const users = await User.find().select('-password -otpCodeHash -otpExpiresAt -otpAttempts')
+    const users = await User.find().select('-password -otpCodeHash -otpExpiresAt -otpAttempts -inviteTokenHash -inviteExpiresAt')
       .sort({ createdAt: -1 })
     res.json(users)
   } catch (error) {

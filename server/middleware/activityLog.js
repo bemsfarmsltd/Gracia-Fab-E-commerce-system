@@ -25,6 +25,9 @@ const ACTIONS = [
   ["POST", "/vouchers", "voucher.create", "voucher"],
   ["PUT", "/vouchers/:id", "voucher.update", "voucher"],
   ["DELETE", "/vouchers/:id", "voucher.delete", "voucher"],
+  ["POST", "/staff", "staff.add", "staff"],
+  ["POST", "/staff/:id/resend-invite", "staff.resend_invite", "staff"],
+  ["DELETE", "/staff/:id", "staff.remove", "staff"],
   // Messages and subscribers (routes/contactRoutes.js)
   ["PUT", "/:id", "message.status", "message"],
   ["DELETE", "/:id", "message.delete", "message"],

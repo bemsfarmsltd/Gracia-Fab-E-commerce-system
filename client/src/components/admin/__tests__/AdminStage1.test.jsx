@@ -110,7 +110,7 @@ describe("Admin Stage 1 Components", () => {
             setActiveTab={setActiveTab}
             mobileOpen={true}
             setMobileOpen={setMobileOpen}
-            user={{ name: "Ada Lovelace" }}
+            user={{ name: "Ada Lovelace", isAdmin: true }}
           />
         </MemoryRouter>
       );
