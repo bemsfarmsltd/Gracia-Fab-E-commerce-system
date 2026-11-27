@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Guided tours (shop + admin) and the restyle brief | client/src/components/tour/, client/src/App.jsx, Navbar.jsx + AiConciergeChat.jsx + Footer.jsx (data-tour markers and a replay link only), AdminSidebar.jsx, AdminDashboard.jsx, docs/RESTYLE_BRIEF.md | 27 Nov |
 
 ## Open questions
 
