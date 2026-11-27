@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { startTour } from "./tour/useFirstRunTour";
 import { Link } from "react-router-dom";
 import API_URL from "../config";
 import "./Footer.css";
@@ -161,6 +162,8 @@ function Footer() {
           <Link to="/terms">Terms of Service</Link>
           <span aria-hidden="true">·</span>
           <Link to="/shipping-returns">Shipping &amp; Returns</Link>
+          <span aria-hidden="true">·</span>
+          <button type="button" className="ysl-footer-tour-link" onClick={() => startTour("shop")}>Take the tour</button>
         </div>
       </div>
     </footer>

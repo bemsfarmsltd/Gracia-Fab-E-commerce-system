@@ -18,6 +18,7 @@ import AdminTill from "../components/admin/AdminTill";
 import AdminLabels from "../components/admin/AdminLabels";
 import AdminStockTake from "../components/admin/AdminStockTake";
 import AdminSuppliers from "../components/admin/AdminSuppliers";
+import AdminTour from "../components/tour/AdminTour";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
@@ -228,6 +229,7 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashlite-layout">
+      <AdminTour user={user} onOpenMenu={setMobileOpen} />
       <AdminSidebar
         activeTab={activeTab}
         setActiveTab={(tab) => {

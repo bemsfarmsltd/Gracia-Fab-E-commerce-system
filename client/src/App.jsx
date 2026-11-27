@@ -22,6 +22,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
 import AiConciergeChat from "./components/AiConciergeChat";
+import ShopTour from "./components/tour/ShopTour";
 import { startMotion } from "./utils/motion";
 import { afterLoginPath, shouldOpenAdminOnLaunch } from "./utils/afterLogin";
 import "./styles/motion.css";
@@ -157,6 +158,7 @@ function App() {
   return (
     <Router>
       <AdminAppLaunch />
+      <ShopTour />
       <CartDrawer isOpen={cartOpen} onClose={closeCart} />
       <ErrorBoundary>
       <Suspense fallback={<PageLoading />}>

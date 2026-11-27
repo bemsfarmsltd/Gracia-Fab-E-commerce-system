@@ -1,4 +1,5 @@
 import { canSeeTab } from "../../utils/portal";
+import { startTour } from "../tour/useFirstRunTour";
 
 const NAV_SECTIONS = [
   {
@@ -103,7 +104,7 @@ export default function AdminSidebar({
         </div>
 
         {/* Navigation Groups */}
-        <nav className="admin-sidebar-nav">
+        <nav className="admin-sidebar-nav" data-tour="admin-nav">
           {sections.map((section) => (
             <div key={section.heading} className="admin-nav-group">
               <span className="admin-nav-heading">{section.heading}</span>
@@ -114,6 +115,7 @@ export default function AdminSidebar({
                     <li key={item.id} className="admin-nav-item">
                       <button
                         type="button"
+                        data-tour={`nav-${item.id}`}
                         className={`admin-nav-link ${isActive ? "active" : ""} ${item.disabled ? "is-disabled" : ""}`}
                         onClick={() => handleTabClick(item.id, item.disabled)}
                         disabled={item.disabled}
@@ -141,6 +143,9 @@ export default function AdminSidebar({
           <a href="/" className="admin-nav-view-store">
             <span aria-hidden="true">←</span> View Storefront
           </a>
+          <button type="button" className="admin-nav-view-store admin-tour-link" data-tour="admin-help" onClick={() => startTour("admin")}>
+            <span aria-hidden="true">✦</span> Take the tour
+          </button>
           <div className="admin-sidebar-user">
             <div className="admin-user-avatar" aria-hidden="true">
               {user?.name ? user.name.charAt(0).toUpperCase() : "A"}

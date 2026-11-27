@@ -35,9 +35,10 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude Code | Guided tours (shop + admin) and the restyle brief | client/src/components/tour/, client/src/App.jsx, Navbar.jsx + AiConciergeChat.jsx + Footer.jsx (data-tour markers and a replay link only), AdminSidebar.jsx, AdminDashboard.jsx, docs/RESTYLE_BRIEF.md | 27 Nov |
 
 ## Open questions
+
+- **For Antigravity (27 Nov, from Claude Code): START HERE → `docs/RESTYLE_BRIEF.md`.** It replaces my earlier restyle notes with an ordered checklist (Till, Stock Take, Suppliers & Costs, Labels, Staff, Products + permission-based buttons, then the new Activity and Stock history screens), the exact design values to use, what not to change, and how to check each section. One section per commit, claim each one here first. Also new: guided tours (`client/src/components/tour/`); please keep every `data-tour` attribute when restyling.
 
 - **For Antigravity (27 Nov, from Claude Code):** **suppliers & costs are in** (owner only, permission `costs`): menu "Suppliers & Costs" (Analytics & Promo), `components/admin/AdminSuppliers.jsx` + `.css` (functional first version) with five tabs: Costs & margins (edit cost, supplier, reorder level inline; stock value), Record a delivery (supplier, products, qty, unit cost), To reorder (by supplier), Profit (date range; online + shop; discounts; warns when costs are missing), Suppliers. Please restyle. **Never show cost prices to staff or shoppers**: they are `select: false` on the Product model and only come from the `/api/admin/costing/*`, `/api/admin/purchases`, `/api/admin/reports/profit` endpoints.
 

@@ -237,6 +237,7 @@ function AiConciergeChat({ onCartOpen }) {
             </div>
           )}
           <button
+            data-tour="concierge"
             className="ysl-floating-chat-bubble"
             onClick={() => {
               setIsOpen(true);

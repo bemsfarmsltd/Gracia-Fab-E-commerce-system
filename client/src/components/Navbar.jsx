@@ -98,6 +98,7 @@ function Navbar({ onCartOpen, transparent = false }) {
             <Link
               key={link.url}
               to={link.url}
+              data-tour={`nav-${link.url === "/" ? "home" : link.url.slice(1)}`}
               className={`ysl-cat-link ${location.pathname === link.url ? "active" : ""}`}
             >
               {link.label}
@@ -127,6 +128,7 @@ function Navbar({ onCartOpen, transparent = false }) {
           {user ? (
             <div className="ysl-account-wrap" ref={accountRef}>
               <button
+                data-tour="account"
                 className="ysl-sub-link ysl-account-trigger"
                 onClick={() => setAccountOpen((o) => !o)}
               >
@@ -162,7 +164,7 @@ function Navbar({ onCartOpen, transparent = false }) {
               )}
             </div>
           ) : (
-            <Link to="/login" className="ysl-sub-link">
+            <Link to="/login" className="ysl-sub-link" data-tour="account">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
@@ -172,6 +174,7 @@ function Navbar({ onCartOpen, transparent = false }) {
           )}
 
           <button
+            data-tour="cart"
             className="ysl-sub-link ysl-cart-utility-btn"
             onClick={onCartOpen}
             aria-label="Open Cart"
@@ -211,6 +214,7 @@ function Navbar({ onCartOpen, transparent = false }) {
 
           {/* Mobile hamburger button */}
           <button
+            data-tour="menu"
             className="ysl-mobile-toggle"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Toggle navigation menu"

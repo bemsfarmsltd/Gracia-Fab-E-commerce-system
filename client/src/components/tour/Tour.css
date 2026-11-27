@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════
+   Guided tour: Gracia Fab cream, wine and gold.
+═══════════════════════════════════════ */
+.tour-root {
+  --tour-wine: var(--accent, #7A2432);
+  --tour-gold: #D4AF37;
+  --tour-gold-text: #8A6A1F; /* gold that reads on white (4.9:1) */
+  --tour-ink: var(--text, #241310);
+  --tour-muted: var(--text-muted, #6E4F45);
+  position: fixed;
+  inset: 0;
+  z-index: 20000; /* above the chat button (9999), toasts and camera overlays (10000) */
+  font-family: var(--font-body, "DM Sans", sans-serif);
+}
+
+.tour-blocker { position: fixed; inset: 0; background: transparent; }
+.tour-blocker-dim {
+  background:
+    radial-gradient(circle at 50% 40%, rgba(122, 36, 50, 0.28), transparent 60%),
+    rgba(28, 12, 14, 0.62);
+  backdrop-filter: blur(3px);
+  animation: tour-fade 260ms ease both;
+}
+
+/* The highlight: a clear window cut out of a dim layer, ringed in gold. */
+.tour-spotlight {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 2px var(--tour-gold),
+    0 0 0 7px rgba(212, 175, 55, 0.22),
+    0 0 0 100vmax rgba(28, 12, 14, 0.62);
+  pointer-events: none;
+  transition: top 320ms cubic-bezier(.2,.8,.2,1), left 320ms cubic-bezier(.2,.8,.2,1),
+    width 320ms cubic-bezier(.2,.8,.2,1), height 320ms cubic-bezier(.2,.8,.2,1);
+}
+.tour-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid var(--tour-gold);
+  animation: tour-pulse 2.2s ease-out infinite;
+}
+
+/* The card */
+.tour-card {
+  position: fixed;
+  width: min(380px, calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: 22px 22px 18px;
+  background: var(--surface, #FFFFFF);
+  color: var(--tour-ink);
+  border-radius: 18px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 24px 60px rgba(28, 12, 14, 0.28), 0 2px 8px rgba(28, 12, 14, 0.08);
+  animation: tour-rise 300ms cubic-bezier(.2,.8,.2,1) both;
+  transition: top 320ms cubic-bezier(.2,.8,.2,1), left 320ms cubic-bezier(.2,.8,.2,1);
+}
+.tour-card::before {
+  /* thin wine-to-gold rule along the top */
+  content: "";
+  position: absolute;
+  left: 22px; right: 22px; top: 0;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, var(--tour-wine), var(--tour-gold));
+}
+
+.tour-card-centre {
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, calc(100vw - 32px));
+  padding: 28px 28px 22px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(212, 175, 55, 0.16), transparent 55%),
+    var(--surface, #FFFFFF);
+  animation: tour-pop 340ms cubic-bezier(.2,.8,.2,1) both;
+}
+.tour-card-centre .tour-actions { justify-content: center; }
+
+/* Phones: a bottom sheet under the highlight */
+.tour-card-sheet {
+  top: auto !important; left: 12px !important; right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  width: auto;
+  animation: tour-sheet 300ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.tour-hero {
+  width: 72px; height: 72px;
+  margin: 0 auto 14px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid rgba(212, 175, 55, 0.6);
+  box-shadow: 0 10px 26px rgba(122, 36, 50, 0.22);
+}
+.tour-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.tour-eyebrow {
+  margin: 4px 0 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tour-gold-text);
+}
+.tour-title {
+  margin: 0 0 8px;
+  font-family: var(--font-display, "Playfair Display", Georgia, serif);
+  font-size: 1.32rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--tour-ink);
+}
+.tour-card-centre .tour-title { font-size: 1.6rem; }
+.tour-body { font-size: 0.94rem; line-height: 1.55; color: var(--tour-muted); }
+.tour-body p { margin: 0 0 8px; }
+.tour-body p:last-child { margin-bottom: 0; }
+.tour-body strong { color: var(--tour-ink); }
+
+.tour-dots { display: flex; gap: 6px; margin: 14px 0 0; }
+.tour-dots span { width: 6px; height: 6px; border-radius: 3px; background: rgba(122, 36, 50, 0.18); transition: width 240ms ease, background 240ms ease; }
+.tour-dots span.is-on { width: 20px; background: var(--tour-wine); }
+
+.tour-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+.tour-btn-primary {
+  min-height: 44px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--tour-wine);
+  color: #FFFFFF;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(122, 36, 50, 0.28);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.tour-btn-primary:hover { background: var(--accent-hover, #5E1A25); transform: translateY(-1px); }
+.tour-btn-primary:focus-visible, .tour-btn-text:focus-visible { outline: 3px solid var(--tour-gold); outline-offset: 2px; }
+.tour-btn-text {
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  color: var(--tour-wine);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.tour-btn-text:hover { background: rgba(122, 36, 50, 0.06); }
+.tour-skip { color: var(--tour-muted); margin-right: auto; }
+.tour-card-centre .tour-skip { margin-right: 0; }
+
+@keyframes tour-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tour-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes tour-pop { from { opacity: 0; transform: translate(-50%, -46%) scale(0.97); } to { opacity: 1; transform: translate(-50%, -50%); } }
+@keyframes tour-sheet { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes tour-pulse { 0% { opacity: 0.9; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1.06); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-card, .tour-card-centre, .tour-card-sheet, .tour-blocker-dim { animation: none; }
+  .tour-spotlight, .tour-card { transition: none; }
+  .tour-spotlight::after { animation: none; display: none; }
+}
