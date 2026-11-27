@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Antigravity | Restyle Section 1: Till | client/src/components/admin/AdminTill.jsx, client/src/components/admin/AdminTill.css | 27 Nov |
 
 ## Open questions
 
