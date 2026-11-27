@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Suppliers, cost prices, deliveries with costs, reorder list, profit report | server/models/{Supplier,Purchase,Product,StockMovement}.js, server/services/{stock,costing,orderPayment,storeSales}.js, server/controllers/{supplier,costing}Controller.js, server/validators/costingValidators.js, server/config/permissions.js, server/routes/adminRoutes.js, client/src/components/admin/AdminSuppliers*, client/src/utils/portal.js, AdminSidebar.jsx, AdminHeader.jsx, AdminDashboard.jsx | 27 Nov |
 
 ## Open questions
 
