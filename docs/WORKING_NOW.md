@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | Install on iPhone/Android (new install prompt in shop + admin, iOS home-screen tags) | client/src/components/install/, client/src/components/InstallPrompt.*, client/index.html, client/src/App.jsx, client/src/pages/AdminDashboard.jsx, AdminSidebar.jsx, Footer.jsx, client/src/components/tour/useFirstRunTour.js | 27 Nov |
 
 ## Open questions
 
