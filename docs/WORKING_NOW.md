@@ -35,6 +35,7 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
+| Claude Code | In-store till (sales API + functional till screen and receipt) | server/models/StoreSale.js, server/models/Counter.js, server/models/StockMovement.js, server/services/stock.js, server/services/storeSales.js, server/controllers/storeSaleController.js, server/validators/storeSaleValidators.js, server/config/permissions.js, server/routes/adminRoutes.js, client/src/components/admin/AdminTill*, client/src/utils/portal.js, AdminSidebar.jsx, AdminHeader.jsx, AdminDashboard.jsx | 27 Nov |
 
 ## Open questions
 
