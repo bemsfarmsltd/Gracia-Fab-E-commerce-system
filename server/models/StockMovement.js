@@ -29,6 +29,8 @@ const stockMovementSchema = new mongoose.Schema(
     balanceAfter: { type: Number, required: true, min: 0 },
     reason: { type: String, enum: Object.keys(STOCK_REASONS), required: true },
     order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+    // In-store sale (till) this movement belongs to.
+    sale: { type: mongoose.Schema.Types.ObjectId, ref: "StoreSale" },
     note: { type: String, maxlength: 300 },
     // Who did it; empty for automatic changes (a customer's payment).
     actor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

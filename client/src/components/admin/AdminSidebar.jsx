@@ -34,6 +34,7 @@ const NAV_SECTIONS = [
   {
     heading: "In-Store & Bridal",
     items: [
+      { id: "till", label: "Till", icon: "🧾" },
       { id: "bookings", label: "Bookings", icon: "📅" },
     ],
   },

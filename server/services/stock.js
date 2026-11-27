@@ -31,7 +31,7 @@ async function ensureOpening(product, balanceBefore, at) {
   });
 }
 
-async function record(product, { change, reason, order, note, actor }) {
+async function record(product, { change, reason, order, sale, note, actor }) {
   const now = new Date();
   try {
     await ensureOpening(product, product.stock - change, now);
@@ -42,6 +42,7 @@ async function record(product, { change, reason, order, note, actor }) {
       balanceAfter: product.stock,
       reason,
       order,
+      sale,
       note,
       ...who(actor),
       createdAt: now,
@@ -55,7 +56,7 @@ async function record(product, { change, reason, order, note, actor }) {
 
 // Add (change > 0) or take (change < 0) stock. Taking more than is there is
 // refused (returns null), never taken below 0.
-export async function changeStock({ productId, change, reason, order, note, actor }) {
+export async function changeStock({ productId, change, reason, order, sale, note, actor }) {
   if (!Number.isInteger(change) || change === 0) throw new StockError("Change must be a whole number, not 0");
   const filter = { _id: productId };
   if (change < 0) filter.stock = { $gte: -change };
@@ -66,7 +67,7 @@ export async function changeStock({ productId, change, reason, order, note, acto
     { new: true },
   );
   if (!product) return null;
-  const movement = await record(product, { change, reason, order, note, actor });
+  const movement = await record(product, { change, reason, order, sale, note, actor });
   return { product, movement };
 }
 

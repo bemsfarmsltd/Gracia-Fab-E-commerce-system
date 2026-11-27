@@ -25,6 +25,7 @@ export const TAB_PERMISSIONS = {
   sales: "reports",
   vouchers: "vouchers",
   bookings: "bookings",
+  till: "store.sell",
   staff: "staff.manage",
   activity: "activity.view",
 };

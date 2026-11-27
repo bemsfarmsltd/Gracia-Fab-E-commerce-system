@@ -30,6 +30,8 @@ import { listStaff, addStaff, resendInvite, removeStaff } from '../controllers/s
 import { addStaffSchema } from '../validators/staffValidators.js'
 import { postMovement, getMovements, getStockSummary } from '../controllers/stockController.js'
 import { stockMovementSchema } from '../validators/stockValidators.js'
+import { getSaleOptions, postSale, getSales, getSalesSummary, getSale, postVoidSale } from '../controllers/storeSaleController.js'
+import { createSaleSchema, voidSaleSchema } from '../validators/storeSaleValidators.js'
 import activityLog from '../middleware/activityLog.js'
 import { getActivity } from '../controllers/activityController.js'
 import validate from '../middleware/validate.js'
@@ -76,6 +78,15 @@ router.post('/products', can('products.edit'), validate(createProductSchema), cr
 router.post('/upload', can('products.edit'), validate(uploadImageSchema), uploadImage)
 // Must come before /products/:id so "stock" isn't read as a product id.
 router.put('/products/stock', can('stock.count'), validate(bulkStockSchema), bulkUpdateStock)
+// In-store till. Staff see only their own sales from today; /options and
+// /summary before /:id.
+router.get('/sales/options', can('store.sell'), getSaleOptions)
+router.get('/sales/summary', can('store.sell'), getSalesSummary)
+router.get('/sales', can('store.sell'), getSales)
+router.post('/sales', can('store.sell'), validate(createSaleSchema), postSale)
+router.get('/sales/:id', can('store.sell'), getSale)
+router.post('/sales/:id/void', can('store.void'), validate(voidSaleSchema), postVoidSale)
+
 // Stock history: deliveries, returns, write-offs; every change is listed.
 router.get('/stock/movements', can('stock.count'), getMovements)
 router.post('/stock/movements', can('stock.count'), validate(stockMovementSchema), postMovement)

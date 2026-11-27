@@ -11,6 +11,8 @@ const ACTIONS = [
   ["POST", "/products", "product.create", "product"],
   ["PUT", "/products/stock", "stock.bulk_update", "product"],
   ["POST", "/stock/movements", "stock.movement", "product"],
+  ["POST", "/sales", "sale.create", "sale"],
+  ["POST", "/sales/:id/void", "sale.void", "sale"],
   ["PUT", "/products/:id", "product.update", "product"],
   ["DELETE", "/products/:id", "product.delete", "product"],
   ["POST", "/upload", "image.upload", "image"],
