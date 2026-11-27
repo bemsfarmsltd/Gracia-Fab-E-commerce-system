@@ -15,6 +15,7 @@ import AdminBookings from "../components/admin/AdminBookings";
 import AdminMessages from "../components/admin/AdminMessages";
 import AdminStaff from "../components/admin/AdminStaff";
 import AdminTill from "../components/admin/AdminTill";
+import AdminLabels from "../components/admin/AdminLabels";
 import "../styles/Admin.css";
 import "../styles/AdminDashLite.css";
 import API_URL from "../config";
@@ -246,6 +247,9 @@ function AdminDashboard() {
         />
 
         {/* ── INVENTORY ── */}
+        {activeTab === "labels" && canSeeTab(user, "labels") && (
+          <AdminLabels user={user} setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
+        )}
         {activeTab === "till" && canSeeTab(user, "till") && (
           <AdminTill setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
         )}

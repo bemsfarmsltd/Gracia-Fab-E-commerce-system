@@ -32,6 +32,7 @@ import { postMovement, getMovements, getStockSummary } from '../controllers/stoc
 import { stockMovementSchema } from '../validators/stockValidators.js'
 import { getSaleOptions, postSale, getSales, getSalesSummary, getSale, postVoidSale } from '../controllers/storeSaleController.js'
 import { createSaleSchema, voidSaleSchema } from '../validators/storeSaleValidators.js'
+import { lookupProduct, setProductBarcode } from '../controllers/barcodeController.js'
 import activityLog from '../middleware/activityLog.js'
 import { getActivity } from '../controllers/activityController.js'
 import validate from '../middleware/validate.js'
@@ -91,6 +92,9 @@ router.post('/sales/:id/void', can('store.void'), validate(voidSaleSchema), post
 router.get('/stock/movements', can('stock.count'), getMovements)
 router.post('/stock/movements', can('stock.count'), validate(stockMovementSchema), postMovement)
 router.get('/stock/summary', can('stock.count'), getStockSummary)
+// Barcodes: find a product by a scanned code; set a manufacturer barcode.
+router.get('/products/lookup', can('products.view'), lookupProduct)
+router.put('/products/:id/barcode', can('products.edit'), setProductBarcode)
 router.put('/products/:id', can('products.edit'), validate(updateProductSchema), updateProduct)
 router.delete('/products/:id', can('products.edit'), deleteProduct)
 router.get('/users', can('customers.export'), getAllUsers)

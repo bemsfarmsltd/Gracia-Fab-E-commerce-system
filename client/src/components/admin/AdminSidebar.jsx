@@ -14,6 +14,7 @@ const NAV_SECTIONS = [
       { id: "orderboard", label: "Order Board", icon: "📋" },
       { id: "products", label: "Products", icon: "🛍️" },
       { id: "inventory", label: "Inventory", icon: "🏷️" },
+      { id: "labels", label: "Barcode Labels", icon: "🔖" },
     ],
   },
   {

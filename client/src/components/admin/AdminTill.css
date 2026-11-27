@@ -141,3 +141,24 @@
   .till-receipt-paper, .till-receipt-paper * { visibility: visible !important; }
   .till-receipt-paper { position: absolute; left: 0; top: 0; width: 80mm; border: none; }
 }
+
+/* Barcode scanning (BarcodeScanner.jsx) */
+.till-search-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.till-search-row .till-search { margin-bottom: 0; flex: 1; }
+.till-scan { min-height: 44px; white-space: nowrap; }
+.scanner-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(20, 8, 10, 0.75);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.scanner {
+  position: relative; width: 100%; max-width: 480px;
+  background: #000; border-radius: var(--radius-lg); overflow: hidden;
+}
+.scanner-video { display: block; width: 100%; max-height: 70vh; object-fit: cover; }
+.scanner-frame {
+  position: absolute; left: 12%; right: 12%; top: 35%; height: 22%;
+  border: 3px solid #D4AF37; border-radius: 10px; pointer-events: none;
+}
+.scanner-status { margin: 0; padding: 0.75rem 1rem; color: #FFFFFF; background: rgba(0, 0, 0, 0.6); font-size: 0.95rem; }
+.scanner-close { position: absolute; top: 10px; right: 10px; background: #FFFFFF; }

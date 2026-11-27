@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import API_URL from "../../config";
 import { STORE } from "../../utils/storeInfo";
 import { naira, PAYMENT_LABELS, saleTime, receiptWhatsAppUrl } from "../../utils/receipt";
+import { findProductByCode } from "../../utils/barcode";
+import BarcodeScanner from "./BarcodeScanner";
 import "./AdminTill.css";
 
 // In-store till: pick products, take payment, stock comes off the shared
@@ -79,6 +81,7 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
   const [busy, setBusy] = useState(false);
   const [lastSale, setLastSale] = useState(null);
   const [today, setToday] = useState({ items: [], summary: null });
+  const [scanning, setScanning] = useState(false);
 
   const loadToday = useCallback(async () => {
     try {
@@ -125,6 +128,23 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
       ? c.map((l) => (l.product._id === p._id ? { ...l, quantity: l.quantity + 1 } : l))
       : [...c, { product: p, quantity: 1 }]));
   };
+  // A scanned or typed code: add that product straight away. Handheld
+  // scanners type the code and press Enter, so they land here too.
+  const addByCode = (code) => {
+    const p = findProductByCode(products, code);
+    if (!p) {
+      setAdminError?.(`No product has the code "${String(code).trim()}". Check it, or set it in Labels.`);
+      return false;
+    }
+    add(p);
+    setSearch("");
+    return true;
+  };
+  const onScanned = useCallback((code) => {
+    setScanning(false);
+    addByCode(code);
+  }, [products, cart]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const setQty = (id, q) => setCart((c) => c.flatMap((l) => {
     if (l.product._id !== id) return [l];
     const quantity = Math.max(0, Math.min(q, l.product.stock || 0));
@@ -190,11 +210,24 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
   return (
     <div className="till">
       <section className="till-pick" aria-label="Products">
-        <label htmlFor="till-search" className="till-label">Find a product</label>
-        <input
-          id="till-search" className="till-search" type="search" autoComplete="off"
-          placeholder="Type a name or brand" value={search} onChange={(e) => setSearch(e.target.value)}
-        />
+        <label htmlFor="till-search" className="till-label">Find or scan a product</label>
+        <div className="till-search-row">
+          <input
+            id="till-search" className="till-search" type="search" autoComplete="off" enterKeyHint="go"
+            placeholder="Name, brand or barcode" value={search} onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              e.preventDefault();
+              // A code goes straight in; a name with one match adds it too.
+              if (!search.trim()) return;
+              if (findProductByCode(products, search)) { addByCode(search); return; }
+              if (matches.length === 1 && matches[0].stock > 0) { setAdminError?.(""); add(matches[0]); setSearch(""); return; }
+              if (matches.length === 0) addByCode(search); // explains "no product has the code"
+            }}
+          />
+          <button type="button" className="btn-admin-cancel till-scan" onClick={() => setScanning(true)}>📷 Scan</button>
+        </div>
+        {scanning && <BarcodeScanner onCode={onScanned} onClose={() => setScanning(false)} />}
         <ul className="till-products">
           {matches.map((p) => (
             <li key={p._id}>

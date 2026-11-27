@@ -72,6 +72,15 @@ export default defineConfig({
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
         admin: fileURLToPath(new URL("./admin/index.html", import.meta.url)),
       },
+      output: {
+        // Admin-only libraries (barcode drawing, camera scanning) get "admin-"
+        // names so the shop's offline cache skips them (globIgnores below).
+        manualChunks(id) {
+          if (id.includes("node_modules/@zxing/")) return "admin-zxing";
+          if (id.includes("node_modules/jsbarcode/")) return "admin-jsbarcode";
+          return undefined;
+        },
+      },
     },
   },
   plugins: [
@@ -132,7 +141,7 @@ export default defineConfig({
         // And never the admin portal: customers' phones shouldn't download it.
         globIgnores: [
           "**/images/products/**", "**/logo.png", "**/assets/sentryLoader-*.js",
-          "admin/**", "**/assets/admin-*", "**/assets/AdminDashboard-*",
+          "admin/**", "**/assets/admin-*", "**/assets/AdminDashboard-*", "**/icons/admin-icon*",
         ],
         runtimeCaching: [
           {

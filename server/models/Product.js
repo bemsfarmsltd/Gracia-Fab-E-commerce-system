@@ -73,6 +73,13 @@ const productSchema = new mongoose.Schema(
       type: String,
     },
 
+    // The shop's own code (GF-000123), given to every product, printed on
+    // labels as a Code 128 barcode.
+    sku: { type: String, trim: true },
+    // What a scanner reads: the manufacturer's barcode (EAN-13, UPC…) when
+    // the product has one, otherwise the SKU. See services/barcodes.js.
+    barcode: { type: String, trim: true },
+
     // Stock management. Defaults to 0: a product nobody has counted is
     // treated as out of stock rather than given an invented quantity.
     // Counts are entered from the admin dashboard's Inventory tab.
@@ -113,6 +120,10 @@ productSchema.index({ category: 1 });
 productSchema.index({ tags: 1 });
 productSchema.index({ name: "text", description: "text" });
 productSchema.index({ isFeatured: 1 });
+// One product per code. Partial (not sparse) so products without one yet
+// don't clash.
+productSchema.index({ sku: 1 }, { unique: true, partialFilterExpression: { sku: { $type: "string" } } });
+productSchema.index({ barcode: 1 }, { unique: true, partialFilterExpression: { barcode: { $type: "string" } } });
 
 productSchema.pre("save", function syncIsInStock(next) {
   if (this.isNew || this.isModified("stock")) {

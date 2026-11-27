@@ -9,6 +9,7 @@ const TAB_TITLES = {
   users: { title: "Customers & Accounts", subtitle: "Registered customer directory and contact details" },
   bookings: { title: "In-Store & Bridal Bookings", subtitle: "Manage salon appointments, wig installs, bridal makeup and MD consultations" },
   messages: { title: "Customer Inquiries", subtitle: "Messages submitted via the contact and support form" },
+  labels: { title: "Barcode Labels", subtitle: "Print price and barcode stickers on A4 sheets; set product barcodes" },
   till: { title: "Shop Till", subtitle: "Sell in the shop: stock comes off the same count the website uses" },
   staff: { title: "Staff", subtitle: "Who can use the staff portal, and what they can do" },
   subscribers: { title: "Newsletter Subscribers", subtitle: "Email list subscriptions from storefront footer" },

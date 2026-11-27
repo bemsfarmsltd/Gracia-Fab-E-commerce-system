@@ -11,6 +11,7 @@ import { LOW_STOCK_THRESHOLD } from '../config/inventory.js'
 import { ALLOWED_UPLOAD_MIME_TYPES } from '../validators/adminValidators.js'
 import { naira, fieldChanges, describeProductChanges } from '../utils/activityText.js'
 import { setStockCount, recordInitialStock, StockError } from '../services/stock.js'
+import { assignSku } from '../services/barcodes.js'
 
 const MIME_TO_EXTENSION = {
   'image/jpeg': 'jpg',
@@ -112,13 +113,16 @@ export const createProduct = async (req, res) => {
       suitableFor: {}
     })
     await recordInitialStock(product, req.user)
+    // Its shop code (GF-000123), which is also its barcode until a
+    // manufacturer barcode is set.
+    const coded = await assignSku(product._id)
 
     res.locals.activity = {
       targetId: String(product._id),
-      summary: `Added "${product.name}" at ${naira(product.price)}, stock ${product.stock}`,
-      changes: { name: product.name, price: product.price, stock: product.stock, category: product.category },
+      summary: `Added "${product.name}" (${coded?.sku}) at ${naira(product.price)}, stock ${product.stock}`,
+      changes: { name: product.name, price: product.price, stock: product.stock, category: product.category, sku: coded?.sku },
     }
-    res.status(201).json(product)
+    res.status(201).json({ ...product.toObject(), sku: coded?.sku, barcode: coded?.barcode })
   } catch (error) {
     return sendServerError(res, error, "adminController error");
   }
