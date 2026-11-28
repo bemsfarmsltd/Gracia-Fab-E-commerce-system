@@ -10,6 +10,8 @@ import {
   uploadImage,
   bulkUpdateStock
 } from '../controllers/adminController.js'
+import { getAdminCategories, createCategory, updateCategory, deleteCategory, reorderCategories, assignCategory } from '../controllers/categoryController.js'
+import { createCategorySchema, updateCategorySchema, reorderCategoriesSchema, assignCategorySchema } from '../validators/categoryValidators.js'
 import { getSalesReport, exportOrdersCsv, exportShopSalesCsv } from '../controllers/reportController.js'
 import { updateOrderStatus, bulkUpdateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
 import { getOverview } from '../controllers/adminOverviewController.js'
@@ -83,6 +85,14 @@ router.put('/orders/status', can('orders.fulfil'), validate(bulkOrderStatusSchem
 router.put('/orders/:id/cancel', can('orders.cancel'), validate(cancelOrderSchema), cancelOrderHandler)
 router.put('/orders/:id/refund', can('orders.cancel'), validate(markRefundedSchema), markRefundedHandler)
 router.put('/orders/:id', can('orders.fulfil'), cancelNeedsPermission, validate(updateOrderStatusSchema), updateOrderStatus)
+// Categories: staff see them (product names and filters), only the owner changes them.
+// /reorder and /assign come before /:id.
+router.get('/categories', can('products.view'), getAdminCategories)
+router.post('/categories', can('products.edit'), validate(createCategorySchema), createCategory)
+router.post('/categories/reorder', can('products.edit'), validate(reorderCategoriesSchema), reorderCategories)
+router.post('/categories/assign', can('products.edit'), validate(assignCategorySchema), assignCategory)
+router.put('/categories/:id', can('products.edit'), validate(updateCategorySchema), updateCategory)
+router.delete('/categories/:id', can('products.edit'), deleteCategory)
 router.get('/products', can('products.view'), getAllProducts)
 router.post('/products', can('products.edit'), validate(createProductSchema), createProduct)
 router.post('/upload', can('products.edit'), validate(uploadImageSchema), uploadImage)

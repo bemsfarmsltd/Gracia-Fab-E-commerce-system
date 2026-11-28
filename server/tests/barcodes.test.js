@@ -68,7 +68,7 @@ describe("barcode API", () => {
   it("codes new products, and lets staff look products up", async () => {
     const md = await owner();
     const created = await request(app).post("/api/admin/products").set(bearer(tokenFor(md))).send({
-      name: "Bob Wig", description: "Short bob", price: 45000, image: "https://res.cloudinary.com/dyzkjerez/image/upload/v1/x.jpg", category: "wigs", stock: 2,
+      name: "Bob Wig", description: "Short bob", price: 45000, image: "https://res.cloudinary.com/dyzkjerez/image/upload/v1/x.jpg", category: "wig", stock: 2,
     }).expect(201);
     expect(created.body).toMatchObject({ sku: "GF-000001", barcode: "GF-000001" });
 

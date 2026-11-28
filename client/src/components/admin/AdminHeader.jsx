@@ -3,6 +3,7 @@ const TAB_TITLES = {
   orders: { title: "Orders Management", subtitle: "Filter, track and process customer orders" },
   orderboard: { title: "Order Board", subtitle: "Visual workflow from payment to packing, shipping and delivery" },
   products: { title: "Product Catalogue", subtitle: "Manage stock items, pricing and photography" },
+  categories: { title: "Categories", subtitle: "Departments and categories shoppers filter by, and sorting products into them" },
   inventory: { title: "Inventory & Stock Levels", subtitle: "Real-time counts, thresholds and CSV bulk updates" },
   vouchers: { title: "Discount Vouchers", subtitle: "Promo codes, minimum spend and campaign limits" },
   sales: { title: "Sales & Financial Reports", subtitle: "Historical revenue trends and CSV export" },

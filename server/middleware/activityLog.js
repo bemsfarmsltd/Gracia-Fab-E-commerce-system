@@ -9,6 +9,11 @@ import logger from "../utils/logger.js";
 
 const ACTIONS = [
   ["POST", "/products", "product.create", "product"],
+  ["POST", "/categories", "category.create", "category"],
+  ["POST", "/categories/reorder", "category.reorder", "category"],
+  ["POST", "/categories/assign", "category.assign", "product"],
+  ["PUT", "/categories/:id", "category.update", "category"],
+  ["DELETE", "/categories/:id", "category.delete", "category"],
   ["PUT", "/products/stock", "stock.bulk_update", "product"],
   ["POST", "/stock/movements", "stock.movement", "product"],
   ["POST", "/sales", "sale.create", "sale"],

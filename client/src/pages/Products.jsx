@@ -8,14 +8,11 @@ import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
 import API_URL from "../config";
 import { isOutOfStock } from "../utils/stock";
+import { useCategories } from "../hooks/useCategories";
 
-// ── Canonical Category Tabs / Facets ──
-const CATEGORIES = [
-  { id: "skincare", label: "Skincare" },
-  { id: "haircare", label: "Haircare" },
-  { id: "wig", label: "Wigs" },
-  { id: "bridal", label: "Bridal Beauty" },
-];
+// Departments (Skincare, Body care, ...) and the categories inside them
+// (Serums, Bar soaps, ...) come from the owner's Categories screen.
+// URL: /products?category=skincare&type=serums
 
 const SUITABILITY_OPTIONS = [
   { id: "oily", label: "Oily / Acne-Prone", type: "skin" },
@@ -40,6 +37,8 @@ function Products({ onCartOpen }) {
 
   // Read URL query params on initial load
   const initialCategory = searchParams.get("category");
+  const initialType = searchParams.get("type");
+  const { tree: departments, labelFor } = useCategories();
   const initialSearch = searchParams.get("search") || "";
   const initialSort = searchParams.get("sort") || "featured";
 
@@ -51,6 +50,8 @@ function Products({ onCartOpen }) {
   const [selectedCategories, setSelectedCategories] = useState(
     initialCategory ? [initialCategory] : []
   );
+  // Categories inside departments (product.subcategory), e.g. "serums".
+  const [selectedTypes, setSelectedTypes] = useState(initialType ? [initialType] : []);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [priceInput, setPriceInput] = useState({ min: "", max: "" });
   const [appliedPriceRange, setAppliedPriceRange] = useState({ min: null, max: null });
@@ -114,6 +115,11 @@ function Products({ onCartOpen }) {
       setSelectedCategories([cat]);
       setCurrentPage(1);
     }
+    const type = searchParams.get("type");
+    if (type && !selectedTypes.includes(type)) {
+      setSelectedTypes([type]);
+      setCurrentPage(1);
+    }
   }, [searchParams]);
 
   // Derive dynamic list of brands and counts from loaded products
@@ -130,16 +136,23 @@ function Products({ onCartOpen }) {
       .sort((a, b) => b.count - a.count);
   }, [products]);
 
-  // Derive dynamic category product counts
+  // Product counts per department, and per category inside one ("sub:serums")
   const categoryCounts = useMemo(() => {
     const counts = {};
+    const add = (key) => { counts[key] = (counts[key] || 0) + 1; };
     products.forEach((p) => {
-      if (p.category) {
-        counts[p.category] = (counts[p.category] || 0) + 1;
-      }
+      if (p.category) add(p.category);
+      if (p.subcategory) add("sub:" + p.subcategory);
     });
     return counts;
   }, [products]);
+
+  // Which department each category belongs to, from the owner's list.
+  const parentOf = useMemo(() => {
+    const m = {};
+    departments.forEach((d) => d.children.forEach((c) => { m[c.slug] = d.slug; }));
+    return m;
+  }, [departments]);
 
   // Format currency in Nigerian Naira
   const formatPrice = (amount) =>
@@ -153,9 +166,16 @@ function Products({ onCartOpen }) {
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
-    // Category filter
-    if (selectedCategories.length > 0) {
-      list = list.filter((p) => selectedCategories.includes(p.category));
+    // Department and category filter. A ticked category narrows its own
+    // department (Skincare + Serums = serums only); other ticked
+    // departments still show everything in them.
+    if (selectedCategories.length > 0 || selectedTypes.length > 0) {
+      const narrowed = new Set(selectedTypes.map((t) => parentOf[t]).filter(Boolean));
+      list = list.filter(
+        (p) =>
+          (p.subcategory && selectedTypes.includes(p.subcategory)) ||
+          (selectedCategories.includes(p.category) && !narrowed.has(p.category))
+      );
     }
 
     // Brand filter
@@ -203,6 +223,8 @@ function Products({ onCartOpen }) {
           p.description?.toLowerCase().includes(q) ||
           p.brand?.toLowerCase().includes(q) ||
           p.category?.toLowerCase().includes(q) ||
+          labelFor(p.category).toLowerCase().includes(q) ||
+          (p.subcategory && labelFor(p.subcategory).toLowerCase().includes(q)) ||
           p.tags?.some((t) => t.toLowerCase().includes(q))
       );
     }
@@ -225,6 +247,9 @@ function Products({ onCartOpen }) {
   }, [
     products,
     selectedCategories,
+    selectedTypes,
+    parentOf,
+    labelFor,
     selectedBrands,
     appliedPriceRange,
     minRating,
@@ -255,6 +280,11 @@ function Products({ onCartOpen }) {
     setSelectedCategories((prev) =>
       prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
     );
+    setCurrentPage(1);
+  };
+
+  const toggleType = (slug) => {
+    setSelectedTypes((prev) => (prev.includes(slug) ? prev.filter((t) => t !== slug) : [...prev, slug]));
     setCurrentPage(1);
   };
 
@@ -294,6 +324,7 @@ function Products({ onCartOpen }) {
 
   const clearAllFilters = () => {
     setSelectedCategories([]);
+    setSelectedTypes([]);
     setSelectedBrands([]);
     setPriceInput({ min: "", max: "" });
     setAppliedPriceRange({ min: null, max: null });
@@ -308,6 +339,7 @@ function Products({ onCartOpen }) {
 
   const hasActiveFilters =
     selectedCategories.length > 0 ||
+    selectedTypes.length > 0 ||
     selectedBrands.length > 0 ||
     appliedPriceRange.min !== null ||
     appliedPriceRange.max !== null ||
@@ -350,9 +382,11 @@ function Products({ onCartOpen }) {
     }
   };
 
-  const categoryLabel = selectedCategories.length === 1
-    ? CATEGORIES.find((c) => c.id === selectedCategories[0])?.label || "Beauty"
-    : null;
+  const categoryLabel = selectedTypes.length === 1
+    ? labelFor(selectedTypes[0])
+    : selectedCategories.length === 1 && selectedTypes.length === 0
+      ? labelFor(selectedCategories[0])
+      : null;
 
   const pageTitle = categoryLabel
     ? `${categoryLabel} Collection`
@@ -362,9 +396,11 @@ function Products({ onCartOpen }) {
     ? `Explore Gracia Fab's curated ${categoryLabel.toLowerCase()} collection in Nigeria. Authentic formulations and products tailored for your beauty routine.`
     : "Explore Gracia Fab's curated collection of clinical skincare, raw hair wigs, and bridal beauty formulated for Nigerian complexions and climate.";
 
-  const pageUrl = selectedCategories.length === 1
-    ? `/products?category=${selectedCategories[0]}`
-    : "/products";
+  const pageUrl = selectedTypes.length === 1
+    ? `/products?category=${parentOf[selectedTypes[0]] || selectedCategories[0] || ""}&type=${selectedTypes[0]}`
+    : selectedCategories.length === 1
+      ? `/products?category=${selectedCategories[0]}`
+      : "/products";
 
   return (
     <div className="glow-catalog-page" ref={catalogTopRef}>
@@ -444,22 +480,39 @@ function Products({ onCartOpen }) {
 
               {categoryOpen && (
                 <div className="filter-group-content">
-                  {CATEGORIES.map((cat) => {
-                    const isChecked = selectedCategories.includes(cat.id);
-                    const count = categoryCounts[cat.id] || 0;
-                    return (
-                      <label key={cat.id} className="filter-checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleCategory(cat.id)}
-                        />
-                        <span className="checkbox-custom" />
-                        <span className="checkbox-text">{cat.label}</span>
-                        <span className="checkbox-count">({count})</span>
-                      </label>
-                    );
-                  })}
+                  {departments
+                    // Departments with products in them (or ticked from a link).
+                    .filter((d) => (categoryCounts[d.slug] || 0) > 0 || selectedCategories.includes(d.slug))
+                    .map((dept) => {
+                      const isChecked = selectedCategories.includes(dept.slug);
+                      const types = dept.children.filter(
+                        (c) => (categoryCounts["sub:" + c.slug] || 0) > 0 || selectedTypes.includes(c.slug)
+                      );
+                      // A department's categories open when it, or one of them, is ticked.
+                      const open = isChecked || types.some((c) => selectedTypes.includes(c.slug));
+                      return (
+                        <div key={dept.slug} className="filter-dept">
+                          <label className="filter-checkbox-label">
+                            <input type="checkbox" checked={isChecked} onChange={() => toggleCategory(dept.slug)} />
+                            <span className="checkbox-custom" />
+                            <span className="checkbox-text">{dept.name}</span>
+                            <span className="checkbox-count">({categoryCounts[dept.slug] || 0})</span>
+                          </label>
+                          {open && types.length > 0 && (
+                            <div className="filter-subcategories" role="group" aria-label={dept.name + " categories"}>
+                              {types.map((c) => (
+                                <label key={c.slug} className="filter-checkbox-label is-sub">
+                                  <input type="checkbox" checked={selectedTypes.includes(c.slug)} onChange={() => toggleType(c.slug)} />
+                                  <span className="checkbox-custom" />
+                                  <span className="checkbox-text">{c.name}</span>
+                                  <span className="checkbox-count">({categoryCounts["sub:" + c.slug] || 0})</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -682,6 +735,7 @@ function Products({ onCartOpen }) {
                 {hasActiveFilters && (
                   <span className="filter-badge">
                     {selectedCategories.length +
+                      selectedTypes.length +
                       selectedBrands.length +
                       (appliedPriceRange.min !== null || appliedPriceRange.max !== null ? 1 : 0) +
                       (minRating ? 1 : 0) +
@@ -792,20 +846,29 @@ function Products({ onCartOpen }) {
             <div className="glow-active-filters-bar">
               <span className="active-filters-label">Active Filters:</span>
 
-              {selectedCategories.map((catId) => {
-                const cat = CATEGORIES.find((c) => c.id === catId);
-                return (
-                  <button
-                    key={catId}
-                    type="button"
-                    className="filter-pill-tag"
-                    onClick={() => toggleCategory(catId)}
-                  >
-                    <span>{cat?.label || catId}</span>
-                    <span className="pill-remove">✕</span>
-                  </button>
-                );
-              })}
+              {selectedCategories.map((catId) => (
+                <button
+                  key={catId}
+                  type="button"
+                  className="filter-pill-tag"
+                  onClick={() => toggleCategory(catId)}
+                >
+                  <span>{labelFor(catId)}</span>
+                  <span className="pill-remove">✕</span>
+                </button>
+              ))}
+
+              {selectedTypes.map((slug) => (
+                <button
+                  key={slug}
+                  type="button"
+                  className="filter-pill-tag"
+                  onClick={() => toggleType(slug)}
+                >
+                  <span>{labelFor(slug)}</span>
+                  <span className="pill-remove">✕</span>
+                </button>
+              ))}
 
               {selectedBrands.map((brand) => (
                 <button

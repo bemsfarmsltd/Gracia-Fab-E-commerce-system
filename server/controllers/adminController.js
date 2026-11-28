@@ -12,6 +12,7 @@ import { ALLOWED_UPLOAD_MIME_TYPES } from '../validators/adminValidators.js'
 import { naira, fieldChanges, describeProductChanges } from '../utils/activityText.js'
 import { setStockCount, recordInitialStock, StockError } from '../services/stock.js'
 import { assignSku } from '../services/barcodes.js'
+import { checkProductCategory } from '../services/categories.js'
 
 const MIME_TO_EXTENSION = {
   'image/jpeg': 'jpg',
@@ -95,9 +96,12 @@ export const createProduct = async (req, res) => {
   try {
     const {
       name, description, price, image, secondaryImage,
-      category, brand, stock,
+      category, subcategory, brand, stock,
       tags, isFeatured
     } = req.body
+
+    const categoryErrors = await checkProductCategory({ category, subcategory })
+    if (categoryErrors) return res.status(400).json({ message: 'Validation failed', errors: categoryErrors })
 
     const product = await Product.create({
       name,
@@ -106,6 +110,7 @@ export const createProduct = async (req, res) => {
       image,
       secondaryImage,
       category,
+      subcategory: subcategory || null,
       brand,
       stock,
       tags: tags || [],
@@ -120,7 +125,7 @@ export const createProduct = async (req, res) => {
     res.locals.activity = {
       targetId: String(product._id),
       summary: `Added "${product.name}" (${coded?.sku}) at ${naira(product.price)}, stock ${product.stock}`,
-      changes: { name: product.name, price: product.price, stock: product.stock, category: product.category, sku: coded?.sku },
+      changes: { name: product.name, price: product.price, stock: product.stock, category: product.category, subcategory: product.subcategory, sku: coded?.sku },
     }
     res.status(201).json({ ...product.toObject(), sku: coded?.sku, barcode: coded?.barcode })
   } catch (error) {
@@ -140,16 +145,27 @@ export const updateProduct = async (req, res) => {
 
     const {
       name, description, price, image, secondaryImage,
-      category, brand, stock,
+      category, subcategory, brand, stock,
       tags, isFeatured
     } = req.body
+
+    // Moving to another department drops a category that belonged to the old one.
+    const nextCategory = category || product.category
+    const nextSub = subcategory !== undefined
+      ? subcategory
+      : (nextCategory !== product.category ? null : product.subcategory)
+    if (category !== undefined || subcategory !== undefined) {
+      const categoryErrors = await checkProductCategory({ category: nextCategory, subcategory: nextSub })
+      if (categoryErrors) return res.status(400).json({ message: 'Validation failed', errors: categoryErrors })
+    }
 
     product.name = name || product.name
     product.description = description || product.description
     product.price = price ?? product.price
 product.image = image ?? product.image
     product.secondaryImage = secondaryImage ?? product.secondaryImage
-    product.category = category || product.category
+    product.category = nextCategory
+    product.subcategory = nextSub || null
     product.brand = brand || product.brand
     // Stock isn't saved here: it changes through the stock service below so
     // the change is recorded in the stock history.
@@ -157,7 +173,7 @@ product.image = image ?? product.image
     product.isFeatured = isFeatured ?? product.isFeatured
 
     // Before/after for the activity log, read before saving.
-    const changes = fieldChanges(before, product, ['name', 'price', 'category', 'brand', 'isFeatured', 'image', 'secondaryImage', 'description'])
+    const changes = fieldChanges(before, product, ['name', 'price', 'category', 'subcategory', 'brand', 'isFeatured', 'image', 'secondaryImage', 'description'])
 
     let updatedProduct = await product.save()
     if (stock !== undefined && stock !== null && Number(stock) !== (Number(before.stock) || 0)) {

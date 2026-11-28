@@ -6,7 +6,14 @@ export const createProductSchema = z.object({
   price: z.coerce.number().nonnegative("Price cannot be negative"),
   image: z.string().trim().min(1, "Image is required"),
   secondaryImage: z.string().trim().optional(),
-  category: z.string().trim().min(1, "Category is required"),
+  category: z.string().trim().min(1, "Department is required"),
+  // A category inside the department; "" or null = not sorted yet.
+  subcategory: z
+    .string()
+    .trim()
+    .nullable()
+    .transform((v) => v || null)
+    .optional(),
   brand: z.string().trim().optional(),
   stock: z.coerce.number().int().nonnegative().optional(),
   // "serum, glow" or ["serum", "glow"]; always stored as a list. The

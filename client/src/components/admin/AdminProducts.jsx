@@ -1,15 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import API_URL from "../../config";
 import { can } from "../../utils/portal";
+import { useCategories, forgetShopCategories } from "../../hooks/useCategories";
 
-const CATEGORIES = [
-  { id: "all", label: "All Categories" },
-  { id: "skincare", label: "Skincare" },
-  { id: "haircare", label: "Haircare" },
-  { id: "wig", label: "Wig" },
-  { id: "hairstyle", label: "Hairstyle" },
-  { id: "bridal", label: "Bridal" },
-];
+// The "+ Add a new category…" choice in the form's Category list.
+const ADD_NEW = "__add_new__";
 
 const STOCK_FILTERS = [
   { id: "all", label: "All Stock Levels" },
@@ -20,7 +15,7 @@ const STOCK_FILTERS = [
 
 const FIELD_LABELS = {
   name: "Name", description: "Description", price: "Price", image: "Main image",
-  secondaryImage: "Second image", category: "Category", brand: "Brand", stock: "Stock",
+  secondaryImage: "Second image", category: "Department", subcategory: "Category", brand: "Brand", stock: "Stock",
   tags: "Tags", isFeatured: "Featured",
 };
 
@@ -31,6 +26,7 @@ const INITIAL_FORM = {
   image: "",
   secondaryImage: "",
   category: "skincare",
+  subcategory: "",
   brand: "",
   stock: "10",
   tags: "",
@@ -48,6 +44,32 @@ export default function AdminProducts({
   getHeaders,
 }) {
   const canEditProducts = user === undefined ? true : can(user, "products.edit");
+  // Departments and their categories, hidden ones too (set up in Categories).
+  const { tree: departmentOptions, labelFor, reload: reloadCategories } = useCategories({ admin: true });
+  // "Skincare › Serums", or just the department while it has no category.
+  const placeOf = (p) => (p.subcategory ? `${labelFor(p.category)} › ${labelFor(p.subcategory)}` : labelFor(p.category));
+
+  // From the product form: name a new category in this department, save it,
+  // and return its slug so the form can select it.
+  const addCategoryInline = async (department) => {
+    const name = window.prompt(`Name the new category in ${labelFor(department)}:`)?.trim();
+    if (!name) return null;
+    try {
+      const res = await fetch(`${API_URL}/api/admin/categories`, {
+        method: "POST",
+        headers: getHeaders ? getHeaders() : { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+        body: JSON.stringify({ name, parent: department }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "Couldn't add the category");
+      forgetShopCategories();
+      await reloadCategories();
+      return data.slug;
+    } catch (err) {
+      setFormError(err.message);
+      return null;
+    }
+  };
   const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -91,8 +113,12 @@ export default function AdminProducts({
             return false;
           }
         }
-        // Category filter
-        if (selectedCategory !== "all" && p.category !== selectedCategory) {
+        // Category filter: a department, a category inside one, or "no category yet"
+        if (selectedCategory === "unsorted") {
+          if (p.subcategory) return false;
+        } else if (selectedCategory.startsWith("sub:")) {
+          if (p.subcategory !== selectedCategory.slice(4)) return false;
+        } else if (selectedCategory !== "all" && p.category !== selectedCategory) {
           return false;
         }
         // Stock filter
@@ -158,6 +184,7 @@ export default function AdminProducts({
       image: product.image || "",
       secondaryImage: product.secondaryImage || "",
       category: product.category || "skincare",
+      subcategory: product.subcategory || "",
       brand: product.brand || "",
       stock: product.stock ?? "10",
       tags: Array.isArray(product.tags) ? product.tags.join(", ") : (product.tags || ""),
@@ -375,8 +402,15 @@ export default function AdminProducts({
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            {CATEGORIES.map((c) => (
-              <option key={c.id} value={c.id}>{c.label}</option>
+            <option value="all">All Categories</option>
+            <option value="unsorted">No category yet</option>
+            {departmentOptions.map((d) => (
+              <optgroup key={d.slug} label={d.name}>
+                <option value={d.slug}>All {d.name}</option>
+                {d.children.map((c) => (
+                  <option key={c.slug} value={`sub:${c.slug}`}>{c.name}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
@@ -483,7 +517,7 @@ export default function AdminProducts({
                     </span>
                   )}
                   <span className="prod-badge-category">
-                    {product.category}
+                    {placeOf(product)}
                   </span>
                 </div>
 
@@ -589,7 +623,7 @@ export default function AdminProducts({
 
                     {/* Category */}
                     <td>
-                      <span className="category-pill">{product.category}</span>
+                      <span className="category-pill">{placeOf(product)}</span>
                     </td>
 
                     {/* Price */}
@@ -725,19 +759,40 @@ export default function AdminProducts({
                   />
                 </div>
 
-                {/* Category */}
+                {/* Department, then the category inside it */}
                 <div className="form-group">
-                  <label htmlFor="prod-form-category">Category *</label>
+                  <label htmlFor="prod-form-category">Department *</label>
                   <select
                     id="prod-form-category"
                     value={productForm.category}
-                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                    // A category belongs to one department, so changing it clears the category.
+                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value, subcategory: "" })}
                   >
-                    <option value="skincare">Skincare</option>
-                    <option value="haircare">Haircare</option>
-                    <option value="wig">Wig</option>
-                    <option value="hairstyle">Hairstyle</option>
-                    <option value="bridal">Bridal</option>
+                    {departmentOptions.map((d) => (
+                      <option key={d.slug} value={d.slug}>{d.name}{d.active === false ? " (hidden)" : ""}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="prod-form-subcategory">Category</label>
+                  <select
+                    id="prod-form-subcategory"
+                    value={productForm.subcategory}
+                    onChange={async (e) => {
+                      if (e.target.value === ADD_NEW) {
+                        const slug = await addCategoryInline(productForm.category);
+                        if (slug) setProductForm((prev) => ({ ...prev, subcategory: slug }));
+                        return;
+                      }
+                      setProductForm({ ...productForm, subcategory: e.target.value });
+                    }}
+                  >
+                    <option value="">No category yet</option>
+                    {(departmentOptions.find((d) => d.slug === productForm.category)?.children || []).map((c) => (
+                      <option key={c.slug} value={c.slug}>{c.name}{c.active === false ? " (hidden)" : ""}</option>
+                    ))}
+                    {canEditProducts && <option value={ADD_NEW}>+ Add a new category…</option>}
                   </select>
                 </div>
 

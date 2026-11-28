@@ -18,6 +18,7 @@ import AdminTill from "../components/admin/AdminTill";
 import AdminLabels from "../components/admin/AdminLabels";
 import AdminStockTake from "../components/admin/AdminStockTake";
 import AdminSuppliers from "../components/admin/AdminSuppliers";
+import AdminCategories from "../components/admin/AdminCategories";
 import AdminStockHistory from "../components/admin/AdminStockHistory";
 import AdminActivity from "../components/admin/AdminActivity";
 import AdminTour from "../components/tour/AdminTour";
@@ -318,6 +319,10 @@ function AdminDashboard() {
         )}
 
         {/* ── PRODUCTS ── */}
+        {activeTab === "categories" && canSeeTab(user, "categories") && (
+          <AdminCategories setAdminError={setAdminError} setAdminNotice={setAdminNotice} />
+        )}
+
         {activeTab === "products" && (
           <AdminProducts
             user={user}

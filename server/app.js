@@ -4,6 +4,7 @@ import pinoHttp from "pino-http";
 import logger from "./utils/logger.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 import recommendRoutes from "./routes/recommendRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
@@ -380,6 +381,7 @@ ${productList}`;
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/recommend", recommendRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);

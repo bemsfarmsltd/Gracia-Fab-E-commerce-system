@@ -223,4 +223,43 @@ describe("Products Catalog Page (GLOWIFY Inspired Architecture)", () => {
     expect(screen.queryByText("4.8")).toBeInTheDocument(); // prod-1 has 24 real reviews
     expect(screen.queryByText(/(16)/)).not.toBeInTheDocument();
   });
+
+  // Last in the file: the category list it loads is kept for the page's lifetime.
+  it("shows the owner's categories inside a ticked department and narrows to one", async () => {
+    const catalog = [
+      { ...MOCK_CATALOG[0], subcategory: "serums" },
+      { ...MOCK_CATALOG[0], _id: "prod-wash", name: "Gentle Foaming Face Wash", subcategory: "face-wash-cleansers" },
+      MOCK_CATALOG[1],
+    ];
+    const categories = [
+      { slug: "skincare", name: "Skincare", children: [
+        { slug: "face-wash-cleansers", name: "Face wash & cleansers" },
+        { slug: "serums", name: "Serums" },
+        { slug: "toners", name: "Toners" }, // no products: not shown
+      ] },
+      { slug: "fragrance", name: "Fragrance", children: [{ slug: "perfumes", name: "Perfumes" }] }, // empty department
+      { slug: "wig", name: "Wigs", children: [] },
+    ];
+    window.fetch = globalThis.fetch = vi.fn(async (url) => ({
+      ok: true,
+      json: async () => (url.includes("/api/categories") ? categories : url.includes("/api/products") ? catalog : {}),
+    }));
+    renderProducts();
+    await screen.findByText("Gentle Foaming Face Wash");
+
+    // Empty departments and categories stay out of the filter.
+    expect(screen.queryByText("Fragrance")).not.toBeInTheDocument();
+    expect(screen.queryByText("Serums")).not.toBeInTheDocument(); // closed until Skincare is ticked
+
+    fireEvent.click(screen.getByText("Skincare"));
+    const group = await screen.findByRole("group", { name: "Skincare categories" });
+    expect(within(group).queryByText("Toners")).not.toBeInTheDocument();
+    fireEvent.click(within(group).getByText("Serums"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Gentle Foaming Face Wash")).not.toBeInTheDocument();
+      expect(screen.queryByText("Raw Virgin HD Glueless Wig")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("Vitamin C Radiance Serum")).toBeInTheDocument();
+  });
 });

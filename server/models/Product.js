@@ -56,10 +56,14 @@ const productSchema = new mongoose.Schema(
       type: String,
     },
 
+    // Department slug (skincare, haircare, ...) and, inside it, the
+    // category slug (serums, bar-soaps, ...). Both are managed in the admin
+    // Categories screen; see models/Category.js.
     category: {
       type: String,
       required: true,
     },
+    subcategory: { type: String, default: null },
 
     tags: [String],
 
@@ -127,6 +131,7 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.index({ category: 1 });
+productSchema.index({ subcategory: 1 });
 productSchema.index({ tags: 1 });
 productSchema.index({ name: "text", description: "text" });
 productSchema.index({ isFeatured: 1 });

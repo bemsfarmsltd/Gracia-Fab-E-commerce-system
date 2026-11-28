@@ -9,6 +9,7 @@ import { useToast } from "../hooks/useToast";
 import API_URL, { SITE_URL } from "../config";
 import "../styles/ProductDetail.css";
 import { isOutOfStock, stockLabel } from "../utils/stock";
+import { useCategories } from "../hooks/useCategories";
 
 // Vouchers shown on this page come from the server (GET /api/vouchers/public:
 // active codes marked "show on product page"), with labels built from each
@@ -51,6 +52,7 @@ function suitsRows(product) {
 
 export default function ProductDetail({ onCartOpen }) {
   const { id } = useParams();
+  const { labelFor } = useCategories();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { user } = useAuth();
@@ -286,7 +288,7 @@ export default function ProductDetail({ onCartOpen }) {
         "@type": "Brand",
         "name": product.brand || "Gracia Fab",
       },
-      "category": product.category || "Beauty",
+      "category": [labelFor(product.category), labelFor(product.subcategory)].filter(Boolean).join(" > ") || "Beauty",
       "offers": {
         "@type": "Offer",
         "url": `${SITE_URL}/products/${product._id}`,
@@ -306,7 +308,7 @@ export default function ProductDetail({ onCartOpen }) {
       };
     }
     return schema;
-  }, [product, gallery]);
+  }, [product, gallery, labelFor]);
 
   if (loading) {
     return (
@@ -365,8 +367,18 @@ export default function ProductDetail({ onCartOpen }) {
             <span className="pdp-breadcrumbs-sep">/</span>
             <Link to="/products">Products</Link>
             <span className="pdp-breadcrumbs-sep">/</span>
-            <span style={{ textTransform: "capitalize" }}>{product.category || "Skincare"}</span>
-            <span className="pdp-breadcrumbs-sep">/</span>
+            {product.category && (
+              <>
+                <Link to={`/products?category=${product.category}`}>{labelFor(product.category)}</Link>
+                <span className="pdp-breadcrumbs-sep">/</span>
+              </>
+            )}
+            {product.subcategory && (
+              <>
+                <Link to={`/products?category=${product.category}&type=${product.subcategory}`}>{labelFor(product.subcategory)}</Link>
+                <span className="pdp-breadcrumbs-sep">/</span>
+              </>
+            )}
             <span className="pdp-breadcrumbs-current">{product.name}</span>
           </nav>
         </div>

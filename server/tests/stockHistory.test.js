@@ -75,7 +75,7 @@ describe("stock history: automatic movements", () => {
     const md = await owner();
     const t = tokenFor(md);
     const created = await request(app).post("/api/admin/products").set(bearer(t)).send({
-      name: "Bob Wig", description: "Short bob", price: 45000, image: "https://res.cloudinary.com/dyzkjerez/image/upload/v1/x.jpg", category: "wigs", stock: 4,
+      name: "Bob Wig", description: "Short bob", price: 45000, image: "https://res.cloudinary.com/dyzkjerez/image/upload/v1/x.jpg", category: "wig", stock: 4,
     }).expect(201);
     const id = created.body._id;
 

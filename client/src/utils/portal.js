@@ -18,6 +18,7 @@ export const TAB_PERMISSIONS = {
   orders: "orders.view",
   orderboard: "orders.view",
   products: "products.view",
+  categories: "products.edit",
   inventory: "stock.count",
   users: "customers.view",
   messages: "messages",
