@@ -16,6 +16,8 @@ export const createSaleSchema = z.object({
   customerName: z.string().trim().max(80).optional(),
   customerPhone: z.string().trim().regex(/^[+0-9 ()-]{7,20}$/, "Enter a valid phone number").optional().or(z.literal("")),
   note: z.string().trim().max(200).optional(),
+  // A registered customer picked at the till, to earn loyalty points.
+  customerId: z.string().regex(/^[0-9a-f]{24}$/, "Invalid customer").optional(),
 });
 
 export const voidSaleSchema = z.object({

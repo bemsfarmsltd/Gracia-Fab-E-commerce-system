@@ -35,7 +35,6 @@ is `docs/AUDIT.md`; new assistants start with `AGENTS.md`.
 
 | Who | Task | Files / areas | Since |
 |---|---|---|---|
-| Claude (gracia-fab) | Fix "Validation failed" on Create product; then MD-managed categories; then loyalty for shop sales | server/validators/adminValidators.js, server/controllers/adminController.js (products), AdminProducts.jsx, Products.jsx, new Category model + admin Categories screen, services/storeSales.js (loyalty) | 28 Nov |
 
 ## Open questions
 

@@ -21,6 +21,80 @@ async function api(path, options = {}) {
   return data;
 }
 
+// Same rule as the server (services/loyaltyPoints.js): ₦1,000 = 10 points.
+const pointsFor = (total) => (total > 0 ? Math.max(1, Math.floor(total * 0.01)) : 0);
+
+// Loyalty: find the shopper's account so the sale earns them points.
+function LoyaltyPicker({ picked, onPick, total }) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState(null);
+
+  useEffect(() => {
+    const term = q.trim();
+    if (term.length < 2) {
+      // Clearing results when the search is emptied, not derived state.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setResults(null);
+      return undefined;
+    }
+    let stale = false;
+    const t = setTimeout(async () => {
+      try {
+        const found = await api(`/api/admin/sales/customers?q=${encodeURIComponent(term)}`);
+        if (!stale) setResults(found);
+      } catch {
+        if (!stale) setResults([]);
+      }
+    }, 300);
+    return () => {
+      stale = true;
+      clearTimeout(t);
+    };
+  }, [q]);
+
+  if (picked) {
+    return (
+      <div className="till-loyalty-picked" aria-live="polite">
+        <span className="till-loyalty-star" aria-hidden="true">★</span>
+        <span className="till-loyalty-who">
+          <strong>{picked.name}</strong>
+          <span>{picked.points.toLocaleString("en-NG")} points now{total > 0 ? ` · this sale earns ${pointsFor(total)}` : ""}</span>
+        </span>
+        <button type="button" className="till-btn-ghost till-loyalty-remove" onClick={() => onPick(null)}>Remove</button>
+      </div>
+    );
+  }
+  return (
+    <div className="till-loyalty">
+      <label>
+        Loyalty customer (optional)
+        <input
+          value={q}
+          placeholder="Name, email or phone"
+          autoComplete="off"
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </label>
+      {results && results.length === 0 && (
+        <p className="till-loyalty-none">No customer account found. They can sign up on the website to start earning points.</p>
+      )}
+      {results && results.length > 0 && (
+        <ul className="till-loyalty-results" aria-label="Matching customers">
+          {results.map((c) => (
+            <li key={c._id}>
+              <button type="button" onClick={() => { onPick(c); setQ(""); setResults(null); }}>
+                <strong>{c.name}</strong>
+                <span>{[c.phone, c.email].filter(Boolean).join(" · ")}</span>
+                <span className="till-loyalty-pts">{c.points.toLocaleString("en-NG")} pts</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export function Receipt({ sale, onVoid, canVoid, onClose }) {
   const wa = receiptWhatsAppUrl(sale);
   return (
@@ -73,6 +147,12 @@ export function Receipt({ sale, onVoid, canVoid, onClose }) {
         )}
         {sale.paymentReference && <p className="till-receipt-row"><span>Reference</span><span>{sale.paymentReference}</span></p>}
         {sale.customerName && <p className="till-receipt-small">Customer: {sale.customerName}</p>}
+        {sale.pointsAwarded > 0 && (
+          <p className="till-receipt-row"><span>Loyalty points earned</span><span>+{sale.pointsAwarded.toLocaleString("en-NG")}</span></p>
+        )}
+        {sale.pointsAwarded > 0 && sale.customerPoints !== undefined && (
+          <p className="till-receipt-row"><span>Points balance</span><span>{sale.customerPoints.toLocaleString("en-NG")}</span></p>
+        )}
         <p className="till-receipt-small till-receipt-thanks">Thank you for shopping with us.</p>
       </div>
 
@@ -99,6 +179,12 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
   const [tendered, setTendered] = useState("");
   const [reference, setReference] = useState("");
   const [customer, setCustomer] = useState({ name: "", phone: "" });
+  const [loyal, setLoyal] = useState(null); // the customer account earning points
+  const pickLoyal = (c) => {
+    setLoyal(c);
+    // Their name and phone also go on the receipt, unless already typed.
+    if (c) setCustomer((prev) => ({ name: prev.name || c.name, phone: prev.phone || c.phone || "" }));
+  };
   const [discount, setDiscount] = useState({ amount: "", reason: "" });
   const [busy, setBusy] = useState(false);
   const [lastSale, setLastSale] = useState(null);
@@ -202,7 +288,7 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
 
   const reset = () => {
     setCart([]); setMethod(""); setTendered(""); setReference("");
-    setCustomer({ name: "", phone: "" }); setDiscount({ amount: "", reason: "" }); setSearch("");
+    setCustomer({ name: "", phone: "" }); setLoyal(null); setDiscount({ amount: "", reason: "" }); setSearch("");
   };
 
   const complete = async () => {
@@ -218,11 +304,15 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
           ...(reference.trim() ? { paymentReference: reference.trim() } : {}),
           ...(customer.name.trim() ? { customerName: customer.name.trim() } : {}),
           ...(customer.phone.trim() ? { customerPhone: customer.phone.trim() } : {}),
+          ...(loyal ? { customerId: loyal._id } : {}),
           ...(discountAmount ? { discount: discountAmount, discountReason: discount.reason.trim() } : {}),
         }),
       });
       setLastSale(sale);
-      setAdminNotice?.(`Sale ${sale.numberLabel} done: ${naira(sale.total)}${sale.change ? `, give ${naira(sale.change)} change` : ""}.`);
+      setAdminNotice?.(
+        `Sale ${sale.numberLabel} done: ${naira(sale.total)}${sale.change ? `, give ${naira(sale.change)} change` : ""}.` +
+          (sale.pointsAwarded ? ` ${sale.customerName} earned ${sale.pointsAwarded} points.` : "")
+      );
       reset();
     } catch (err) {
       setAdminError?.(err.message);
@@ -340,6 +430,8 @@ export default function AdminTill({ setAdminError, setAdminNotice }) {
             {discountAmount > 0 && <label>Reason<input value={discount.reason} onChange={(e) => setDiscount({ ...discount, reason: e.target.value })} /></label>}
           </div>
         )}
+
+        <LoyaltyPicker picked={loyal} onPick={pickLoyal} total={total} />
 
         <details className="till-customer">
           <summary>Customer details (optional, for a WhatsApp receipt)</summary>

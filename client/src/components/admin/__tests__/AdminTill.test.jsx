@@ -21,6 +21,9 @@ function mockApi({ onSale } = {}) {
   vi.spyOn(globalThis, "fetch").mockImplementation((url, opts = {}) => {
     if (url.includes("/api/admin/sales/options")) return json(200, OPTIONS);
     if (url.includes("/api/admin/sales/summary")) return json(200, { byMethod: [], sales: 0, total: 0, units: 0 });
+    if (url.includes("/api/admin/sales/customers")) {
+      return json(200, url.includes("ngo") ? [{ _id: "u1", name: "Ngozi Okafor", email: "ngozi@example.com", phone: "0803 111 2233", points: 40, tier: "bronze" }] : []);
+    }
     if (url.includes("/api/admin/sales") && opts.method === "POST") {
       posted.push(JSON.parse(opts.body));
       return onSale ? onSale() : json(201, SALE);
@@ -72,6 +75,35 @@ describe("till", () => {
     expect(setAdminNotice).toHaveBeenCalledWith("Sale S-000007 done: ₦15,000, give ₦5,000 change.");
   });
 
+  it("finds a loyalty customer, sends them with the sale and shows the points on the receipt", async () => {
+    const posted = mockApi({
+      onSale: () => json(201, { ...SALE, customerName: "Ngozi Okafor", customerPhone: "0803 111 2233", paymentMethod: "transfer", change: undefined, pointsAwarded: 150, customerPoints: 190 }),
+    });
+    const setAdminNotice = vi.fn();
+    render(<AdminTill setAdminError={vi.fn()} setAdminNotice={setAdminNotice} />);
+    const shea = await screen.findByRole("button", { name: /Shea Body Butter/ });
+    fireEvent.click(shea);
+    fireEvent.click(shea);
+
+    fireEvent.change(screen.getByLabelText(/Loyalty customer/), { target: { value: "nobody" } });
+    expect(await screen.findByText(/No customer account found/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/Loyalty customer/), { target: { value: "ngo" } });
+    fireEvent.click(await screen.findByRole("button", { name: /Ngozi Okafor/ }));
+    // ₦15,000 earns 150 points.
+    expect(screen.getByText("40 points now · this sale earns 150")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Bank transfer" }));
+    fireEvent.click(screen.getByRole("button", { name: /Complete sale/ }));
+    const receipt = await screen.findByLabelText("Receipt S-000007");
+    // Their name and phone fill the receipt fields too.
+    expect(posted[0]).toMatchObject({ customerId: "u1", customerName: "Ngozi Okafor", customerPhone: "0803 111 2233" });
+    expect(within(receipt).getByText("+150")).toBeInTheDocument();
+    expect(within(receipt).getByText("190")).toBeInTheDocument();
+    expect(setAdminNotice).toHaveBeenCalledWith(expect.stringContaining("Ngozi Okafor earned 150 points."));
+    // The next sale starts with no customer picked.
+    expect(screen.getByLabelText(/Loyalty customer/)).toHaveValue("");
+  });
+
   it("shows the server's reason when the last item just sold online", async () => {
     mockApi({ onSale: () => json(409, { message: 'Only 0 of "Shea Body Butter" left. It may have just sold online.' }) });
     const setAdminError = vi.fn();
@@ -101,5 +133,9 @@ describe("receipts", () => {
     expect(text).toContain("Total: ₦15,000");
     expect(text).toContain("Paid by Cash");
     expect(text).toContain("Change: ₦5,000");
+    expect(text).not.toContain("Loyalty");
+    const withPoints = receiptText({ ...SALE, pointsAwarded: 150, customerPoints: 190 });
+    expect(withPoints).toContain("Loyalty points earned: +150");
+    expect(withPoints).toContain("Your points balance: 190");
   });
 });

@@ -32,7 +32,7 @@ import { listStaff, addStaff, resendInvite, removeStaff } from '../controllers/s
 import { addStaffSchema } from '../validators/staffValidators.js'
 import { postMovement, getMovements, getStockSummary } from '../controllers/stockController.js'
 import { stockMovementSchema } from '../validators/stockValidators.js'
-import { getSaleOptions, postSale, getSales, getSalesSummary, getSale, postVoidSale } from '../controllers/storeSaleController.js'
+import { getSaleOptions, postSale, getSales, getSalesSummary, getSale, postVoidSale, getTillCustomers } from '../controllers/storeSaleController.js'
 import { createSaleSchema, voidSaleSchema } from '../validators/storeSaleValidators.js'
 import { lookupProduct, setProductBarcode } from '../controllers/barcodeController.js'
 import { listSuppliers, postSupplier, putSupplier, postPurchase, listPurchases, getCosting, putCosting, getReorder, getProfit } from '../controllers/costingController.js'
@@ -102,6 +102,7 @@ router.put('/products/stock', can('stock.count'), validate(bulkStockSchema), bul
 // /summary before /:id.
 router.get('/sales/options', can('store.sell'), getSaleOptions)
 router.get('/sales/summary', can('store.sell'), getSalesSummary)
+router.get('/sales/customers', can('store.sell'), getTillCustomers)
 router.get('/sales', can('store.sell'), getSales)
 router.post('/sales', can('store.sell'), validate(createSaleSchema), postSale)
 router.get('/sales/:id', can('store.sell'), getSale)

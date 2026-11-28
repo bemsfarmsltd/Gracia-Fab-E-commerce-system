@@ -4,6 +4,7 @@ import Voucher from "../models/Voucher.js";
 import { pointsQueue, addToQueue } from "../queues/index.js";
 import { queryTransaction } from "./monnify.js";
 import logger from "../utils/logger.js";
+import { purchasePoints } from "./loyaltyPoints.js";
 
 // Monnify statuses that mean the customer paid at least the full amount.
 const PAID_STATUSES = new Set(["PAID", "OVERPAID"]);
@@ -148,7 +149,7 @@ export async function markOrderPaid(filter, paymentResult) {
   // Loyalty points (₦1 spent = 0.01 points, minimum 1 point).
   await addToQueue(pointsQueue, "purchase-points", {
     userId: order.user.toString(),
-    points: Math.max(1, Math.floor(order.totalPrice * 0.01)),
+    points: purchasePoints(order.totalPrice),
     reason: `Purchase #${order._id.toString().slice(-8).toUpperCase()}`,
   });
 

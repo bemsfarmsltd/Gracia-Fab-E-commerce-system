@@ -28,6 +28,10 @@ export function receiptText(sale) {
   if (sale.discount > 0) lines.push(`Subtotal: ${naira(sale.subtotal)}`, `Discount: −${naira(sale.discount)}`);
   lines.push(`Total: ${naira(sale.total)}`, `Paid by ${PAYMENT_LABELS[sale.paymentMethod] || sale.paymentMethod}`);
   if (sale.paymentMethod === "cash" && sale.change > 0) lines.push(`Change: ${naira(sale.change)}`);
+  if (sale.pointsAwarded > 0) {
+    lines.push("", `Loyalty points earned: +${sale.pointsAwarded}`);
+    if (sale.customerPoints !== undefined) lines.push(`Your points balance: ${sale.customerPoints}`);
+  }
   lines.push("", `Thank you for shopping with us. ${STORE.area}. ${STORE.phoneDisplay}`);
   return lines.join("\n");
 }

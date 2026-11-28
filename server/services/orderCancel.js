@@ -7,6 +7,7 @@ import { whatsappQueue, emailQueue, addToQueue } from "../queues/index.js";
 import { emailTemplates } from "./emailService.js";
 import { messages } from "./whatsappService.js";
 import logger from "../utils/logger.js";
+import { purchasePoints, takeBackPoints } from "./loyaltyPoints.js";
 
 export class OrderCancelError extends Error {}
 
@@ -16,7 +17,7 @@ const CANCELLABLE = ["pending", "paid", "processing"];
 const shortId = (order) => order._id.toString().slice(-8).toUpperCase();
 
 // Same formula markOrderPaid uses to award points.
-const pointsFor = (order) => Math.max(1, Math.floor(order.totalPrice * 0.01));
+const pointsFor = (order) => purchasePoints(order.totalPrice);
 
 // Puts stock back (recorded in the stock history against the order). Copes
 // with older products that have no stock field at all.
@@ -92,14 +93,7 @@ export async function cancelOrder(orderId, { reason, actor } = {}) {
       await Voucher.updateOne({ code: order.voucher.code, usedCount: { $gt: 0 } }, { $inc: { usedCount: -1 } });
     }
 
-    const points = pointsFor(order);
-    await User.updateOne({ _id: order.user }, [
-      { $set: { loyaltyPoints: { $max: [0, { $subtract: [{ $ifNull: ["$loyaltyPoints", 0] }, points] }] } } },
-    ]);
-    await User.updateOne(
-      { _id: order.user },
-      { $push: { pointsHistory: { points: -points, reason: `Order #${shortId(order)} cancelled`, type: "reversal" } } },
-    );
+    await takeBackPoints(order.user, pointsFor(order), `Order #${shortId(order)} cancelled`);
   }
 
   const id = shortId(order);

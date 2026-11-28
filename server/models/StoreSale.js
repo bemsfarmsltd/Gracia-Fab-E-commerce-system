@@ -29,6 +29,10 @@ const storeSaleSchema = new mongoose.Schema(
     paymentReference: String, // transfer / POS slip reference, optional
     customerName: String,
     customerPhone: String,
+    // A registered customer picked at the till earns loyalty points, the
+    // same as online (services/loyaltyPoints.js). Voiding takes them back.
+    customer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    pointsAwarded: { type: Number, default: 0 },
     note: String,
     soldBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     soldByName: String,
@@ -43,6 +47,7 @@ const storeSaleSchema = new mongoose.Schema(
 
 storeSaleSchema.index({ createdAt: -1 });
 storeSaleSchema.index({ soldBy: 1, createdAt: -1 });
+storeSaleSchema.index({ customer: 1, createdAt: -1 });
 storeSaleSchema.index({ status: 1, createdAt: -1 });
 
 export const saleNumber = (n) => `S-${String(n).padStart(6, "0")}`;

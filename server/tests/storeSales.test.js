@@ -8,6 +8,7 @@ import Product from "../models/Product.js";
 import StoreSale from "../models/StoreSale.js";
 import StockMovement from "../models/StockMovement.js";
 import Counter from "../models/Counter.js";
+import Order from "../models/Order.js";
 import generateToken from "../utils/generateToken.js";
 import { changeStock, reconcile } from "../services/stock.js";
 import { startOfLagosDay } from "../controllers/storeSaleController.js";
@@ -23,7 +24,7 @@ afterAll(async () => {
   await mongod.stop();
 });
 beforeEach(async () => {
-  await Promise.all([User.deleteMany({}), Product.deleteMany({}), StoreSale.deleteMany({}), StockMovement.deleteMany({}), Counter.deleteMany({})]);
+  await Promise.all([User.deleteMany({}), Product.deleteMany({}), StoreSale.deleteMany({}), StockMovement.deleteMany({}), Counter.deleteMany({}), Order.deleteMany({})]);
 });
 
 const bearer = (t) => ({ Authorization: `Bearer ${t}` });
@@ -198,5 +199,62 @@ describe("voiding and cashing up", () => {
     expect(s.body).toMatchObject({ canDiscount: false, canVoid: false });
     const o = await request(app).get("/api/admin/sales/options").set(bearer(tokenFor(md))).expect(200);
     expect(o.body).toMatchObject({ canDiscount: true, canVoid: true });
+  });
+});
+
+describe("loyalty points for shop sales", () => {
+  const customer = (o = {}) => User.create({ name: "Ngozi Okafor", email: "ngozi@example.com", password: "password123", ...o });
+
+  it("finds a customer at the till by name, email or a phone from an online order, never staff or the owner", async () => {
+    const t = tokenFor(await staff());
+    await owner();
+    const ngozi = await customer({ loyaltyPoints: 40 });
+    await Order.collection.insertOne({
+      user: ngozi._id, orderItems: [], totalPrice: 1, createdAt: new Date(),
+      deliveryAddress: { fullName: "Ngozi", phone: "+234 803 111 2233", address: "1", city: "Umuahia", state: "Abia" },
+    });
+    const find = async (q) => (await request(app).get(`/api/admin/sales/customers?q=${encodeURIComponent(q)}`).set(bearer(t)).expect(200)).body;
+
+    expect((await find("ngo"))[0]).toMatchObject({ name: "Ngozi Okafor", email: "ngozi@example.com", points: 40 });
+    expect((await find("ngozi@ex")).length).toBe(1);
+    // 0803 111 2233 and +234 803 111 2233 are the same number.
+    expect((await find("0803 111 2233"))[0]).toMatchObject({ name: "Ngozi Okafor", phone: "+234 803 111 2233" });
+    expect(await find("chioma")).toEqual([]); // staff
+    expect(await find("gracia")).toEqual([]); // owner
+    expect(await find("n")).toEqual([]); // too short
+    expect(await find(".*")).toEqual([]); // not a pattern
+  });
+
+  it("gives the customer points like an online order, shows them on the receipt, and takes them back on void", async () => {
+    const md = await owner();
+    const t = tokenFor(await staff());
+    const ngozi = await customer({ loyaltyPoints: 40 });
+    const shea = await product("Shea Body Butter", 7500, 10);
+
+    const res = await sell(t, { items: [{ productId: String(shea._id), quantity: 2 }], paymentMethod: "transfer", customerId: String(ngozi._id) }).expect(201);
+    // ₦15,000 → 150 points; the customer's name goes on the receipt.
+    expect(res.body).toMatchObject({ pointsAwarded: 150, customerPoints: 190, customerName: "Ngozi Okafor", customer: String(ngozi._id) });
+    let after = await User.findById(ngozi._id).lean();
+    expect(after.loyaltyPoints).toBe(190);
+    expect(after.pointsHistory.at(-1)).toMatchObject({ points: 150, reason: "Shop purchase S-000001", type: "earn" });
+
+    await request(app).post(`/api/admin/sales/${res.body._id}/void`).set(bearer(tokenFor(md))).send({ reason: "Rang up twice" }).expect(200);
+    after = await User.findById(ngozi._id).lean();
+    expect(after.loyaltyPoints).toBe(40);
+    expect(after.pointsHistory.at(-1)).toMatchObject({ points: -150, reason: "Shop purchase S-000001 voided", type: "reversal" });
+  });
+
+  it("gives no points without a customer, and refuses staff or unknown accounts as the customer", async () => {
+    const t = tokenFor(await staff());
+    const other = await staff("Ada", "ada@example.com");
+    const shea = await product("Shea Body Butter", 7500, 10);
+    const plain = await sell(t, { items: [{ productId: String(shea._id), quantity: 1 }], paymentMethod: "cash" }).expect(201);
+    expect(plain.body.pointsAwarded).toBe(0);
+    expect(plain.body.customerPoints).toBeUndefined();
+
+    await sell(t, { items: [{ productId: String(shea._id), quantity: 1 }], paymentMethod: "cash", customerId: String(other._id) }).expect(400);
+    await sell(t, { items: [{ productId: String(shea._id), quantity: 1 }], paymentMethod: "cash", customerId: String(new mongoose.Types.ObjectId()) }).expect(400);
+    // Nothing sold or taken for the refused ones.
+    expect((await Product.findById(shea._id)).stock).toBe(9);
   });
 });

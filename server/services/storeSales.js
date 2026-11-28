@@ -5,6 +5,10 @@ import { changeStock } from "./stock.js";
 import StockMovement from "../models/StockMovement.js";
 import { STORE_PAYMENT_METHOD_IDS } from "../config/storeSales.js";
 import logger from "../utils/logger.js";
+import User from "../models/User.js";
+import Order from "../models/Order.js";
+import { awardPoints } from "../controllers/loyaltyController.js";
+import { purchasePoints, takeBackPoints } from "./loyaltyPoints.js";
 
 export class SaleError extends Error {
   constructor(message, status = 400, details) {
@@ -34,6 +38,13 @@ export async function createSale(input, actor) {
   }
   const products = await Product.find({ _id: { $in: [...qtyById.keys()] } }).select("name price stock").lean();
   const byId = new Map(products.map((p) => [String(p._id), p]));
+  // Loyalty: only a customer account (not the owner or staff) earns points.
+  let customer = null;
+  if (input.customerId) {
+    customer = await User.findOne({ _id: input.customerId, isAdmin: { $ne: true }, role: { $ne: "staff" } }).select("name").lean();
+    if (!customer) throw new SaleError("That customer account wasn't found. Search for them again.");
+  }
+
   const missing = [...qtyById.keys()].filter((id) => !byId.has(id));
   if (missing.length) throw new SaleError("A product in this sale no longer exists. Remove it and try again.", 400, { missing });
 
@@ -74,8 +85,9 @@ export async function createSale(input, actor) {
     amountTendered: tendered,
     change,
     paymentReference: paymentReference || undefined,
-    customerName: customerName || undefined,
+    customerName: customerName || customer?.name || undefined,
     customerPhone: customerPhone || undefined,
+    customer: customer?._id,
     note: note || undefined,
     soldBy: actor._id,
     soldByName: actor.name,
@@ -102,7 +114,60 @@ export async function createSale(input, actor) {
 
   sale.status = "completed";
   await sale.save();
-  return sale;
+
+  // Points go on straight away (no background job), so the receipt can show
+  // them. A points hiccup never undoes a sale that's already been paid for.
+  let customerPoints;
+  if (customer) {
+    const points = purchasePoints(total);
+    try {
+      customerPoints = await awardPoints(customer._id, points, `Shop purchase ${saleNumber(number)}`);
+      sale.pointsAwarded = points;
+      await sale.save();
+    } catch (err) {
+      logger.error({ err, sale: sale._id }, "Couldn't award loyalty points for a shop sale");
+    }
+  }
+  return Object.assign(sale, { customerPoints });
+}
+
+// Registered customers for the till's loyalty search: by name, email, or a
+// phone number they've given on an online order. Staff, owners and blank
+// searches are left out.
+export async function findTillCustomers(q) {
+  const term = String(q || "").trim();
+  if (term.length < 2) return [];
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const digits = term.replace(/\D/g, "");
+  const or = [{ name: { $regex: escaped, $options: "i" } }, { email: { $regex: escaped, $options: "i" } }];
+  const phoneByUser = new Map();
+  if (digits.length >= 4) {
+    // Last digits, so 0803..., +234 803... and 803... all match.
+    const tail = digits.slice(-10);
+    const orders = await Order.find({ "deliveryAddress.phone": { $exists: true } })
+      .select("user deliveryAddress.phone createdAt")
+      .sort({ createdAt: -1 })
+      .limit(5000)
+      .lean();
+    for (const o of orders) {
+      const p = String(o.deliveryAddress?.phone || "").replace(/\D/g, "");
+      if (p && p.endsWith(tail) && o.user && !phoneByUser.has(String(o.user))) phoneByUser.set(String(o.user), o.deliveryAddress.phone);
+    }
+    if (phoneByUser.size) or.push({ _id: { $in: [...phoneByUser.keys()] } });
+  }
+  const users = await User.find({ isAdmin: { $ne: true }, role: { $ne: "staff" }, $or: or })
+    .select("name email loyaltyPoints loyaltyTier")
+    .sort({ name: 1 })
+    .limit(8)
+    .lean();
+  return users.map((u) => ({
+    _id: u._id,
+    name: u.name,
+    email: u.email,
+    phone: phoneByUser.get(String(u._id)) || null,
+    points: u.loyaltyPoints || 0,
+    tier: u.loyaltyTier || "bronze",
+  }));
 }
 
 // Owner only: undo a completed sale and put the stock back.
@@ -121,6 +186,9 @@ export async function voidSale(id, { reason }, actor) {
     const original = await StockMovement.findOne({ sale: sale._id, product: line.product, reason: "store_sale" }).select("+unitCost").lean();
     const back = await changeStock({ productId: line.product, change: line.quantity, reason: "store_void", sale: sale._id, actor, note: `${saleNumber(sale.number)} voided: ${reason}`, unitPrice: line.unitPrice, unitCost: original?.unitCost });
     if (!back) logger.error({ sale: sale._id, product: line.product }, "Couldn't return stock for a voided sale (product deleted?)");
+  }
+  if (sale.customer && sale.pointsAwarded > 0) {
+    await takeBackPoints(sale.customer, sale.pointsAwarded, `Shop purchase ${saleNumber(sale.number)} voided`);
   }
   return sale;
 }

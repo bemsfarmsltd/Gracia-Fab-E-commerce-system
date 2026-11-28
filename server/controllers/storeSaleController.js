@@ -1,5 +1,5 @@
 import StoreSale, { saleNumber } from "../models/StoreSale.js";
-import { createSale, voidSale, salesSummary, SaleError } from "../services/storeSales.js";
+import { createSale, voidSale, salesSummary, findTillCustomers, SaleError } from "../services/storeSales.js";
 import { STORE_PAYMENT_METHODS } from "../config/storeSales.js";
 import { hasPermission } from "../utils/roles.js";
 import { sendServerError } from "../utils/httpErrors.js";
@@ -54,11 +54,21 @@ export const postSale = async (req, res) => {
       targetType: "sale",
       targetId: String(sale._id),
       summary: `Shop sale ${saleNumber(sale.number)}: ${sale.items.map((i) => `${i.quantity}× ${i.name}`).join(", ")}, ${naira(sale.total)} by ${sale.paymentMethod}`,
-      changes: { total: sale.total, paymentMethod: sale.paymentMethod, items: sale.items.length },
+      changes: { total: sale.total, paymentMethod: sale.paymentMethod, items: sale.items.length, ...(sale.pointsAwarded ? { pointsAwarded: sale.pointsAwarded } : {}) },
     };
-    res.status(201).json(view(sale.toObject()));
+    // customerPoints: the customer's new balance, for the receipt.
+    res.status(201).json({ ...view(sale.toObject()), ...(sale.customerPoints !== undefined ? { customerPoints: sale.customerPoints } : {}) });
   } catch (error) {
     return fail(res, error, "postSale error");
+  }
+};
+
+// @route  GET /api/admin/sales/customers?q=  (loyalty: find the customer at the till)
+export const getTillCustomers = async (req, res) => {
+  try {
+    res.json(await findTillCustomers(req.query.q));
+  } catch (error) {
+    return fail(res, error, "getTillCustomers error");
   }
 };
 

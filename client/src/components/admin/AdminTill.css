@@ -960,3 +960,37 @@
 }
 @keyframes tillPaybarUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .till-paybar { animation: none; } }
+
+/* ── Loyalty customer ── */
+.till-loyalty { margin: 0.75rem 0 0; position: relative; }
+.till-loyalty label {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  font-size: 0.82rem; font-weight: 600; color: var(--text);
+}
+.till-loyalty input {
+  min-height: 44px; padding: 0.45rem 0.7rem; border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font: inherit; width: 100%; box-sizing: border-box;
+}
+.till-loyalty-none { margin: 0.4rem 0 0; font-size: 0.82rem; color: var(--text-muted); }
+.till-loyalty-results {
+  list-style: none; margin: 0.35rem 0 0; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+}
+.till-loyalty-results button {
+  width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 0.75rem; text-align: left;
+  min-height: 48px; padding: 0.4rem 0.6rem; border: none; border-radius: 8px; background: none; color: var(--text);
+  font: inherit; cursor: pointer;
+}
+.till-loyalty-results button:hover { background: var(--surface-2); }
+.till-loyalty-results strong { grid-column: 1; overflow-wrap: anywhere; }
+.till-loyalty-results span { grid-column: 1; font-size: 0.78rem; color: var(--text-muted); overflow-wrap: anywhere; }
+.till-loyalty-results .till-loyalty-pts { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--accent); font-weight: 700; font-size: 0.85rem; }
+.till-loyalty-picked {
+  margin: 0.75rem 0 0; display: flex; align-items: center; gap: 0.65rem;
+  padding: 0.55rem 0.75rem; border-radius: var(--radius-md);
+  background: var(--success-bg); border: 1px solid var(--border-soft);
+}
+.till-loyalty-star { color: #8A6A1F; font-size: 1.1rem; }
+.till-loyalty-who { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 0.85rem; color: var(--text); }
+.till-loyalty-who span { color: var(--text-muted); font-size: 0.8rem; }
+.till-loyalty-remove { min-height: 38px; padding: 0.3rem 0.9rem; font-size: 0.82rem; }
