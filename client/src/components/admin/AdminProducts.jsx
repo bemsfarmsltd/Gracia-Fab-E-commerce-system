@@ -18,6 +18,12 @@ const STOCK_FILTERS = [
   { id: "out-of-stock", label: "Out of Stock (0)" },
 ];
 
+const FIELD_LABELS = {
+  name: "Name", description: "Description", price: "Price", image: "Main image",
+  secondaryImage: "Second image", category: "Category", brand: "Brand", stock: "Stock",
+  tags: "Tags", isFeatured: "Featured",
+};
+
 const INITIAL_FORM = {
   name: "",
   description: "",
@@ -270,7 +276,11 @@ export default function AdminProducts({
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to save product");
+      if (!res.ok) {
+        // Say which field the server refused, not just "Validation failed".
+        const details = (data.errors || []).map((e) => `${FIELD_LABELS[e.path] || e.path}: ${e.message}`);
+        throw new Error(details.length ? `Please check: ${details.join("; ")}` : data.message || "Failed to save product");
+      }
 
       const successMsg = editProduct ? "Product updated successfully!" : "Product created successfully!";
       if (setAdminNotice) setAdminNotice(successMsg);

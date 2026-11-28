@@ -9,7 +9,12 @@ export const createProductSchema = z.object({
   category: z.string().trim().min(1, "Category is required"),
   brand: z.string().trim().optional(),
   stock: z.coerce.number().int().nonnegative().optional(),
-  tags: z.string().trim().optional(),
+  // "serum, glow" or ["serum", "glow"]; always stored as a list. The
+  // Products screen sends a list.
+  tags: z
+    .union([z.string(), z.array(z.string())])
+    .transform((v) => (Array.isArray(v) ? v : v.split(",")).map((t) => t.trim()).filter(Boolean))
+    .optional(),
   isFeatured: z.boolean().optional(),
 });
 

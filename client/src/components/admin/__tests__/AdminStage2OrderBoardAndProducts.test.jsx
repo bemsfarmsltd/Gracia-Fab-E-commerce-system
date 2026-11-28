@@ -471,6 +471,34 @@ describe("Admin Stage 2: Products Catalogue (Grid & List View)", () => {
     expect(fetchProducts).toHaveBeenCalled();
   });
 
+  it("says which field the server refused instead of a bare 'Validation failed'", async () => {
+    vi.spyOn(window, "fetch").mockResolvedValue({
+      ok: false,
+      json: async () => ({ message: "Validation failed", errors: [{ path: "price", message: "Price cannot be negative" }] }),
+    });
+    render(
+      <AdminProducts
+        products={mockProducts}
+        loading={false}
+        fetchProducts={fetchProducts}
+        formatPrice={formatPrice}
+        setAdminError={setAdminError}
+        setAdminNotice={setAdminNotice}
+        getHeaders={() => ({ Authorization: "Bearer token" })}
+      />
+    );
+    fireEvent.click(screen.getByTestId("add-product-btn"));
+    fireEvent.change(screen.getByLabelText(/Product Name \*/i), { target: { value: "New Argan Oil" } });
+    fireEvent.change(screen.getByLabelText(/Price \(₦\) \*/i), { target: { value: "9500" } });
+    fireEvent.change(screen.getByLabelText(/Primary Image URL \*/i), { target: { value: "https://example.com/oil.jpg" } });
+    fireEvent.change(screen.getByLabelText(/Brand \*/i), { target: { value: "Gracia Fab" } });
+    fireEvent.change(screen.getByLabelText(/Description \*/i), { target: { value: "Nourishing argan hair oil." } });
+    fireEvent.click(screen.getByRole("button", { name: /Create Product/i }));
+
+    expect(await screen.findByText(/Please check: Price: Price cannot be negative/)).toBeInTheDocument();
+    expect(fetchProducts).not.toHaveBeenCalled();
+  });
+
   it("opens Edit Product modal pre-filled and handles update", async () => {
     const fetchSpy = vi.spyOn(window, "fetch").mockResolvedValue({
       ok: true,

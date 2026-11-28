@@ -105,6 +105,26 @@ describe("product management", () => {
     expect((await request(app).delete(`/api/admin/products/${id}`).set(admin)).status).toBe(404);
   });
 
+  it("accepts exactly what the Products screen sends (tags as a list, blank optional fields)", async () => {
+    const admin = await register("admin@example.com", true);
+    // The body AdminProducts.jsx builds from a freshly filled-in form.
+    const fromScreen = {
+      name: "Shea Body Butter", description: "Rich whipped shea butter.", price: 7500,
+      image: newProduct.image, secondaryImage: "", category: "skincare", brand: "",
+      stock: 10, tags: [], isFeatured: false,
+    };
+    const created = await request(app).post("/api/admin/products").set(admin).send(fromScreen);
+    expect(created.status).toBe(201);
+    expect(created.body.tags).toEqual([]);
+
+    const id = created.body._id;
+    const edited = await request(app).put(`/api/admin/products/${id}`).set(admin).send({ ...fromScreen, tags: ["body", " shea "] });
+    expect(edited.status).toBe(200);
+    expect(edited.body.tags).toEqual(["body", "shea"]);
+    // Clearing the tags box clears the tags.
+    expect((await request(app).put(`/api/admin/products/${id}`).set(admin).send({ ...fromScreen, tags: [] })).body.tags).toEqual([]);
+  });
+
   it("rejects invalid products", async () => {
     const admin = await register("admin@example.com", true);
     const res = await request(app).post("/api/admin/products").set(admin).send({ ...newProduct, price: -5, name: "" });

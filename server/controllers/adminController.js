@@ -108,7 +108,7 @@ export const createProduct = async (req, res) => {
       category,
       brand,
       stock,
-      tags: tags ? tags.split(',').map(t => t.trim()) : [],
+      tags: tags || [],
       isFeatured: isFeatured || false,
       suitableFor: {}
     })
@@ -153,9 +153,7 @@ product.image = image ?? product.image
     product.brand = brand || product.brand
     // Stock isn't saved here: it changes through the stock service below so
     // the change is recorded in the stock history.
-    product.tags = tags
-      ? tags.split(',').map(t => t.trim())
-      : product.tags
+    product.tags = tags || product.tags
     product.isFeatured = isFeatured ?? product.isFeatured
 
     // Before/after for the activity log, read before saving.
