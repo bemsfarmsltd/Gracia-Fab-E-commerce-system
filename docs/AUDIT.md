@@ -2,15 +2,17 @@
 
 A shared, prioritized task list for every assistant on this repo (Claude Code, Antigravity, Codex). Claim an item in `docs/WORKING_NOW.md` before starting it, and tick it here in the same commit as the fix.
 
-## Status, 27 Nov 2026 (CC): start here
+## Status, 28 Nov 2026 (CC): start here
 
 Since the first audits: the site moved to **Hostinger** (graciafab.com, api.graciafab.com) and the database to the **company MongoDB Atlas** account; the admin became a separate app at `/admin` with staff accounts, 8-hour sign-ins, an activity log and a full inventory system (stock history, till, barcodes, stock take, suppliers and costs); guided tours and iPhone install were added. Anything below that says Render or Vercel now means Hostinger (settings: `docs/DEPLOYMENT.md`, check `https://api.graciafab.com/health`).
 
-Checked live just now: database connected; **payments still off** (Monnify keys missing); **16 of 89 products buyable**; **AI chat 503 and Routine Generator 500** (keys are set but rejected); WhatsApp (Twilio) not set; public vouchers GLOW05 and LUXE5K (no BEAUTY20).
+27–28 Nov: shop-till sales in the Overview and Sales pages (with a shop-sales spreadsheet); fixed **Create product failing with "Validation failed"** (the Products screen sent tags as a list); **MD-managed departments and categories** (new admin Categories screen, shop filter, starter list live); **loyalty points for shop sales**; MD guide v6.
+
+Checked live 28 Nov: database connected; **payments still off** (Monnify keys missing); **17 of 82 products buyable**; **1 of 82 sorted into a category**; AI recommendations still fall back to the rule-based answers (keys rejected); WhatsApp (Twilio) not set; `/health` still says `version: dev`.
 
 **P0: before taking real online orders**
 - [ ] **Monnify keys on Hostinger** (`YOU`/COO): `MONNIFY_API_KEY`, `MONNIFY_SECRET_KEY`, `MONNIFY_CONTRACT_CODE`; webhook URL `https://api.graciafab.com/api/webhooks/monnify` in the Monnify dashboard; then one real small test payment with CC watching.
-- [ ] **Real stock counts** (`MD`/staff): use Stock Take (scan the shelves, MD approves). Only 16 products can be bought.
+- [ ] **Real stock counts** (`MD`/staff): use Stock Take (scan the shelves, MD approves). Only 17 products can be bought.
 - [ ] **Rotate secrets that reached chat** (`YOU`): the Cloudinary API secret (24 Nov), the company MongoDB `gracia-fab-app` password (24 Nov), and, if not done yet, the earlier MongoDB, Vercel and COO GitHub passwords. Update Hostinger and `server/.env` after each.
 
 **P1: soon**
@@ -18,15 +20,19 @@ Checked live just now: database connected; **payments still off** (Monnify keys 
 - [ ] **WhatsApp updates off** (`YOU`): add the three `TWILIO_*` settings on Hostinger.
 - [ ] **Google sign-in on the new domain** (`YOU`): add `https://graciafab.com` and `https://www.graciafab.com` to the Google OAuth client's allowed origins, then try "Continue with Google".
 - [ ] **MD: enter cost prices** for stock already on the shelf (Suppliers & Costs → Costs & margins), or profit is incomplete.
+- [ ] **MD: sort products into categories** (Categories → Sort products into categories). Until then shoppers can filter by department only.
 - [ ] **Uptime monitor** (`YOU`): UptimeRobot (free) on `https://api.graciafab.com/health` every 5 min. It alerts on outages and keeps the API process awake for the hourly unpaid-order cleanup and the 10:00 marketing emails.
 - [ ] **Staging on Hostinger** (`YOU`/Henry): a second site from the `staging` branch with its own database and Monnify sandbox keys.
 - [ ] **DMARC to quarantine around 3 Dec** (`CC`), after two weeks of clean sending.
 - [ ] **Owner decisions** (`MD`): contact email, legal page wording, the "100% Authentic" badge, BEAUTY20, real photos for the hero.
 
 **P2: improvements CC can do next (ask)**
-- [ ] Shop-till sales in the Overview and Sales pages (today they're in the Till totals and the Profit report only).
-- [ ] Loyalty points for shop sales (match customers by phone number).
+- [x] Shop-till sales in the Overview and Sales pages (28 Nov).
+- [x] Loyalty points for shop sales (28 Nov): staff pick the customer's account at the till.
 - [ ] Show the deployed commit on `/health` (set `APP_VERSION` at build on Hostinger) so a deploy can be confirmed.
+- [ ] Teach the AI search and advisor the new departments and categories (they still know only skincare, haircare, wig, bridal). Worth doing with the AI-keys fix.
+- [ ] Home page and footer links for the new departments (Body care, Fragrance) once products are sorted (`AG`).
+- [ ] Shop loyalty for walk-in customers with no account: a quick sign-up at the till (name + phone), if the MD wants it.
 - [ ] Delete the old personal MongoDB cluster after **24 Dec** (kept as a fallback).
 
 **How this was checked:** CI checks run locally, `npm audit` on production dependencies, live checks against the production API (`gracia-fab.onrender.com`) and site (`gracia-fab.vercel.app`), a code and content scan, and an axe accessibility and performance pass in headless Chrome over five live pages at desktop and mobile sizes.
