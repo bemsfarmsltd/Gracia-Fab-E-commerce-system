@@ -1,4 +1,6 @@
 import Order from "../models/Order.js";
+import StoreSale, { saleNumber } from "../models/StoreSale.js";
+import { STORE_PAYMENT_METHODS, STORE_PAYMENT_METHOD_IDS } from "../config/storeSales.js";
 import { sendServerError } from "../utils/httpErrors.js";
 
 // Nigeria is on WAT (UTC+1) all year, with no daylight saving, so months and
@@ -19,8 +21,14 @@ function watMonthStart(now, monthsBack) {
 
 const monthKey = (date) => new Date(date.getTime() + WAT_OFFSET_MS).toISOString().slice(0, 7);
 
-// @desc   Sales by month and best-selling products
+// @desc   Sales by month and best-selling products: online orders plus
+//         completed shop-till sales (voided ones are left out).
 // @route  GET /api/admin/reports/sales?months=6
+//
+// Each month: revenue (online + shop), onlineRevenue, shopRevenue, orders
+// (paid online orders), shopSales (till receipts), itemsSold (both),
+// discounts (vouchers + till discounts), delivery (online only) and
+// averageOrder (online only). totals has the same fields plus shopByMethod.
 export const getSalesReport = async (req, res) => {
   try {
     const months = Math.min(Math.max(parseInt(req.query.months, 10) || 6, 1), 24);
@@ -29,8 +37,9 @@ export const getSalesReport = async (req, res) => {
     // When the sale happened: paidAt, or createdAt for older orders without it.
     const soldAt = { $ifNull: ["$paidAt", "$createdAt"] };
     const inPeriod = { ...SOLD, $expr: { $gte: [soldAt, start] } };
+    const shopInPeriod = { status: "completed", createdAt: { $gte: start } };
 
-    const [byMonth, topProducts] = await Promise.all([
+    const [byMonth, onlineProducts, shopByMonth, shopProducts, shopMethods] = await Promise.all([
       Order.aggregate([
         { $match: inPeriod },
         {
@@ -57,51 +66,104 @@ export const getSalesReport = async (req, res) => {
             orders: { $sum: 1 },
           },
         },
-        { $sort: { units: -1, sales: -1 } },
-        { $limit: 10 },
+      ]),
+      StoreSale.aggregate([
+        { $match: shopInPeriod },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m", date: "$createdAt", timezone: WAT } },
+            revenue: { $sum: "$total" },
+            sales: { $sum: 1 },
+            discounts: { $sum: { $ifNull: ["$discount", 0] } },
+            itemsSold: { $sum: { $sum: "$items.quantity" } },
+          },
+        },
+      ]),
+      StoreSale.aggregate([
+        { $match: shopInPeriod },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.product",
+            name: { $last: "$items.name" },
+            units: { $sum: "$items.quantity" },
+            // Line totals, before any till discount on the whole sale.
+            sales: { $sum: "$items.lineTotal" },
+            receipts: { $sum: 1 },
+          },
+        },
+      ]),
+      StoreSale.aggregate([
+        { $match: shopInPeriod },
+        { $group: { _id: "$paymentMethod", sales: { $sum: 1 }, total: { $sum: "$total" } } },
       ]),
     ]);
 
     // Every month in the period, including ones with no sales, oldest first.
     const found = new Map(byMonth.map((m) => [m._id, m]));
+    const shopFound = new Map(shopByMonth.map((m) => [m._id, m]));
     const monthRows = [];
     for (let i = months - 1; i >= 0; i -= 1) {
       const key = monthKey(watMonthStart(now, i));
-      const m = found.get(key);
+      const m = found.get(key) || {};
+      const s = shopFound.get(key) || {};
+      const onlineRevenue = m.revenue || 0;
+      const shopRevenue = s.revenue || 0;
       monthRows.push({
         month: key,
-        revenue: m?.revenue || 0,
-        orders: m?.orders || 0,
-        itemsSold: m?.itemsSold || 0,
-        discounts: m?.discounts || 0,
-        delivery: m?.delivery || 0,
-        averageOrder: m?.orders ? Math.round(m.revenue / m.orders) : 0,
+        revenue: onlineRevenue + shopRevenue,
+        onlineRevenue,
+        shopRevenue,
+        orders: m.orders || 0,
+        shopSales: s.sales || 0,
+        itemsSold: (m.itemsSold || 0) + (s.itemsSold || 0),
+        discounts: (m.discounts || 0) + (s.discounts || 0),
+        delivery: m.delivery || 0,
+        averageOrder: m.orders ? Math.round(onlineRevenue / m.orders) : 0,
       });
     }
 
-    const totals = monthRows.reduce(
-      (t, m) => ({
-        revenue: t.revenue + m.revenue,
-        orders: t.orders + m.orders,
-        itemsSold: t.itemsSold + m.itemsSold,
-        discounts: t.discounts + m.discounts,
-        delivery: t.delivery + m.delivery,
-      }),
-      { revenue: 0, orders: 0, itemsSold: 0, discounts: 0, delivery: 0 },
-    );
-    totals.averageOrder = totals.orders ? Math.round(totals.revenue / totals.orders) : 0;
+    const SUMMED = ["revenue", "onlineRevenue", "shopRevenue", "orders", "shopSales", "itemsSold", "discounts", "delivery"];
+    const totals = Object.fromEntries(SUMMED.map((k) => [k, monthRows.reduce((t, m) => t + m[k], 0)]));
+    totals.averageOrder = totals.orders ? Math.round(totals.onlineRevenue / totals.orders) : 0;
+    // Every till payment method in the till's order, plus any retired ones.
+    const byMethod = new Map(shopMethods.map((r) => [r._id, r]));
+    totals.shopByMethod = [
+      ...STORE_PAYMENT_METHODS.map(({ id, label }) => ({ method: id, label, sales: byMethod.get(id)?.sales || 0, total: byMethod.get(id)?.total || 0 })),
+      ...shopMethods
+        .filter((r) => !STORE_PAYMENT_METHOD_IDS.includes(r._id))
+        .map((r) => ({ method: r._id, label: r._id, sales: r.sales, total: r.total })),
+    ];
 
-    res.json({
-      months: monthRows,
-      totals,
-      topProducts: topProducts.map((p) => ({
-        productId: p._id,
-        name: p.name,
-        units: p.units,
-        sales: p.sales,
-        orders: p.orders,
-      })),
-    });
+    // Best sellers across both channels.
+    const products = new Map();
+    const entry = (p) => {
+      const id = String(p._id);
+      if (!products.has(id)) {
+        products.set(id, { productId: p._id, name: p.name, units: 0, onlineUnits: 0, shopUnits: 0, sales: 0, orders: 0, shopSales: 0 });
+      }
+      return products.get(id);
+    };
+    for (const p of onlineProducts) {
+      const e = entry(p);
+      e.name = p.name;
+      e.units += p.units;
+      e.onlineUnits += p.units;
+      e.sales += p.sales;
+      e.orders += p.orders;
+    }
+    for (const p of shopProducts) {
+      const e = entry(p);
+      e.units += p.units;
+      e.shopUnits += p.units;
+      e.sales += p.sales;
+      e.shopSales += p.receipts;
+    }
+    const topProducts = [...products.values()]
+      .sort((a, b) => b.units - a.units || b.sales - a.sales)
+      .slice(0, 10);
+
+    res.json({ months: monthRows, totals, topProducts });
   } catch (error) {
     return sendServerError(res, error, "getSalesReport error");
   }
@@ -123,6 +185,43 @@ const watDate = (d) => (d ? new Date(new Date(d).getTime() + WAT_OFFSET_MS).toIS
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 // "2026-11-01" as the start of that day in WAT.
 const watDayStart = (day) => new Date(`${day}T00:00:00${WAT}`);
+
+// Reads optional ?from=&to= ("YYYY-MM-DD", inclusive, WAT days) into a
+// createdAt filter, or { error } when the dates are no good.
+function createdRange({ from, to }) {
+  if ((from && !DAY.test(from)) || (to && !DAY.test(to))) {
+    return { error: "Dates must look like 2026-11-30" };
+  }
+  // JavaScript rolls impossible dates over (31 Feb → 3 Mar), so check the
+  // parsed date still reads back as the same day.
+  const realDay = (day) => {
+    if (!day) return true;
+    const noon = new Date(`${day}T12:00:00Z`);
+    return !Number.isNaN(noon.getTime()) && noon.toISOString().slice(0, 10) === day;
+  };
+  if (!realDay(from) || !realDay(to)) return { error: "That date doesn't exist" };
+  const created = {};
+  if (from) created.$gte = watDayStart(from);
+  if (to) created.$lt = new Date(watDayStart(to).getTime() + 24 * 60 * 60 * 1000);
+  if (created.$gte && created.$lt && created.$gte >= created.$lt) {
+    return { error: "The start date must be on or before the end date" };
+  }
+  return { filter: Object.keys(created).length ? { createdAt: created } : {} };
+}
+
+const rangeName = (base, { from, to }) => `${base}${from ? `-from-${from}` : ""}${to ? `-to-${to}` : ""}.csv`;
+
+function sendCsv(res, name, columns, rows) {
+  const lines = [
+    columns.map(([h]) => csvCell(h)).join(","),
+    ...rows.map((row) => columns.map(([, get]) => csvCell(get(row))).join(",")),
+  ];
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
+  res.setHeader("Cache-Control", "no-store");
+  // The BOM makes Excel read ₦ and other non-ASCII text correctly.
+  res.send("﻿" + lines.join("\r\n") + "\r\n");
+}
 
 const COLUMNS = [
   ["Order ID", (o) => o._id.toString().slice(-8).toUpperCase()],
@@ -153,44 +252,48 @@ const COLUMNS = [
 // @route  GET /api/admin/orders/export?from=YYYY-MM-DD&to=YYYY-MM-DD
 //         Both dates optional and inclusive, in WAT.
 export const exportOrdersCsv = async (req, res) => {
-  const { from, to } = req.query;
-  if ((from && !DAY.test(from)) || (to && !DAY.test(to))) {
-    return res.status(400).json({ message: "Dates must look like 2026-11-30" });
-  }
-  const created = {};
-  if (from) created.$gte = watDayStart(from);
-  if (to) created.$lt = new Date(watDayStart(to).getTime() + 24 * 60 * 60 * 1000);
-  // JavaScript rolls impossible dates over (31 Feb → 3 Mar), so check the
-  // parsed date still reads back as the same day.
-  const realDay = (day) => {
-    if (!day) return true;
-    const noon = new Date(`${day}T12:00:00Z`);
-    return !Number.isNaN(noon.getTime()) && noon.toISOString().slice(0, 10) === day;
-  };
-  if (!realDay(from) || !realDay(to)) {
-    return res.status(400).json({ message: "That date doesn't exist" });
-  }
-  if (created.$gte && created.$lt && created.$gte >= created.$lt) {
-    return res.status(400).json({ message: "The start date must be on or before the end date" });
-  }
-
+  const { filter, error } = createdRange(req.query);
+  if (error) return res.status(400).json({ message: error });
   try {
-    const orders = await Order.find(Object.keys(created).length ? { createdAt: created } : {})
-      .populate("user", "name email")
-      .sort({ createdAt: -1 })
-      .lean();
+    const orders = await Order.find(filter).populate("user", "name email").sort({ createdAt: -1 }).lean();
+    sendCsv(res, rangeName("gracia-fab-orders", req.query), COLUMNS, orders);
+  } catch (err) {
+    return sendServerError(res, err, "exportOrdersCsv error");
+  }
+};
 
-    const lines = [
-      COLUMNS.map(([h]) => csvCell(h)).join(","),
-      ...orders.map((o) => COLUMNS.map(([, get]) => csvCell(get(o))).join(",")),
-    ];
-    const name = `gracia-fab-orders${from ? `-from-${from}` : ""}${to ? `-to-${to}` : ""}.csv`;
-    res.setHeader("Content-Type", "text/csv; charset=utf-8");
-    res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
-    res.setHeader("Cache-Control", "no-store");
-    // The BOM makes Excel read ₦ and other non-ASCII text correctly.
-    res.send("﻿" + lines.join("\r\n") + "\r\n");
-  } catch (error) {
-    return sendServerError(res, error, "exportOrdersCsv error");
+const METHOD_LABELS = Object.fromEntries(STORE_PAYMENT_METHODS.map((m) => [m.id, m.label]));
+
+const SHOP_COLUMNS = [
+  ["Receipt", (s) => saleNumber(s.number)],
+  ["Sold (WAT)", (s) => watDate(s.createdAt)],
+  ["Sold by", (s) => s.soldByName || ""],
+  ["Items", (s) => s.items.map((i) => `${i.name} x${i.quantity}`).join("; ")],
+  ["Units", (s) => s.items.reduce((n, i) => n + i.quantity, 0)],
+  ["Subtotal (NGN)", (s) => s.subtotal],
+  ["Discount (NGN)", (s) => s.discount || 0],
+  ["Discount reason", (s) => s.discountReason || ""],
+  ["Total (NGN)", (s) => s.total],
+  ["Payment method", (s) => METHOD_LABELS[s.paymentMethod] || s.paymentMethod],
+  ["Payment reference", (s) => s.paymentReference || ""],
+  ["Customer", (s) => s.customerName || ""],
+  ["Customer phone", (s) => s.customerPhone || ""],
+  ["Status", (s) => s.status],
+  ["Voided (WAT)", (s) => watDate(s.voidedAt)],
+  ["Voided by", (s) => s.voidedByName || ""],
+  ["Void reason", (s) => s.voidReason || ""],
+];
+
+// @desc   Download shop-till sales as a CSV spreadsheet. Voided sales are
+//         included (see the Status column) so receipt numbers have no gaps.
+// @route  GET /api/admin/reports/shop-sales/export?from=YYYY-MM-DD&to=YYYY-MM-DD
+export const exportShopSalesCsv = async (req, res) => {
+  const { filter, error } = createdRange(req.query);
+  if (error) return res.status(400).json({ message: error });
+  try {
+    const sales = await StoreSale.find(filter).sort({ createdAt: -1 }).lean();
+    sendCsv(res, rangeName("gracia-fab-shop-sales", req.query), SHOP_COLUMNS, sales);
+  } catch (err) {
+    return sendServerError(res, err, "exportShopSalesCsv error");
   }
 };

@@ -10,7 +10,7 @@ import {
   uploadImage,
   bulkUpdateStock
 } from '../controllers/adminController.js'
-import { getSalesReport, exportOrdersCsv } from '../controllers/reportController.js'
+import { getSalesReport, exportOrdersCsv, exportShopSalesCsv } from '../controllers/reportController.js'
 import { updateOrderStatus, bulkUpdateOrderStatus, cancelOrderHandler, markRefundedHandler } from '../controllers/orderController.js'
 import { getOverview } from '../controllers/adminOverviewController.js'
 import { getCustomers, getCustomerDetail, postCustomerNote, removeCustomerNote } from '../controllers/customerController.js'
@@ -75,6 +75,7 @@ router.delete('/staff/:id', can('staff.manage'), removeStaff)
 router.get('/stats', can('reports'), getDashboardStats)
 router.get('/overview', can('reports'), getOverview)
 router.get('/reports/sales', can('reports'), getSalesReport)
+router.get('/reports/shop-sales/export', can('reports'), exportShopSalesCsv)
 router.get('/orders', can('orders.view'), getAllOrders)
 router.get('/orders/export', can('customers.export'), exportOrdersCsv)
 // Must come before /orders/:id so "status" isn't read as an order id.

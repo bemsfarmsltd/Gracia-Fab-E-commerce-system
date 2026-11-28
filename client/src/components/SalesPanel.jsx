@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import API_URL from "../config";
-import { downloadOrdersCsv } from "../utils/adminDownload";
+import { downloadOrdersCsv, downloadShopSalesCsv } from "../utils/adminDownload";
 import "./SalesPanel.css";
 
 const PERIODS = [3, 6, 12];
@@ -17,8 +17,9 @@ const monthLabel = (key) => {
 // Today in Nigeria (WAT, UTC+1) as YYYY-MM-DD, and the 1st of this month.
 const watToday = () => new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 10);
 
-// Admin dashboard → Sales tab: paid sales by month, best sellers, and an
-// order spreadsheet export. Refunded (cancelled) orders aren't counted.
+// Admin dashboard → Sales tab: paid online orders plus completed shop-till
+// sales by month, best sellers across both, how the till was paid, and
+// spreadsheet exports. Refunded orders and voided till sales aren't counted.
 function SalesPanel() {
   const [months, setMonths] = useState(6);
   const [report, setReport] = useState(null);
@@ -48,12 +49,12 @@ function SalesPanel() {
     load();
   }, [load]);
 
-  const handleExport = async (range) => {
+  const handleExport = async (range, download = downloadOrdersCsv) => {
     setExporting(true);
     setExportNote("");
     setError("");
     try {
-      const name = await downloadOrdersCsv(range);
+      const name = await download(range);
       setExportNote(`Downloaded ${name}`);
     } catch (err) {
       setError(err.message);
@@ -63,6 +64,8 @@ function SalesPanel() {
   };
 
   const best = Math.max(1, ...(report?.months || []).map((m) => m.revenue));
+  // Older API responses had no shop fields.
+  const totals = { onlineRevenue: 0, shopRevenue: 0, shopSales: 0, shopByMethod: [], ...report?.totals };
 
   return (
     <div className="admin-content sales">
@@ -94,28 +97,36 @@ function SalesPanel() {
               <div className="stat-icon">💰</div>
               <div>
                 <p className="stat-label">Revenue ({months} months)</p>
-                <h2 className="stat-value">{naira(report.totals.revenue)}</h2>
+                <h2 className="stat-value">{naira(totals.revenue)}</h2>
+                <p className="sales-stat-note" data-testid="sales-split">
+                  Online {naira(totals.onlineRevenue)} · Shop till {naira(totals.shopRevenue)}
+                </p>
               </div>
             </div>
             <div className="stat-card">
               <div className="stat-icon">📦</div>
               <div>
-                <p className="stat-label">Paid orders</p>
-                <h2 className="stat-value">{report.totals.orders}</h2>
+                <p className="stat-label">Paid online orders</p>
+                <h2 className="stat-value">{totals.orders}</h2>
+                <p className="sales-stat-note">
+                  {totals.orders ? `Average ${naira(totals.averageOrder)}` : "No paid orders yet"}
+                </p>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">🛍️</div>
+              <div>
+                <p className="stat-label">Shop sales</p>
+                <h2 className="stat-value">{totals.shopSales}</h2>
+                <p className="sales-stat-note">Receipts from the till</p>
               </div>
             </div>
             <div className="stat-card">
               <div className="stat-icon">🧴</div>
               <div>
                 <p className="stat-label">Items sold</p>
-                <h2 className="stat-value">{report.totals.itemsSold}</h2>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">🧾</div>
-              <div>
-                <p className="stat-label">Average order</p>
-                <h2 className="stat-value">{naira(report.totals.averageOrder)}</h2>
+                <h2 className="stat-value">{totals.itemsSold}</h2>
+                <p className="sales-stat-note">Online and in the shop</p>
               </div>
             </div>
           </div>
@@ -123,18 +134,22 @@ function SalesPanel() {
           <div className="admin-section">
             <h2>By month</h2>
             <p className="sales-note">
-              Paid orders only, by the day they were paid (Nigerian time). Revenue is what customers paid,
-              including delivery and after vouchers. Cancelled and refunded orders aren't counted.
+              Online orders count on the day they were paid, shop sales on the day they were rung up at the till
+              (Nigerian time). Online revenue is what customers paid, including delivery and after vouchers.
+              Cancelled or refunded orders and voided till sales aren't counted.
             </p>
             <table className="admin-table sales-table">
               <thead>
                 <tr>
                   <th>Month</th>
                   <th>Revenue</th>
-                  <th>Orders</th>
+                  <th>Online</th>
+                  <th>Shop till</th>
+                  <th>Online orders</th>
+                  <th>Shop sales</th>
                   <th>Items</th>
-                  <th>Average order</th>
-                  <th>Vouchers</th>
+                  <th>Average online order</th>
+                  <th>Discounts</th>
                   <th>Delivery fees</th>
                 </tr>
               </thead>
@@ -150,7 +165,10 @@ function SalesPanel() {
                         </span>
                       </div>
                     </td>
+                    <td>{naira(m.onlineRevenue)}</td>
+                    <td>{naira(m.shopRevenue)}</td>
                     <td>{m.orders}</td>
+                    <td>{m.shopSales || 0}</td>
                     <td>{m.itemsSold}</td>
                     <td>{m.orders ? naira(m.averageOrder) : "—"}</td>
                     <td>{m.discounts ? `−${naira(m.discounts)}` : "—"}</td>
@@ -159,12 +177,15 @@ function SalesPanel() {
                 ))}
               </tbody>
             </table>
+            <p className="sales-note sales-note-after">
+              Discounts are online vouchers plus discounts given at the till.
+            </p>
           </div>
 
           <div className="admin-section">
             <h2>Best sellers ({months} months)</h2>
             {report.topProducts.length === 0 ? (
-              <p className="sales-note">No paid sales in this period yet.</p>
+              <p className="sales-note">No sales in this period yet.</p>
             ) : (
               <table className="admin-table sales-table">
                 <thead>
@@ -172,8 +193,9 @@ function SalesPanel() {
                     <th>#</th>
                     <th>Product</th>
                     <th>Units sold</th>
-                    <th>Orders</th>
-                    <th>Sales before vouchers</th>
+                    <th>Online</th>
+                    <th>Shop</th>
+                    <th>Sales before discounts</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -182,8 +204,35 @@ function SalesPanel() {
                       <td>{i + 1}</td>
                       <td>{p.name}</td>
                       <td>{p.units}</td>
-                      <td>{p.orders}</td>
+                      <td>{p.onlineUnits ?? p.units}</td>
+                      <td>{p.shopUnits ?? 0}</td>
                       <td>{naira(p.sales)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          <div className="admin-section">
+            <h2>How the till was paid ({months} months)</h2>
+            {totals.shopSales === 0 ? (
+              <p className="sales-note">No shop sales in this period yet.</p>
+            ) : (
+              <table className="admin-table sales-table sales-methods">
+                <thead>
+                  <tr>
+                    <th>Payment</th>
+                    <th>Sales</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {totals.shopByMethod.map((m) => (
+                    <tr key={m.method}>
+                      <td>{m.label}</td>
+                      <td>{m.sales}</td>
+                      <td>{naira(m.total)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -194,10 +243,11 @@ function SalesPanel() {
       )}
 
       <div className="admin-section sales-export">
-        <h2>Export orders</h2>
+        <h2>Download spreadsheets</h2>
         <p className="sales-note">
-          A spreadsheet (CSV, opens in Excel or Google Sheets) of orders placed between these dates, paid or not,
-          with customer, delivery, items, vouchers, payment and status.
+          Spreadsheets (CSV, open in Excel or Google Sheets) for the dates below. Orders: online orders placed,
+          paid or not, with customer, delivery, items, vouchers, payment and status. Shop sales: every till
+          receipt, with who sold it, items, discount, how it was paid, and voided receipts marked.
         </p>
         <div className="sales-export-row">
           <label>
@@ -223,6 +273,14 @@ function SalesPanel() {
             onClick={() => handleExport({})}
           >
             All orders
+          </button>
+          <button
+            type="button"
+            className="btn-admin-save"
+            disabled={exporting}
+            onClick={() => handleExport({ from, to }, downloadShopSalesCsv)}
+          >
+            ⬇ Download shop sales
           </button>
         </div>
         {exportNote && <p className="sales-note" role="status">✅ {exportNote}</p>}

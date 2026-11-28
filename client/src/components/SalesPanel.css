@@ -68,3 +68,28 @@
     overflow-x: auto;
   }
 }
+
+.sales-stat-note {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.sales-note-after {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+}
+
+.sales-methods {
+  max-width: 520px;
+}
+
+/* Small enough to fit a phone, so it doesn't need the sideways scroll. */
+@media (max-width: 640px) {
+  .sales-table.sales-methods {
+    display: table;
+    width: 100%;
+    max-width: none;
+  }
+}
